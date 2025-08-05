@@ -1,334 +1,425 @@
-<html><head>
-    <title>我的网站</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- 预连接关键域名，减少连接建立时间 -->
-    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
-    <link rel="preconnect" href="https://picsum.photos">
+<!-- 异步加载Font Awesome -->
+
+&#x3C;link rel=&#x22;stylesheet&#x22; href=&#x22;https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css&#x22; media=&#x22;print&#x22; onload=&#x22;this.media=&#x27;all&#x27;&#x22;&#x3E;
+
+&#x3C;style&#x3E;
+    :root {
+        --primary-color: #3498db;
+        --secondary-color: #9b59b6;
+        --accent-color: #e74c3c;
+        --light-gray: #f5f7fa;
+        --text-color: #333;
+    }
     
-    <!-- 异步加载Font Awesome，非阻塞渲染 -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'">
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
     
-    <!-- 内联关键CSS，避免额外请求 -->
-    <style>
-        :root {
-            --primary-color: #3498db;
-            --primary-dark: #2980b9;
-            --secondary-color: #2c3e50;
-            --light-gray: #f5f7fa;
-            --medium-gray: #eaecef;
-            --dark-gray: #7f8c8d;
-        }
-        
+    body {
+        font-family: &#x27;Segoe UI&#x27;, Tahoma, Geneva, Verdana, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 40px 20px;
+        color: var(--text-color);
+        line-height: 1.6;
+        min-height: 100vh;
+        overflow-x: hidden;
+        position: relative;
+    }
+    
+    /* &#x52A8;&#x6001;&#x6E10;&#x53D8;&#x80CC;&#x666F; */
+    .bg-animation {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        background: linear-gradient(45deg, #4158d0, #c850c0, #ffcc70);
+        background-size: 400% 400%;
+        animation: gradientBG 15s ease infinite;
+        filter: brightness(0.95);
+    }
+    
+    @keyframes gradientBG {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+    
+    /* &#x566A;&#x70B9;&#x7EB9;&#x7406;&#x53E0;&#x52A0; */
+    .bg-animation::after {
+        content: &#x22;&#x22;;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url(&#x22;data:image/svg+xml,%3Csvg viewBox=&#x27;0 0 200 200&#x27; xmlns=&#x27;http://www.w3.org/2000/svg&#x27;%3E%3Cfilter id=&#x27;noiseFilter&#x27;%3E%3CfeTurbulence type=&#x27;fractalNoise&#x27; baseFrequency=&#x27;0.65&#x27; numOctaves=&#x27;3&#x27; stitchTiles=&#x27;stitch&#x27;/%3E%3C/filter%3E%3Crect width=&#x27;100%25&#x27; height=&#x27;100%25&#x27; filter=&#x27;url(%23noiseFilter)&#x27; opacity=&#x27;0.1&#x27;/%3E%3C/svg%3E&#x22;);
+        pointer-events: none;
+    }
+    
+    .container {
+        background-color: rgba(255, 255, 255, 0.9);
+        padding: 60px;
+        border-radius: 16px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+        backdrop-filter: blur(10px);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .container:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 45px rgba(0, 0, 0, 0.2);
+    }
+    
+    .container::before {
+        content: &#x27;&#x27;;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 6px;
+        background: linear-gradient(90deg, var(--primary-color), var(--secondary-color), var(--accent-color));
+        background-size: 200% 100%;
+        animation: headerGradient 5s ease infinite;
+    }
+    
+    @keyframes headerGradient {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+    
+    header {
+        text-align: center;
+        margin-bottom: 40px;
+        padding-bottom: 25px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .profile-pic {
+        width: 140px;
+        height: 140px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin: 0 auto 25px;
+        border: 5px solid white;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+        transition: transform 0.5s ease;
+        background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+        padding: 3px;
+    }
+    
+    .profile-pic img {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+    
+    .profile-pic:hover {
+        transform: scale(1.05) rotate(5deg);
+    }
+    
+    /* &#x70AB;&#x5F69;&#x6587;&#x5B57;&#x6548;&#x679C; */
+    .glow-text {
+        background: linear-gradient(90deg, var(--primary-color), var(--secondary-color), var(--accent-color));
+        background-size: 200% 100%;
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        animation: textGradient 5s ease infinite;
+        position: relative;
+    }
+    
+    @keyframes textGradient {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+    
+    .glow-text::after {
+        content: attr(data-text);
+        position: absolute;
+        left: 0;
+        top: 0;
+        z-index: -1;
+        filter: blur(10px);
+        opacity: 0.3;
+    }
+    
+    h1 {
+        font-size: 2.5rem;
+        margin-bottom: 15px;
+        letter-spacing: -0.5px;
+        transition: all 0.4s ease;
+    }
+    
+    h1:hover {
+        transform: scale(1.05);
+    }
+    
+    .subtitle {
+        color: #666;
+        font-size: 1.2rem;
+        font-weight: 400;
+        margin-top: 20px;
+        transition: all 0.3s ease;
+        position: relative;
+        display: inline-block;
+    }
+    
+    .subtitle:hover {
+        color: var(--primary-color);
+        transform: scale(1.05);
+    }
+    
+    .intro {
+        margin-bottom: 35px;
+        font-size: 1.1rem;
+        line-height: 1.8;
+        text-align: justify;
+    }
+    
+    .intro span {
+        transition: all 0.3s ease;
+        position: relative;
+        padding: 0 2px;
+    }
+    
+    .intro span:hover {
+        color: var(--primary-color);
+        font-size: 1.1em;
+        font-weight: 500;
+    }
+    
+    .tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin: 35px 0;
+        justify-content: center;
+    }
+    
+    .tag {
+        background: linear-gradient(135deg, rgba(255,255,255,0.8), rgba(255,255,255,0.4));
+        color: var(--text-color);
+        padding: 7px 16px;
+        border-radius: 25px;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+    }
+    
+    .tag:hover {
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        color: white;
+        transform: translateY(-3px) scale(1.05);
+        box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+    }
+    
+    .contact-section {
+        background: linear-gradient(135deg, rgba(255,255,255,0.8), rgba(255,255,255,0.4));
+        padding: 30px;
+        border-radius: 12px;
+        margin-top: 35px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border-left: 4px solid;
+        border-image: linear-gradient(to bottom, var(--primary-color), var(--secondary-color)) 1;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    }
+    
+    .contact-section:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+    }
+    
+    .contact-title {
+        color: var(--text-color);
+        margin-bottom: 20px;
+        font-size: 1.4rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        transition: all 0.3s ease;
+    }
+    
+    .contact-title:hover {
+        color: var(--primary-color);
+        transform: scale(1.02);
+    }
+    
+    .contact-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: var(--primary-color);
+        text-decoration: none;
+        transition: all 0.3s ease;
+        padding: 8px 0;
+        font-size: 1.05rem;
+    }
+    
+    .contact-info:hover {
+        color: var(--secondary-color);
+        padding-left: 8px;
+        transform: scale(1.03);
+    }
+    
+    .contact-info i {
+        font-size: 1.2rem;
+    }
+    
+    .social-links {
+        margin-top: 50px;
+        display: flex;
+        justify-content: center;
+        gap: 30px;
+    }
+    
+    .social-link {
+        color: var(--text-color);
+        font-size: 1.9rem;
+        transition: all 0.4s ease;
+        position: relative;
+        width: 55px;
+        height: 55px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.7);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    .social-link:hover {
+        transform: translateY(-8px) scale(1.15);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    }
+    
+    .social-link.github:hover {
+        color: #333;
+        background: rgba(255, 255, 255, 0.9);
+    }
+    
+    .social-link.twitter:hover {
+        color: #1da1f2;
+        background: rgba(255, 255, 255, 0.9);
+    }
+    
+    .social-link.linkedin:hover {
+        color: #0077b5;
+        background: rgba(255, 255, 255, 0.9);
+    }
+    
+    footer {
+        text-align: center;
+        margin-top: 60px;
+        color: #777;
+        font-size: 0.95rem;
+        padding-top: 25px;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        position: relative;
+        transition: all 0.3s ease;
+    }
+    
+    footer:hover {
+        color: var(--text-color);
+        transform: scale(1.02);
+    }
+    
+    footer::before {
+        content: &#x27;&#x27;;
+        position: absolute;
+        top: -18px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 45px;
+        height: 6px;
+        background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+        border-radius: 3px;
+        background-size: 200% 100%;
+        animation: headerGradient 5s ease infinite;
+    }
+    
+    /* &#x97F3;&#x4E50;&#x63A7;&#x5236;&#x60AC;&#x6D6E;&#x7A97; */
+    .music-control {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        z-index: 1000;
+        border: none;
+        outline: none;
+    }
+    
+    .music-control:hover {
+        transform: scale(1.1) rotate(5deg);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+    }
+    
+    .music-control i {
+        font-size: 1.5rem;
+    }
+    
+    html {
+        scroll-behavior: smooth;
+    }
+    
+    /* &#x6027;&#x80FD;&#x4F18;&#x5316;&#xFF1A;&#x5EF6;&#x8FDF;&#x52A0;&#x8F7D;&#x975E;&#x5173;&#x952E;&#x52A8;&#x753B; */
+    @media (prefers-reduced-motion: reduce) {
         * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
+            animation: none !important;
+            transition: none !important;
         }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 40px 20px;
-            color: #333;
-            line-height: 1.6;
-            background-color: var(--light-gray);
-            background-image: 
-                radial-gradient(rgba(52, 152, 219, 0.1) 1px, transparent 1px),
-                radial-gradient(rgba(52, 152, 219, 0.05) 1px, transparent 1px);
-            background-size: 50px 50px;
-            background-position: 0 0, 25px 25px;
-        }
-        
+    }
+    
+    @media (max-width: 600px) {
         .container {
-            background-color: white;
-            padding: 60px;
+            padding: 40px 25px;
             border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-            position: relative;
-            overflow: hidden;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
         
-        .container::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 5px;
-            background: linear-gradient(90deg, var(--primary-color), #e74c3c);
-        }
-        
-        .container:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
-        }
-        
-        header {
-            text-align: center;
-            margin-bottom: 40px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid var(--medium-gray);
+        h1 {
+            font-size: 2.1rem;
         }
         
         .profile-pic {
             width: 120px;
             height: 120px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin: 0 auto 20px;
-            border: 4px solid white;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease;
-        }
-        
-        .profile-pic:hover {
-            transform: scale(1.05);
-        }
-        
-        h1 {
-            color: var(--secondary-color);
-            font-size: 2.2rem;
-            margin-bottom: 10px;
-            letter-spacing: -0.5px;
-            position: relative;
-            display: inline-block;
-        }
-        
-        h1::after {
-            content: '';
-            position: absolute;
-            bottom: -8px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 60px;
-            height: 3px;
-            background-color: var(--primary-color);
-            border-radius: 3px;
-        }
-        
-        .subtitle {
-            color: #666;
-            font-size: 1.1rem;
-            font-weight: 400;
-            margin-top: 20px;
-        }
-        
-        .intro {
-            margin-bottom: 30px;
-            font-size: 1.05rem;
-            line-height: 1.8;
-        }
-        
-        .tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin: 30px 0;
-        }
-        
-        .tag {
-            background-color: var(--light-gray);
-            color: var(--secondary-color);
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
-        }
-        
-        .tag:hover {
-            background-color: var(--primary-color);
-            color: white;
-            transform: translateY(-2px);
-        }
-        
-        .contact-section {
-            background-color: var(--light-gray);
-            padding: 25px;
-            border-radius: 8px;
-            margin-top: 30px;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        
-        .contact-section:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-        }
-        
-        .contact-title {
-            color: var(--secondary-color);
-            margin-bottom: 15px;
-            font-size: 1.3rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .contact-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: var(--primary-color);
-            text-decoration: none;
-            transition: all 0.3s ease;
-            padding: 5px 0;
-        }
-        
-        .contact-info:hover {
-            color: var(--primary-dark);
-            padding-left: 5px;
-        }
-        
-        .social-links {
-            margin-top: 40px;
-            display: flex;
-            justify-content: center;
-            gap: 25px;
         }
         
         .social-link {
-            color: var(--secondary-color);
-            font-size: 1.8rem;
-            transition: all 0.3s ease;
-            position: relative;
+            font-size: 1.6rem;
             width: 50px;
             height: 50px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
         }
         
-        .social-link::before {
-            content: '';
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background-color: var(--light-gray);
-            border-radius: 50%;
-            transition: all 0.3s ease;
-            z-index: -1;
+        .contact-section {
+            padding: 20px;
         }
         
-        .social-link:hover {
-            color: white;
-            transform: translateY(-5px) scale(1.1);
+        .music-control {
+            width: 50px;
+            height: 50px;
+            bottom: 20px;
+            right: 20px;
         }
-        
-        .social-link:hover::before {
-            background-color: var(--primary-color);
-            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
-        }
-        
-        .social-link.github:hover::before {
-            background-color: #333;
-        }
-        
-        .social-link.twitter:hover::before {
-            background-color: #1da1f2;
-        }
-        
-        .social-link.linkedin:hover::before {
-            background-color: #0077b5;
-        }
-        
-        footer {
-            text-align: center;
-            margin-top: 50px;
-            color: var(--dark-gray);
-            font-size: 0.9rem;
-            padding-top: 20px;
-            border-top: 1px solid var(--medium-gray);
-            position: relative;
-        }
-        
-        footer::before {
-            content: '';
-            position: absolute;
-            top: -15px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 40px;
-            height: 5px;
-            background-color: var(--primary-color);
-            border-radius: 3px;
-        }
-        
-        html {
-            scroll-behavior: smooth;
-        }
-        
-        @media (max-width: 600px) {
-            .container {
-                padding: 30px 20px;
-            }
-            
-            h1 {
-                font-size: 1.8rem;
-            }
-            
-            .profile-pic {
-                width: 100px;
-                height: 100px;
-            }
-            
-            .social-link {
-                font-size: 1.5rem;
-                width: 40px;
-                height: 40px;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <header>
-            <!-- 图片添加尺寸属性和懒加载 -->
-            <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/code_assistant/f53f90eb4dd44712b85c0508b1f0bf88~tplv-a9rns2rl98-image.image?rcl=202508051910538CB0C5843CC28A1B3E3E&amp;rk3s=8e244e95&amp;rrcfp=e75484ac&amp;x-expires=1754997053&amp;x-signature=R9ui6n%2FA7J7fvBSi7M5iwxuQEHQ%3D" alt="个人头像" class="profile-pic" width="120" height="120" loading="lazy">
-            <h1>欢迎来到我的网站！</h1>
-            <p class="subtitle">探索、分享与连接的空间</p>
-        </header>
-        
-        <main>
-            <p class="intro">
-                这是一个公开网站，任何人都可以通过链接访问！这里会分享我的项目、想法和学习历程。
-                我热衷于技术探索和创新实践，希望通过这个平台与更多志同道合的朋友交流学习。
-            </p>
-            
-            <div class="tags">
-                <span class="tag">Python</span>
-                <span class="tag">人工智能</span>
-            </div>
-            
-            <div class="contact-section">
-                <h2 class="contact-title">
-                    <i class="fas fa-paper-plane"></i> 联系方式
-                </h2>
-                <a href="mailto:onyes5634@163.com" class="contact-info">
-                    <i class="fas fa-envelope"></i>
-                    <span>onyes5634@163.com</span>
-                </a>
-            </div>
-        </main>
-        
-        <div class="social-links">
-            <a href="https://github.com/onyes5634" class="social-link github" title="GitHub">
-                <i class="fab fa-github"></i>
-            </a>
-            <a href="#" class="social-link twitter" title="Twitter">
-                <i class="fab fa-twitter"></i>
-            </a>
-            <a href="#" class="social-link linkedin" title="LinkedIn">
-                <i class="fab fa-linkedin"></i>
-            </a>
-        </div>
-        
-        <footer>
-            <p>© 2025 我的网站 | 托管于 GitHub Pages</p>
-        </footer>
-    </div>
-
-
-    </body></html>
+    }
+&#x3C;/style&#x3E;
