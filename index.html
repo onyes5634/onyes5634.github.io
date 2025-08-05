@@ -3,15 +3,165 @@
 <head>
     <title>我的网站</title>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { font-family: Arial; max-width: 800px; margin: 0 auto; padding: 20px; }
-        h1 { color: #2c3e50; }
-        .intro { line-height: 1.6; }
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2c3e50;
+            --light-gray: #f5f7fa;
+            --medium-gray: #eaecef;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            color: #333;
+            line-height: 1.6;
+            background-color: var(--light-gray);
+        }
+        
+        .container {
+            background-color: white;
+            padding: 60px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--medium-gray);
+        }
+        
+        h1 {
+            color: var(--secondary-color);
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            letter-spacing: -0.5px;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 1.1rem;
+            font-weight: 400;
+        }
+        
+        .intro {
+            margin-bottom: 30px;
+            font-size: 1.05rem;
+        }
+        
+        .contact-section {
+            background-color: var(--light-gray);
+            padding: 25px;
+            border-radius: 8px;
+            margin-top: 30px;
+        }
+        
+        .contact-title {
+            color: var(--secondary-color);
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+        
+        .contact-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .contact-info:hover {
+            color: #2980b9;
+        }
+        
+        .social-links {
+            margin-top: 40px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+        
+        .social-link {
+            color: var(--secondary-color);
+            font-size: 1.5rem;
+            transition: color 0.3s ease, transform 0.3s ease;
+        }
+        
+        .social-link:hover {
+            color: var(--primary-color);
+            transform: translateY(-3px);
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            color: #777;
+            font-size: 0.9rem;
+            padding-top: 20px;
+            border-top: 1px solid var(--medium-gray);
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 30px 20px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+        }
     </style>
 </head>
 <body>
-    <h1>欢迎来到我的网站！</h1>
-    <p class="intro">这是一个公开网站，任何人都可以通过链接访问！</p>
-    <p>我的联系方式：onyes5634@163.com</p>
+    <div class="container">
+        <header>
+            <h1>欢迎来到我的网站！</h1>
+            <p class="subtitle">探索、分享与连接的空间</p>
+        </header>
+        
+        <main>
+            <p class="intro">
+                这是一个公开网站，任何人都可以通过链接访问！这里会分享我的项目、想法和学习历程。
+                如果你对我的内容感兴趣，或者有任何合作想法，欢迎随时联系我。
+            </p>
+            
+            <div class="contact-section">
+                <h2 class="contact-title">联系方式</h2>
+                <a href="mailto:onyes5634@163.com" class="contact-info">
+                    <i class="fas fa-envelope"></i>
+                    <span>onyes5634@163.com</span>
+                </a>
+            </div>
+        </main>
+        
+        <div class="social-links">
+            <a href="https://github.com/onyes5634" class="social-link" title="GitHub">
+                <i class="fab fa-github"></i>
+            </a>
+            <a href="#" class="social-link" title="Twitter">
+                <i class="fab fa-twitter"></i>
+            </a>
+            <a href="#" class="social-link" title="LinkedIn">
+                <i class="fab fa-linkedin"></i>
+            </a>
+        </div>
+        
+        <footer>
+            <p>&copy; 2023 我的网站 | 托管于 GitHub Pages</p>
+        </footer>
+    </div>
 </body>
 </html>
