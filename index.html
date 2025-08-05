@@ -1,16 +1,20 @@
-<!DOCTYPE html>
-<html>
-<head>
+<html><head>
     <title>我的网站</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- 预连接关键域名，减少连接建立时间 -->
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="preconnect" href="https://picsum.photos">
+    
+    <!-- 异步加载Font Awesome，非阻塞渲染 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'">
+    
+    <!-- 内联关键CSS，避免额外请求 -->
     <style>
         :root {
             --primary-color: #3498db;
             --primary-dark: #2980b9;
             --secondary-color: #2c3e50;
-            --accent-color: #e74c3c;
             --light-gray: #f5f7fa;
             --medium-gray: #eaecef;
             --dark-gray: #7f8c8d;
@@ -30,7 +34,6 @@
             color: #333;
             line-height: 1.6;
             background-color: var(--light-gray);
-            /* 添加背景纹理 */
             background-image: 
                 radial-gradient(rgba(52, 152, 219, 0.1) 1px, transparent 1px),
                 radial-gradient(rgba(52, 152, 219, 0.05) 1px, transparent 1px);
@@ -45,11 +48,9 @@
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
             position: relative;
             overflow: hidden;
-            /* 添加过渡效果 */
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
         
-        /* 添加装饰元素 */
         .container::before {
             content: '';
             position: absolute;
@@ -57,7 +58,7 @@
             left: 0;
             width: 100%;
             height: 5px;
-            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+            background: linear-gradient(90deg, var(--primary-color), #e74c3c);
         }
         
         .container:hover {
@@ -70,10 +71,8 @@
             margin-bottom: 40px;
             padding-bottom: 20px;
             border-bottom: 1px solid var(--medium-gray);
-            position: relative;
         }
         
-        /* 添加头像区域 */
         .profile-pic {
             width: 120px;
             height: 120px;
@@ -98,7 +97,6 @@
             display: inline-block;
         }
         
-        /* 标题装饰效果 */
         h1::after {
             content: '';
             position: absolute;
@@ -124,7 +122,6 @@
             line-height: 1.8;
         }
         
-        /* 添加技能/兴趣标签 */
         .tags {
             display: flex;
             flex-wrap: wrap;
@@ -225,7 +222,6 @@
             box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
         }
         
-        /* 为不同社交平台设置独特颜色 */
         .social-link.github:hover::before {
             background-color: #333;
         }
@@ -248,7 +244,6 @@
             position: relative;
         }
         
-        /* 页脚装饰 */
         footer::before {
             content: '';
             position: absolute;
@@ -261,7 +256,6 @@
             border-radius: 3px;
         }
         
-        /* 平滑滚动 */
         html {
             scroll-behavior: smooth;
         }
@@ -291,8 +285,8 @@
 <body>
     <div class="container">
         <header>
-            <!-- 添加头像 -->
-            <img src="https://picsum.photos/200/200" alt="个人头像" class="profile-pic">
+            <!-- 图片添加尺寸属性和懒加载 -->
+            <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/code_assistant/f53f90eb4dd44712b85c0508b1f0bf88~tplv-a9rns2rl98-image.image?rcl=202508051910538CB0C5843CC28A1B3E3E&amp;rk3s=8e244e95&amp;rrcfp=e75484ac&amp;x-expires=1754997053&amp;x-signature=R9ui6n%2FA7J7fvBSi7M5iwxuQEHQ%3D" alt="个人头像" class="profile-pic" width="120" height="120" loading="lazy">
             <h1>欢迎来到我的网站！</h1>
             <p class="subtitle">探索、分享与连接的空间</p>
         </header>
@@ -303,11 +297,9 @@
                 我热衷于技术探索和创新实践，希望通过这个平台与更多志同道合的朋友交流学习。
             </p>
             
-            <!-- 添加技能/兴趣标签 -->
             <div class="tags">
                 <span class="tag">Python</span>
                 <span class="tag">人工智能</span>
-                <span class="tag">开源贡献</span>
             </div>
             
             <div class="contact-section">
@@ -334,9 +326,9 @@
         </div>
         
         <footer>
-            <p>&copy; 2025 我的网站 | 托管于 GitHub Pages</p>
+            <p>© 2025 我的网站 | 托管于 GitHub Pages</p>
         </footer>
     </div>
-</body>
-</html>
 
+
+    </body></html>
