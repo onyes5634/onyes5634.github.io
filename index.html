@@ -1,54 +1,83 @@
-<html><head>
+<!DOCTYPE html>
+<html>
+<head>
     <title>我的网站</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- 预连接关键域名，减少连接建立时间 -->
+    <!-- 仅预连接必要域名 -->
     <link rel="preconnect" href="https://cdnjs.cloudflare.com">
-    <link rel="preconnect" href="https://picsum.photos">
     
-    <!-- 异步加载Font Awesome，非阻塞渲染 -->
+    <!-- 异步加载Font Awesome，添加备用方案 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
     
-    <!-- 内联关键CSS，避免额外请求 -->
     <style>
+        /* 核心变量定义 - 精简变量数量 */
         :root {
-            --primary-color: #3498db;
-            --primary-dark: #2980b9;
-            --secondary-color: #2c3e50;
-            --light-gray: #f5f7fa;
-            --medium-gray: #eaecef;
-            --dark-gray: #7f8c8d;
+            --primary: #3498db;
+            --secondary: #9b59b6;
+            --accent: #e74c3c;
+            --light: #f5f7fa;
+            --text: #333;
         }
         
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        /* 基础样式重置 - 精简代码 */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: system-ui, -apple-system, sans-serif;
             max-width: 800px;
             margin: 0 auto;
             padding: 40px 20px;
-            color: #333;
+            color: var(--text);
             line-height: 1.6;
-            background-color: var(--light-gray);
-            background-image: 
-                radial-gradient(rgba(52, 152, 219, 0.1) 1px, transparent 1px),
-                radial-gradient(rgba(52, 152, 219, 0.05) 1px, transparent 1px);
-            background-size: 50px 50px;
-            background-position: 0 0, 25px 25px;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        /* 优化动态背景性能 - 降低动画复杂度 */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: linear-gradient(45deg, #4158d0, #c850c0, #ffcc70);
+            background-size: 300% 300%;
+            animation: gradientBG 20s ease infinite;
+            filter: brightness(0.95);
+            will-change: background-position; /* 提示浏览器优化 */
+        }
+        
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        /* 简化噪点纹理 */
+        .bg-animation::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.08'/%3E%3C/svg%3E");
+            pointer-events: none;
         }
         
         .container {
-            background-color: white;
+            background-color: rgba(255, 255, 255, 0.9);
             padding: 60px;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
             position: relative;
             overflow: hidden;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
         
         .container::before {
@@ -57,245 +86,433 @@
             top: 0;
             left: 0;
             width: 100%;
-            height: 5px;
-            background: linear-gradient(90deg, var(--primary-color), #e74c3c);
+            height: 6px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent));
+            background-size: 200% 100%;
+            animation: headerGradient 8s ease infinite;
         }
         
-        .container:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+        @keyframes headerGradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
         
         header {
             text-align: center;
             margin-bottom: 40px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid var(--medium-gray);
+            padding-bottom: 25px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
         
+        /* 优化头像容器 - 减少嵌套 */
         .profile-pic {
-            width: 120px;
-            height: 120px;
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            margin: 0 auto 25px;
+            border: 5px solid white;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+            transition: transform 0.5s ease;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            padding: 3px;
+            overflow: hidden;
+        }
+        
+        .profile-pic img {
+            width: 100%;
+            height: 100%;
             border-radius: 50%;
             object-fit: cover;
-            margin: 0 auto 20px;
-            border: 4px solid white;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease;
+            display: block; /* 消除底部间隙 */
         }
         
         .profile-pic:hover {
-            transform: scale(1.05);
+            transform: scale(1.05) rotate(5deg);
+        }
+        
+        /* 优化炫彩文字性能 - 减少渲染压力 */
+        .glow-text {
+            background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent));
+            background-size: 200% 100%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: textGradient 8s ease infinite;
+            position: relative;
+        }
+        
+        @keyframes textGradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        /* 简化文字发光效果，提升性能 */
+        .glow-text::after {
+            content: attr(data-text);
+            position: absolute;
+            left: 0;
+            top: 0;
+            z-index: -1;
+            filter: blur(8px);
+            opacity: 0.25;
         }
         
         h1 {
-            color: var(--secondary-color);
-            font-size: 2.2rem;
-            margin-bottom: 10px;
+            font-size: 2.5rem;
+            margin-bottom: 15px;
             letter-spacing: -0.5px;
-            position: relative;
-            display: inline-block;
+            transition: transform 0.4s ease;
         }
         
-        h1::after {
-            content: '';
-            position: absolute;
-            bottom: -8px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 60px;
-            height: 3px;
-            background-color: var(--primary-color);
-            border-radius: 3px;
+        h1:hover {
+            transform: scale(1.05);
         }
         
         .subtitle {
             color: #666;
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             font-weight: 400;
             margin-top: 20px;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+        
+        .subtitle:hover {
+            color: var(--primary);
+            transform: scale(1.05);
         }
         
         .intro {
-            margin-bottom: 30px;
-            font-size: 1.05rem;
+            margin-bottom: 35px;
+            font-size: 1.1rem;
             line-height: 1.8;
+            text-align: justify;
+        }
+        
+        .intro span {
+            transition: all 0.3s ease;
+            padding: 0 2px;
+        }
+        
+        .intro span:hover {
+            color: var(--primary);
+            font-size: 1.1em;
+            font-weight: 500;
         }
         
         .tags {
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
-            margin: 30px 0;
+            gap: 12px;
+            margin: 35px 0;
+            justify-content: center;
         }
         
         .tag {
-            background-color: var(--light-gray);
-            color: var(--secondary-color);
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 0.9rem;
+            background: linear-gradient(135deg, rgba(255,255,255,0.8), rgba(255,255,255,0.4));
+            color: var(--text);
+            padding: 7px 16px;
+            border-radius: 25px;
+            font-size: 0.95rem;
             transition: all 0.3s ease;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.5);
         }
         
         .tag:hover {
-            background-color: var(--primary-color);
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
             color: white;
-            transform: translateY(-2px);
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        /* 项目分类样式 */
+        .projects-section {
+            margin: 40px 0;
+            padding: 30px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.8), rgba(255,255,255,0.4));
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease;
+        }
+
+        .projects-section:hover {
+            transform: translateY(-5px);
+        }
+
+        .category-title {
+            color: var(--primary);
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(52, 152, 219, 0.2);
+        }
+
+        .project-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .project-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .project-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .project-link {
+            color: var(--text);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: color 0.3s ease;
+        }
+
+        .project-link:hover {
+            color: var(--primary);
+        }
+
+        .project-link i {
+            color: var(--secondary);
         }
         
         .contact-section {
-            background-color: var(--light-gray);
-            padding: 25px;
-            border-radius: 8px;
-            margin-top: 30px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.8), rgba(255,255,255,0.4));
+            padding: 30px;
+            border-radius: 12px;
+            margin-top: 35px;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-left: 4px solid;
+            border-image: linear-gradient(to bottom, var(--primary), var(--secondary)) 1;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
         }
         
         .contact-section:hover {
             transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
         }
-        
+
         .contact-title {
-            color: var(--secondary-color);
-            margin-bottom: 15px;
-            font-size: 1.3rem;
+            color: var(--text);
+            margin-bottom: 20px;
+            font-size: 1.4rem;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .contact-title:hover {
+            color: var(--primary);
+            transform: scale(1.02);
         }
         
         .contact-info {
             display: flex;
             align-items: center;
-            gap: 10px;
-            color: var(--primary-color);
+            gap: 12px;
+            color: var(--primary);
             text-decoration: none;
             transition: all 0.3s ease;
-            padding: 5px 0;
+            padding: 8px 0;
+            font-size: 1.05rem;
         }
         
         .contact-info:hover {
-            color: var(--primary-dark);
-            padding-left: 5px;
+            color: var(--secondary);
+            padding-left: 8px;
+            transform: scale(1.03);
         }
         
         .social-links {
-            margin-top: 40px;
+            margin-top: 50px;
             display: flex;
             justify-content: center;
-            gap: 25px;
+            gap: 30px;
         }
         
         .social-link {
-            color: var(--secondary-color);
-            font-size: 1.8rem;
-            transition: all 0.3s ease;
-            position: relative;
-            width: 50px;
-            height: 50px;
+            color: var(--text);
+            font-size: 1.9rem;
+            transition: all 0.4s ease;
+            width: 55px;
+            height: 55px;
             display: flex;
             align-items: center;
             justify-content: center;
             border-radius: 50%;
-        }
-        
-        .social-link::before {
-            content: '';
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background-color: var(--light-gray);
-            border-radius: 50%;
-            transition: all 0.3s ease;
-            z-index: -1;
+            background: rgba(255, 255, 255, 0.7);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
         
         .social-link:hover {
-            color: white;
-            transform: translateY(-5px) scale(1.1);
-        }
-        
-        .social-link:hover::before {
-            background-color: var(--primary-color);
-            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
-        }
-        
-        .social-link.github:hover::before {
-            background-color: #333;
-        }
-        
-        .social-link.twitter:hover::before {
-            background-color: #1da1f2;
-        }
-        
-        .social-link.linkedin:hover::before {
-            background-color: #0077b5;
+            transform: translateY(-8px) scale(1.15);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
         }
         
         footer {
             text-align: center;
-            margin-top: 50px;
-            color: var(--dark-gray);
-            font-size: 0.9rem;
-            padding-top: 20px;
-            border-top: 1px solid var(--medium-gray);
-            position: relative;
+            margin-top: 60px;
+            color: #777;
+            font-size: 0.95rem;
+            padding-top: 25px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        footer:hover {
+            color: var(--text);
+            transform: scale(1.02);
         }
         
         footer::before {
             content: '';
             position: absolute;
-            top: -15px;
+            top: -18px;
             left: 50%;
             transform: translateX(-50%);
-            width: 40px;
-            height: 5px;
-            background-color: var(--primary-color);
+            width: 45px;
+            height: 6px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
             border-radius: 3px;
+            background-size: 200% 100%;
+            animation: headerGradient 8s ease infinite;
         }
         
-        html {
-            scroll-behavior: smooth;
-        }
-        
+        /* 响应式优化 */
         @media (max-width: 600px) {
-            .container {
-                padding: 30px 20px;
-            }
-            
-            h1 {
-                font-size: 1.8rem;
-            }
-            
-            .profile-pic {
-                width: 100px;
-                height: 100px;
-            }
-            
-            .social-link {
-                font-size: 1.5rem;
-                width: 40px;
-                height: 40px;
+            .container { padding: 40px 25px; }
+            h1 { font-size: 2.1rem; }
+            .profile-pic { width: 120px; height: 120px; }
+            .social-link { font-size: 1.6rem; width: 50px; height: 50px; }
+            .project-list { grid-template-columns: 1fr; }
+        }
+        
+        /* 降低动画复杂度以提升性能 */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.001s !important;
+                transition-duration: 0.001s !important;
             }
         }
     </style>
 </head>
 <body>
+    <div class="bg-animation"></div>
+    
     <div class="container">
         <header>
-            <!-- 图片添加尺寸属性和懒加载 -->
-            <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/code_assistant/f53f90eb4dd44712b85c0508b1f0bf88~tplv-a9rns2rl98-image.image?rcl=202508051910538CB0C5843CC28A1B3E3E&amp;rk3s=8e244e95&amp;rrcfp=e75484ac&amp;x-expires=1754997053&amp;x-signature=R9ui6n%2FA7J7fvBSi7M5iwxuQEHQ%3D" alt="个人头像" class="profile-pic" width="120" height="120" loading="lazy">
-            <h1>欢迎来到我的网站！</h1>
+            <div class="profile-pic">
+                <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/code_assistant/f53f90eb4dd44712b85c0508b1f0bf88~tplv-a9rns2rl98-image.image?rcl=202508051910538CB0C5843CC28A1B3E3E&amp;rk3s=8e244e95&amp;rrcfp=e75484ac&amp;x-expires=1754997053&amp;x-signature=R9ui6n%2FA7J7fvBSi7M5iwxuQEHQ%3D" 
+                     alt="个人头像" 
+                     loading="lazy"
+                     width="134" 
+                     height="134">
+            </div>
+            <h1 class="glow-text" data-text="欢迎来到我的网站！">欢迎来到我的网站！</h1>
             <p class="subtitle">探索、分享与连接的空间</p>
         </header>
         
         <main>
             <p class="intro">
-                这是一个公开网站，任何人都可以通过链接访问！这里会分享我的项目、想法和学习历程。
-                我热衷于技术探索和创新实践，希望通过这个平台与更多志同道合的朋友交流学习。
+                <span>这是一个公开网站，任何人都可以通过链接访问！</span>
+                <span>这里会分享我的项目、想法和学习历程。</span>
+                <span>我热衷于技术探索和创新实践，希望通过这个平台与更多志同道合的朋友交流学习。</span>
             </p>
+            
+            <!-- 项目分类展示区 -->
+            <div class="projects-section">
+                <h2 class="category-title">
+                    <i class="fas fa-gamepad"></i> 游戏类项目
+                </h2>
+                <div class="project-list">
+                    <div class="project-item">
+                        <a href="snake-game.html" class="project-link">
+                            <i class="fas fa-snake"></i> 贪吃蛇游戏
+                        </a>
+                    </div>
+                    <div class="project-item">
+                        <a href="2048.html" class="project-link">
+                            <i class="fas fa-cubes"></i> 2048游戏
+                        </a>
+                    </div>
+                    <div class="project-item">
+                        <a href="Digital Huarong Road.html" class="project-link">
+                            <i class="fas fa-puzzle-piece"></i> 数字华容道
+                        </a>
+                    </div>
+                    <div class="project-item">
+                        <a href="breakout-game.html" class="project-link">
+                            <i class="fas fa-square"></i> 打砖块游戏
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="projects-section">
+                <h2 class="category-title">
+                    <i class="fas fa-flask"></i> 科学模拟类项目
+                </h2>
+                <div class="project-list">
+                    <div class="project-item">
+                        <a href="solar-system-simulation.html" class="project-link">
+                            <i class="fas fa-globe"></i> 太阳系模拟器
+                        </a>
+                    </div>
+                    <div class="project-item">
+                        <a href="fluid-simulator.html" class="project-link">
+                            <i class="fas fa-tint"></i> 流体物理模拟器
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="projects-section">
+                <h2 class="category-title">
+                    <i class="fas fa-tools"></i> 工具类应用
+                </h2>
+                <div class="project-list">
+                    <div class="project-item">
+                        <a href="Website to QR code.html" class="project-link">
+                            <i class="fas fa-qrcode"></i> 网址转二维码工具
+                        </a>
+                    </div>
+                    <div class="project-item">
+                        <a href="Screen Color Picker.html" class="project-link">
+                            <i class="fas fa-eyedropper"></i> 屏幕取色器
+                        </a>
+                    </div>
+                    <div class="project-item">
+                        <a href="Markdown Preview.html" class="project-link">
+                            <i class="fas fa-markdown"></i> Markdown预览器
+                        </a>
+                    </div>
+                    <div class="project-item">
+                        <a href="image-to-base64.html" class="project-link">
+                            <i class="fas fa-image"></i> 图片转Base64工具
+                        </a>
+                    </div>
+                    <div class="project-item">
+                        <a href="password-generator.html" class="project-link">
+                            <i class="fas fa-key"></i> 随机密码生成器
+                        </a>
+                    </div>
+                </div>
+            </div>
             
             <div class="tags">
                 <span class="tag">Python</span>
@@ -326,9 +543,47 @@
         </div>
         
         <footer>
-            <p>© 2025 我的网站 | 托管于 GitHub Pages</p>
+            <p>© 2025 我的网站 | 托管于 GitHub Pages     部分内容由豆包AI生成</p>
         </footer>
     </div>
+    
+    <!-- 延迟加载JavaScript，放在页面底部 -->
+    <script>
+        // 精简代码，只保留必要功能
+        (function() {
+            // 图片懒加载优化
+            if ('IntersectionObserver' in window) {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            const img = entry.target;
+                            if (img.dataset.src) {
+                                img.src = img.dataset.src;
+                                img.removeAttribute('data-src');
+                            }
+                            observer.unobserve(img);
+                        }
+                    });
+                });
+                
+                document.querySelectorAll('img[loading="lazy"]').forEach(img => {
+                    observer.observe(img);
+                });
+            }
 
-
-    </body></html>
+            // 平滑滚动效果
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    if (targetId !== '#') {
+                        document.querySelector(targetId).scrollIntoView({
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+        })();
+    </script>
+</body>
+</html>
