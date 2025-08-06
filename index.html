@@ -36,7 +36,7 @@
             position: relative;
         }
         
-        /* 优化动态背景性能 - 降低动画复杂度 */
+        /* 动态星空背景 - 实现繁星点点效果 */
         .bg-animation {
             position: fixed;
             top: 0;
@@ -44,20 +44,9 @@
             width: 100%;
             height: 100%;
             z-index: -1;
-            background: linear-gradient(45deg, #4158d0, #c850c0, #ffcc70);
-            background-size: 300% 300%;
-            animation: gradientBG 20s ease infinite;
-            filter: brightness(0.95);
-            will-change: background-position; /* 提示浏览器优化 */
+            background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
+            overflow: hidden;
         }
-        
-        @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-        
-        /* 简化噪点纹理 */
         .bg-animation::after {
             content: "";
             position: absolute;
@@ -65,8 +54,42 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.08'/%3E%3C/svg%3E");
-            pointer-events: none;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' patternUnits='userSpaceOnUse'%3E%3Ccircle cx='10' cy='10' r='1' fill='rgba(255,255,255,0.8)'/%3E%3Ccircle cx='30' cy='40' r='0.8' fill='rgba(255,255,255,0.6)'/%3E%3Ccircle cx='60' cy='80' r='1.2' fill='rgba(255,255,255,0.7)'/%3E%3Ccircle cx='120' cy='30' r='0.9' fill='rgba(255,255,255,0.5)'/%3E%3Ccircle cx='150' cy='120' r='1.1' fill='rgba(255,255,255,0.9)'/%3E%3C/svg%3E");
+            animation: starTwinkle 10s infinite alternate;
+            opacity: 0.4;
+        }
+        @keyframes starTwinkle {
+            0% {
+                transform: scale(1);
+                opacity: 0.4;
+            }
+            100% {
+                transform: scale(1.1);
+                opacity: 0.6;
+            }
+        }
+        
+        /* 流星效果 - 增强星空动感 */
+        .meteor {
+            position: absolute;
+            width: 1px;
+            height: 100px;
+            background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.8));
+            animation: meteor 2s linear infinite;
+            opacity: 0;
+        }
+        @keyframes meteor {
+            0% {
+                transform: translateX(0) translateY(0);
+                opacity: 0;
+            }
+            20% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateX(-100px) translateY(100px);
+                opacity: 0;
+            }
         }
         
         .container {
@@ -228,7 +251,33 @@
             box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
         }
 
-        /* 项目分类样式 */
+        /* 分类导航样式 */
+        .category-nav {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        .category-link {
+            text-decoration: none;
+            color: var(--text);
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, rgba(255,255,255,0.8), rgba(255,255,255,0.4));
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .category-link:hover {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* 项目分类区域 */
         .projects-section {
             margin: 40px 0;
             padding: 30px;
@@ -237,7 +286,7 @@
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
             transition: transform 0.3s ease;
         }
-
+        
         .projects-section:hover {
             transform: translateY(-5px);
         }
@@ -253,41 +302,50 @@
             border-bottom: 2px solid rgba(52, 152, 219, 0.2);
         }
 
+        /* 项目列表样式 */
         .project-list {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 15px;
-            margin-top: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
         }
-
         .project-item {
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            background: rgba(255,255,255,0.9);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
             transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+            border-image: linear-gradient(to bottom, var(--primary), var(--secondary)) 1;
         }
-
         .project-item:hover {
             transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+            border-left: 3px solid;
+            border-image: linear-gradient(to bottom, var(--primary), var(--secondary)) 1;
         }
-
-        .project-link {
-            color: var(--text);
-            text-decoration: none;
-            display: flex;
+        .project-item h3 {
+            margin-bottom: 10px;
+            color: var(--primary);
+            font-size: 1.1rem;
+        }
+        .project-item p {
+            font-size: 0.95rem;
+            color: #666;
+            margin-bottom: 15px;
+        }
+        .project-item a {
+            display: inline-flex;
             align-items: center;
             gap: 8px;
-            transition: color 0.3s ease;
-        }
-
-        .project-link:hover {
-            color: var(--primary);
-        }
-
-        .project-link i {
+            text-decoration: none;
             color: var(--secondary);
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .project-item a:hover {
+            color: var(--accent);
+            padding-left: 5px;
         }
         
         .contact-section {
@@ -305,7 +363,7 @@
             transform: translateY(-3px);
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
         }
-
+        
         .contact-title {
             color: var(--text);
             margin-bottom: 20px;
@@ -372,6 +430,7 @@
             padding-top: 25px;
             border-top: 1px solid rgba(255, 255, 255, 0.1);
             transition: all 0.3s ease;
+            position: relative;
         }
         
         footer:hover {
@@ -400,6 +459,8 @@
             .profile-pic { width: 120px; height: 120px; }
             .social-link { font-size: 1.6rem; width: 50px; height: 50px; }
             .project-list { grid-template-columns: 1fr; }
+            .category-nav { gap: 10px; }
+            .category-link { padding: 6px 12px; font-size: 0.9rem; }
         }
         
         /* 降低动画复杂度以提升性能 */
@@ -412,7 +473,7 @@
     </style>
 </head>
 <body>
-    <div class="bg-animation"></div>
+    <div class="bg-animation" id="starrySky"></div>
     
     <div class="container">
         <header>
@@ -430,93 +491,134 @@
         <main>
             <p class="intro">
                 <span>这是一个公开网站，任何人都可以通过链接访问！</span>
-                <span>这里会分享我的项目.想法和学习历程</span>
-                <span>我热衷于技术探索和创新实践，希望通过这个平台与更多志同道合的朋友交流学习。</span>
+                <span>这里分享了我开发的各种实用工具和有趣的小游戏。</span>
+                <span>所有项目均采用前端技术实现，轻量级设计，无需安装即可使用。</span>
             </p>
             
-            <!-- 项目分类展示区 -->
-            <div class="projects-section">
+            <!-- 分类导航 -->
+            <div class="category-nav">
+                <a href="#games" class="category-link">
+                    <i class="fas fa-gamepad"></i> 游戏类
+                </a>
+                <a href="#tools" class="category-link">
+                    <i class="fas fa-tools"></i> 实用工具
+                </a>
+                <a href="#simulations" class="category-link">
+                    <i class="fas fa-flask"></i> 模拟实验
+                </a>
+            </div>
+            
+            <!-- 游戏类项目 -->
+            <div id="games" class="projects-section">
                 <h2 class="category-title">
                     <i class="fas fa-gamepad"></i> 游戏类项目
                 </h2>
                 <div class="project-list">
                     <div class="project-item">
-                        <a href="snake-game.html" class="project-link">
-                            <i class="fas fa-snake"></i> 贪吃蛇游戏
+                        <h3>贪吃蛇游戏</h3>
+                        <p>经典的贪吃蛇游戏，使用键盘方向键控制移动，吃到食物会变长，撞到墙壁或自己则游戏结束。</p>
+                        <a href="snake-game.html">
+                            <i class="fas fa-play"></i> 开始游戏
                         </a>
                     </div>
                     <div class="project-item">
-                        <a href="2048.html" class="project-link">
-                            <i class="fas fa-cubes"></i> 2048游戏
+                        <h3>2048游戏</h3>
+                        <p>热门的数字拼图游戏，通过方向键移动数字方块，相同数字碰撞后会合并，尝试得到2048！</p>
+                        <a href="2048.html">
+                            <i class="fas fa-play"></i> 开始游戏
                         </a>
                     </div>
                     <div class="project-item">
-                        <a href="Digital Huarong Road.html" class="project-link">
-                            <i class="fas fa-puzzle-piece"></i> 数字华容道
+                        <h3>打砖块游戏</h3>
+                        <p>经典的打砖块游戏，移动挡板接住小球，击碎所有砖块即可获胜，有碰撞物理效果。</p>
+                        <a href="breakout-game.html">
+                            <i class="fas fa-play"></i> 开始游戏
                         </a>
                     </div>
                     <div class="project-item">
-                        <a href="breakout-game.html" class="project-link">
-                            <i class="fas fa-square"></i> 打砖块游戏
-                        </a>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="projects-section">
-                <h2 class="category-title">
-                    <i class="fas fa-flask"></i> 科学模拟类项目
-                </h2>
-                <div class="project-list">
-                    <div class="project-item">
-                        <a href="solar-system-simulation.html" class="project-link">
-                            <i class="fas fa-globe"></i> 太阳系模拟器
-                        </a>
-                    </div>
-                    <div class="project-item">
-                        <a href="fluid-simulator.html" class="project-link">
-                            <i class="fas fa-tint"></i> 流体物理模拟器
+                        <h3>数字华容道</h3>
+                        <p>考验智力的数字拼图游戏，通过移动数字方块，将它们按顺序排列，完成挑战。</p>
+                        <a href="Digital Huarong Road.html">
+                            <i class="fas fa-play"></i> 开始游戏
                         </a>
                     </div>
                 </div>
             </div>
             
-            <div class="projects-section">
+            <!-- 实用工具类项目 -->
+            <div id="tools" class="projects-section">
                 <h2 class="category-title">
-                    <i class="fas fa-tools"></i> 工具类应用
+                    <i class="fas fa-tools"></i> 实用工具类
                 </h2>
                 <div class="project-list">
                     <div class="project-item">
-                        <a href="Website to QR code.html" class="project-link">
-                            <i class="fas fa-qrcode"></i> 网址转二维码工具
+                        <h3>二维码生成器</h3>
+                        <p>输入文本或网址，快速生成对应的二维码图片，可用于分享链接或信息。</p>
+                        <a href="Website to QR code.html">
+                            <i class="fas fa-qrcode"></i> 使用工具
                         </a>
                     </div>
                     <div class="project-item">
-                        <a href="Screen Color Picker.html" class="project-link">
-                            <i class="fas fa-eyedropper"></i> 屏幕取色器
+                        <h3>屏幕取色器</h3>
+                        <p>拾取屏幕上任意位置的颜色，获取其十六进制值，适合设计和前端开发使用。</p>
+                        <a href="Screen Color Picker.html">
+                            <i class="fas fa-eyedropper"></i> 使用工具
                         </a>
                     </div>
                     <div class="project-item">
-                        <a href="Markdown Preview.html" class="project-link">
-                            <i class="fas fa-markdown"></i> Markdown预览器
+                        <h3>Markdown预览器</h3>
+                        <p>实时将Markdown格式文本转换为HTML预览，方便写作和格式检查。</p>
+                        <a href="Markdown Preview.html">
+                            <i class="fas fa-markdown"></i> 使用工具
                         </a>
                     </div>
                     <div class="project-item">
-                        <a href="image-to-base64.html" class="project-link">
-                            <i class="fas fa-image"></i> 图片转Base64工具
+                        <h3>图片转Base64</h3>
+                        <p>上传图片文件，将其转换为Base64编码，便于在网页中直接嵌入图片资源。</p>
+                        <a href="image-to-base64.html">
+                            <i class="fas fa-image"></i> 使用工具
                         </a>
                     </div>
                     <div class="project-item">
-                        <a href="password-generator.html" class="project-link">
-                            <i class="fas fa-key"></i> 随机密码生成器
+                        <h3>随机密码生成器</h3>
+                        <p>生成高强度随机密码，包含大小写字母、数字和特殊符号，增强账户安全性。</p>
+                        <a href="Random Password Generator.html">
+                            <i class="fas fa-key"></i> 使用工具
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 模拟实验类项目 -->
+            <div id="simulations" class="projects-section">
+                <h2 class="category-title">
+                    <i class="fas fa-flask"></i> 模拟实验类
+                </h2>
+                <div class="project-list">
+                    <div class="project-item">
+                        <h3>太阳系模拟器</h3>
+                        <p>模拟太阳系行星运行轨迹，展示各大行星围绕太阳运转的天文现象。</p>
+                        <a href="solar-system-simulation.html">
+                            <i class="fas fa-globe"></i> 查看模拟
+                        </a>
+                    </div>
+                    <div class="project-item">
+                        <h3>流体物理模拟器</h3>
+                        <p>基于物理引擎的流体模拟，展示液体流动和粒子相互作用的物理效果。</p>
+                        <a href="fluid-simulator.html">
+                            <i class="fas fa-tint"></i> 查看模拟
                         </a>
                     </div>
                 </div>
             </div>
             
             <div class="tags">
-                <span class="tag">Python</span>
-                <span class="tag">人工智能</span>
+                <span class="tag">前端开发</span>
+                <span class="tag">JavaScript</span>
+                <span class="tag">HTML5</span>
+                <span class="tag">CSS3</span>
+                <span class="tag">小游戏</span>
+                <span class="tag">实用工具</span>
             </div>
             
             <div class="contact-section">
@@ -543,7 +645,7 @@
         </div>
         
         <footer>
-            <p>© 2025 我的网站 | 托管于 GitHub Pages     部分内容由豆包AI生成</p>
+            <p>© 2025 我的网站 | 托管于 GitHub Pages</p>
         </footer>
     </div>
     
@@ -551,6 +653,42 @@
     <script>
         // 精简代码，只保留必要功能
         (function() {
+            // 创建流星效果增强星空背景
+            function createMeteors() {
+                const sky = document.getElementById('starrySky');
+                setInterval(() => {
+                    const meteor = document.createElement('div');
+                    meteor.className = 'meteor';
+                    
+                    // 随机位置和大小
+                    const size = Math.random() * 50 + 50;
+                    const left = Math.random() * window.innerWidth;
+                    const top = Math.random() * window.innerHeight / 2;
+                    
+                    meteor.style.height = `${size}px`;
+                    meteor.style.left = `${left}px`;
+                    meteor.style.top = `${top}px`;
+                    meteor.style.animationDelay = `${Math.random() * 5}s`;
+                    
+                    sky.appendChild(meteor);
+                    
+                    // 移除已完成动画的流星
+                    setTimeout(() => {
+                        meteor.remove();
+                    }, 2000);
+                }, 3000);
+            }
+            
+            // 平滑滚动
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
+            });
+            
             // 图片懒加载优化
             if ('IntersectionObserver' in window) {
                 const observer = new IntersectionObserver((entries) => {
@@ -570,20 +708,11 @@
                     observer.observe(img);
                 });
             }
-
-            // 平滑滚动效果
-            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-                anchor.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    const targetId = this.getAttribute('href');
-                    if (targetId !== '#') {
-                        document.querySelector(targetId).scrollIntoView({
-                            behavior: 'smooth'
-                        });
-                    }
-                });
-            });
+            
+            // 初始化星空流星效果
+            createMeteors();
         })();
     </script>
 </body>
 </html>
+
