@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>屏幕取色器</title>
+    <style>
+        #colorBox { width: 200px; height: 200px; border: 1px solid #000; margin:10px; }
+    </style>
+</head>
+<body>
+    <button onclick="pickColor()">取色</button>
+    <div id="colorBox"></div>
+    <p>取色结果：<span id="colorValue"></span></p>
+
+    <script>
+        async function pickColor() {
+            const eyeDropper = new EyeDropper();
+            try {
+                const result = await eyeDropper.open();
+                const color = result.sRGBHex;
+                document.getElementById('colorBox').style.backgroundColor = color;
+                document.getElementById('colorValue').innerText = color;
+            } catch (err) {
+                console.error(err);
+            }
+        }
+    </script>
+</body>
+</html>

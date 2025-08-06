@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>流体物理模拟器</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3B82F6',
+                        secondary: '#10B981',
+                        accent: '#8B5CF6',
+                        dark: '#1E293B',
+                        light: '#F8FAFC'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .control-panel {
+                @apply bg-dark/80 backdrop-blur-md rounded-lg p-4 border border-white/10 shadow-lg;
+            }
+            .slider-container {
+                @apply flex flex-col gap-2 mb-4;
+            }
+            .btn-control {
+                @apply px-4 py-2 rounded-lg transition-all duration-300 flex items-center justify-center gap-2;
+            }
+            .btn-primary {
+                @apply bg-primary hover:bg-primary/80 text-white;
+            }
+            .btn-secondary {
+                @apply bg-dark hover:bg-dark/80 text-white border border-white/20;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-dark to-slate-900 text-light min-h-screen overflow-x-hidden">
+    <header class="container mx-auto px-4 py-6">
+        <h1 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-white flex items-center">
+            <i class="fa fa-tint mr-3 text-primary"></i>流体物理模拟器
+        </h1>
+        <p class="text-slate-400 mt-1">交互式流体动力学模拟演示</p>
+    </header>
+
+    <main class="container mx-auto px-4 py-6">
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <!-- 模拟器主画布 -->
+            <div class="lg:col-span-3 relative">
+                <div class="aspect-[4/3] bg-slate-800 rounded-xl overflow-hidden border border-white/10 shadow-xl">
+                    <canvas id="fluidCanvas" class="w-full h-full"></canvas>
+                    <!-- 交互提示 -->
+                    <div id="interactionHint" class="absolute top-4 left-4 bg-dark/60 backdrop-blur-sm px-3 py-1.5 rounded-full text-sm border border-white/10">
+                        <i class="fa fa-hand-pointer-o mr-1"></i> 拖动鼠标与流体交互
+                    </div>
+                </div>
+            </div>
+
+            <!-- 控制面板 -->
+            <div class="lg:col-span-1">
+                <div class="control-panel h-full flex flex-col">
+                    <h2 class="text-xl font-bold mb-4 pb-2 border-b border-white/10">控制选项</h2>
+                    
+                    <div class="slider-container">
+                        <label class="text-sm flex justify-between">
+                            <span>粒子数量</span>
+                            <span id="particleCountValue">1000</span>
+                        </label>
+                        <input type="range" id="particleCount" min="100" max="5000" step="100" value="1000" 
+                               class="w-full accent-primary">
+                    </div>
+                    
+                    <div class="slider-container">
+                        <label class="text-sm flex justify-between">
+                            <span>流体粘度</span>
+                            <span id="viscosityValue">0.5</span>
+                        </label>
+                        <input type="range" id="viscosity" min="0.1" max="2" step="0.1" value="0.5" 
+                               class="w-full accent-primary">
+                    </div>
+                    
+                    <div class="slider-container">
+                        <label class="text-sm flex justify-between">
+                            <span>流体速度</span>
+                            <span id="velocityValue">1.0</span>
+                        </label>
+                        <input type="range" id="velocity" min="0.1" max="5" step="0.1" value="1.0" 
+                               class="w-full accent-primary">
+                    </div>
+                    
+                    <div class="slider-container">
+                        <label class="text-sm flex justify-between">
+                            <span>粒子大小</span>
+                            <span id="particleSizeValue">2</span>
+                        </label>
+                        <input type="range" id="particleSize" min="1" max="8" step="0.5" value="2" 
+                               class="w-full accent-primary">
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="text-sm block mb-2">流体颜色</label>
+                        <div class="grid grid-cols-5 gap-2">
+                            <button class="color-option w-full aspect-square rounded-full bg-blue-500" data-color="blue"></button>
+                            <button class="color-option w-full aspect-square rounded-full bg-red-500" data-color="red"></button>
+                            <button class="color-option w-full aspect-square rounded-full bg-green-500" data-color="green"></button>
+                            <button class="color-option w-full aspect-square rounded-full bg-purple-500" data-color="purple"></button>
+                            <button class="color-option w-full aspect-square rounded-full bg-gradient-to-r from-blue-500 to-purple-500" data-color="rainbow"></button>
+                        </div>
+                    </div>
+                    
+                    <div class="flex gap-2 mb-4">
+                        <button id="startBtn" class="btn-control btn-primary flex-1">
+                            <i class="fa fa-play"></i> 开始
+                        </button>
+                        <button id="pauseBtn" class="btn-control btn-secondary flex-1">
+                            <i class="fa fa-pause"></i> 暂停
+                        </button>
+                    </div>
+                    
+                    <button id="resetBtn" class="btn-control btn-secondary mb-4">
+                        <i class="fa fa-refresh"></i> 重置模拟
+                    </button>
+                    
+                    <button id="clearBtn" class="btn-control btn-secondary mb-4">
+                        <i class="fa fa-eraser"></i> 清除流体
+                    </button>
+                    
+                    <div class="mt-auto pt-4 border-t border-white/10">
+                        <h3 class="text-sm font-semibold mb-2">交互模式</h3>
+                        <div class="flex flex-wrap gap-2">
+                            <button id="modeAdd" class="btn-control btn-primary text-sm px-3 py-1">
+                                <i class="fa fa-plus"></i> 添加
+                            </button>
+                            <button id="modePush" class="btn-control btn-secondary text-sm px-3 py-1">
+                                <i class="fa fa-arrows"></i> 推动
+                            </button>
+                            <button id="modeVortex" class="btn-control btn-secondary text-sm px-3 py-1">
+                                <i class="fa fa-repeat"></i> 漩涡
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 流体知识科普 -->
+        <div class="mt-8 bg-dark/40 backdrop-blur-sm rounded-xl p-6 border border-white/10">
+            <h2 class="text-xl font-bold mb-4 flex items-center">
+                <i class="fa fa-book mr-2 text-primary"></i> 流体物理基础知识
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <h3 class="text-lg font-semibold mb-2 text-primary">什么是流体？</h3>
+                    <p class="text-slate-300 mb-3">流体是一种可以流动的物质，包括液体和气体。与固体不同，流体没有固定的形状，会随着容器的形状而改变。</p>
+                    
+                    <h3 class="text-lg font-semibold mb-2 text-primary">粘度的概念</h3>
+                    <p class="text-slate-300 mb-3">粘度是流体抵抗流动的性质。高粘度的流体（如蜂蜜）流动缓慢，而低粘度的流体（如水）流动迅速。粘度会受到温度等因素的影响。</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-2 text-primary">流体动力学应用</h3>
+                    <p class="text-slate-300 mb-3">流体动力学研究流体的运动规律，在工程设计中有广泛应用，如飞机和船舶设计、管道系统、气象预测等。</p>
+                    
+                    <h3 class="text-lg font-semibold mb-2 text-primary">本模拟器原理</h3>
+                    <p class="text-slate-300">这个模拟器使用粒子系统模拟流体行为，通过计算粒子之间的相互作用力，近似模拟真实流体的流动、扩散和相互作用效果。</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="container mx-auto px-4 py-6 mt-8 text-center text-slate-500 text-sm">
+        <p>流体物理模拟器 &copy; 2025 | 本地离线可用 | 基于HTML5 Canvas技术</p>
+    </footer>
+
+    <script>
+        // 等待DOM加载完成
+        document.addEventListener('DOMContentLoaded', function() {
+            // 获取Canvas元素和上下文
+            const canvas = document.getElementById('fluidCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            // 设置Canvas尺寸
+            function resizeCanvas() {
+                const container = canvas.parentElement;
+                canvas.width = container.clientWidth;
+                canvas.height = container.clientHeight;
+            }
+            
+            // 初始化时调整一次尺寸，并监听窗口大小变化
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+            
+            // 模拟参数
+            let params = {
+                particleCount: 1000,
+                viscosity: 0.5,
+                velocity: 1.0,
+                particleSize: 2,
+                colorMode: 'blue',
+                isPaused: false,
+                interactionMode: 'add' // add, push, vortex
+            };
+            
+            // 粒子数组
+            let particles = [];
+            
+            // 颜色配置
+            const colorConfig = {
+                blue: {
+                    base: '#3B82F6',
+                    getColor: (particle) => '#3B82F6'
+                },
+                red: {
+                    base: '#EF4444',
+                    getColor: (particle) => '#EF4444'
+                },
+                green: {
+                    base: '#10B981',
+                    getColor: (particle) => '#10B981'
+                },
+                purple: {
+                    base: '#8B5CF6',
+                    getColor: (particle) => '#8B5CF6'
+                },
+                rainbow: {
+                    base: '#3B82F6',
+                    getColor: (particle) => {
+                        const hue = (particle.angle * 180 / Math.PI + Date.now() * 0.001) % 360;
+                        return `hsl(${hue}, 70%, 60%)`;
+                    }
+                }
+            };
+            
+            // 鼠标交互变量
+            let mouse = {
+                x: 0,
+                y: 0,
+                isDown: false,
+                lastX: 0,
+                lastY: 0,
+                dx: 0,
+                dy: 0
+            };
+            
+            // 创建粒子类
+            class Particle {
+                constructor() {
+                    this.reset();
+                }
+                
+                reset() {
+                    // 随机初始位置
+                    this.x = Math.random() * canvas.width;
+                    this.y = Math.random() * canvas.height;
+                    
+                    // 随机初始速度
+                    this.vx = (Math.random() - 0.5) * 2;
+                    this.vy = (Math.random() - 0.5) * 2;
+                    
+                    // 粒子大小（基于全局设置但有微小变化）
+                    this.size = params.particleSize * (0.8 + Math.random() * 0.4);
+                    
+                    // 角度用于彩虹效果
+                    this.angle = Math.random() * Math.PI * 2;
+                }
+                
+                update() {
+                    if (params.isPaused) return;
+                    
+                    // 应用粘度（减速）
+                    this.vx *= (1 - params.viscosity * 0.01);
+                    this.vy *= (1 - params.viscosity * 0.01);
+                    
+                    // 应用鼠标交互
+                    if (mouse.isDown) {
+                        const dx = this.x - mouse.x;
+                        const dy = this.y - mouse.y;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+                        const influenceRadius = 100;
+                        
+                        if (distance < influenceRadius) {
+                            const force = (1 - distance / influenceRadius) * 0.5 * params.velocity;
+                            
+                            switch(params.interactionMode) {
+                                case 'add':
+                                    // 添加新粒子模式 - 向鼠标方向移动
+                                    this.vx -= dx * force;
+                                    this.vy -= dy * force;
+                                    break;
+                                case 'push':
+                                    // 推动模式 - 沿鼠标移动方向推动
+                                    this.vx += mouse.dx * force;
+                                    this.vy += mouse.dy * force;
+                                    break;
+                                case 'vortex':
+                                    // 漩涡模式 - 围绕鼠标旋转
+                                    const angle = Math.atan2(dy, dx) + Math.PI / 2;
+                                    this.vx += Math.cos(angle) * force;
+                                    this.vy += Math.sin(angle) * force;
+                                    break;
+                            }
+                        }
+                    }
+                    
+                    // 限制最大速度
+                    const maxSpeed = 5 * params.velocity;
+                    const speed = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
+                    
+                    if (speed > maxSpeed) {
+                        this.vx = (this.vx / speed) * maxSpeed;
+                        this.vy = (this.vy / speed) * maxSpeed;
+                    }
+                    
+                    // 更新位置
+                    this.x += this.vx;
+                    this.y += this.vy;
+                    
+                    // 边界检查（反弹效果）
+                    const bounceFactor = 0.7;
+                    if (this.x < 0) {
+                        this.x = 0;
+                        this.vx = -this.vx * bounceFactor;
+                    } else if (this.x > canvas.width) {
+                        this.x = canvas.width;
+                        this.vx = -this.vx * bounceFactor;
+                    }
+                    
+                    if (this.y < 0) {
+                        this.y = 0;
+                        this.vy = -this.vy * bounceFactor;
+                    } else if (this.y > canvas.height) {
+                        this.y = canvas.height;
+                        this.vy = -this.vy * bounceFactor;
+                    }
+                    
+                    // 更新角度（用于彩虹效果）
+                    this.angle += 0.01;
+                }
+                
+                draw() {
+                    // 获取粒子颜色
+                    const color = colorConfig[params.colorMode].getColor(this);
+                    
+                    // 绘制粒子
+                    ctx.fillStyle = color;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    // 添加一点发光效果
+                    ctx.fillStyle = color + '40'; // 添加透明度
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size * 1.5, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                
+                // 检查与其他粒子的碰撞并应用力
+                checkCollision(otherParticle) {
+                    if (params.isPaused) return;
+                    
+                    const dx = this.x - otherParticle.x;
+                    const dy = this.y - otherParticle.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    const minDistance = this.size + otherParticle.size;
+                    
+                    if (distance < minDistance && distance > 0) {
+                        // 计算碰撞后的速度变化
+                        const angle = Math.atan2(dy, dx);
+                        const overlap = 0.5 * (minDistance - distance + 1);
+                        
+                        // 分离粒子
+                        this.x += Math.cos(angle) * overlap;
+                        this.y += Math.sin(angle) * overlap;
+                        otherParticle.x -= Math.cos(angle) * overlap;
+                        otherParticle.y -= Math.sin(angle) * overlap;
+                        
+                        // 交换速度分量（简化的弹性碰撞）
+                        const vx1 = this.vx;
+                        const vy1 = this.vy;
+                        const vx2 = otherParticle.vx;
+                        const vy2 = otherParticle.vy;
+                        
+                        this.vx = vx2 * 0.8;
+                        this.vy = vy2 * 0.8;
+                        otherParticle.vx = vx1 * 0.8;
+                        otherParticle.vy = vy1 * 0.8;
+                    }
+                }
+            }
+            
+            // 初始化粒子
+            function initParticles() {
+                particles = [];
+                for (let i = 0; i < params.particleCount; i++) {
+                    particles.push(new Particle());
+                }
+            }
+            
+            // 动画循环
+            function animate() {
+                // 清除画布（半透明黑色创建轨迹效果）
+                ctx.fillStyle = 'rgba(15, 23, 42, 0.15)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                // 更新并绘制所有粒子
+                for (let i = 0; i < particles.length; i++) {
+                    particles[i].update();
+                    
+                    // 检查与其他粒子的碰撞（抽样检查以提高性能）
+                    if (i % 5 === 0) {
+                        for (let j = i + 1; j < Math.min(i + 20, particles.length); j++) {
+                            particles[i].checkCollision(particles[j]);
+                        }
+                    }
+                    
+                    particles[i].draw();
+                }
+                
+                // 计算鼠标移动距离
+                if (mouse.isDown) {
+                    mouse.dx = mouse.x - mouse.lastX;
+                    mouse.dy = mouse.y - mouse.lastY;
+                    mouse.lastX = mouse.x;
+                    mouse.lastY = mouse.y;
+                }
+                
+                requestAnimationFrame(animate);
+            }
+            
+            // 事件监听器 - 鼠标移动
+            canvas.addEventListener('mousemove', function(e) {
+                const rect = canvas.getBoundingClientRect();
+                mouse.x = e.clientX - rect.left;
+                mouse.y = e.clientY - rect.top;
+            });
+            
+            // 事件监听器 - 鼠标按下
+            canvas.addEventListener('mousedown', function(e) {
+                const rect = canvas.getBoundingClientRect();
+                mouse.x = e.clientX - rect.left;
+                mouse.y = e.clientY - rect.top;
+                mouse.lastX = mouse.x;
+                mouse.lastY = mouse.y;
+                mouse.isDown = true;
+                mouse.dx = 0;
+                mouse.dy = 0;
+            });
+            
+            // 事件监听器 - 鼠标释放
+            window.addEventListener('mouseup', function() {
+                mouse.isDown = false;
+                mouse.dx = 0;
+                mouse.dy = 0;
+            });
+            
+            // 事件监听器 - 鼠标离开画布
+            canvas.addEventListener('mouseleave', function() {
+                mouse.isDown = false;
+                mouse.dx = 0;
+                mouse.dy = 0;
+            });
+            
+            // 触摸设备支持
+            canvas.addEventListener('touchstart', function(e) {
+                e.preventDefault();
+                const rect = canvas.getBoundingClientRect();
+                const touch = e.touches[0];
+                mouse.x = touch.clientX - rect.left;
+                mouse.y = touch.clientY - rect.top;
+                mouse.lastX = mouse.x;
+                mouse.lastY = mouse.y;
+                mouse.isDown = true;
+                mouse.dx = 0;
+                mouse.dy = 0;
+            });
+            
+            canvas.addEventListener('touchmove', function(e) {
+                e.preventDefault();
+                const rect = canvas.getBoundingClientRect();
+                const touch = e.touches[0];
+                mouse.x = touch.clientX - rect.left;
+                mouse.y = touch.clientY - rect.top;
+            });
+            
+            window.addEventListener('touchend', function() {
+                mouse.isDown = false;
+                mouse.dx = 0;
+                mouse.dy = 0;
+            });
+            
+            // 控制面板事件
+            document.getElementById('particleCount').addEventListener('input', function() {
+                params.particleCount = parseInt(this.value);
+                document.getElementById('particleCountValue').textContent = this.value;
+                
+                // 调整粒子数量
+                if (particles.length < params.particleCount) {
+                    while (particles.length < params.particleCount) {
+                        particles.push(new Particle());
+                    }
+                } else {
+                    particles = particles.slice(0, params.particleCount);
+                }
+            });
+            
+            document.getElementById('viscosity').addEventListener('input', function() {
+                params.viscosity = parseFloat(this.value);
+                document.getElementById('viscosityValue').textContent = this.value;
+            });
+            
+            document.getElementById('velocity').addEventListener('input', function() {
+                params.velocity = parseFloat(this.value);
+                document.getElementById('velocityValue').textContent = this.value;
+            });
+            
+            document.getElementById('particleSize').addEventListener('input', function() {
+                params.particleSize = parseFloat(this.value);
+                document.getElementById('particleSizeValue').textContent = this.value;
+                
+                // 更新所有粒子大小
+                particles.forEach(particle => {
+                    particle.size = params.particleSize * (0.8 + Math.random() * 0.4);
+                });
+            });
+            
+            // 颜色选择
+            document.querySelectorAll('.color-option').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // 移除所有按钮的选中状态
+                    document.querySelectorAll('.color-option').forEach(b => {
+                        b.classList.remove('ring-2', 'ring-white');
+                    });
+                    
+                    // 添加当前按钮的选中状态
+                    this.classList.add('ring-2', 'ring-white');
+                    
+                    // 更新颜色模式
+                    params.colorMode = this.dataset.color;
+                });
+            });
+            
+            // 默认选中蓝色
+            document.querySelector('.color-option[data-color="blue"]').classList.add('ring-2', 'ring-white');
+            
+            // 控制按钮
+            document.getElementById('startBtn').addEventListener('click', function() {
+                params.isPaused = false;
+                this.classList.remove('btn-secondary');
+                this.classList.add('btn-primary');
+                document.getElementById('pauseBtn').classList.remove('btn-primary');
+                document.getElementById('pauseBtn').classList.add('btn-secondary');
+            });
+            
+            document.getElementById('pauseBtn').addEventListener('click', function() {
+                params.isPaused = true;
+                this.classList.remove('btn-secondary');
+                this.classList.add('btn-primary');
+                document.getElementById('startBtn').classList.remove('btn-primary');
+                document.getElementById('startBtn').classList.add('btn-secondary');
+            });
+            
+            document.getElementById('resetBtn').addEventListener('click', function() {
+                initParticles();
+            });
+            
+            document.getElementById('clearBtn').addEventListener('click', function() {
+                // 清除大部分粒子，只保留少量
+                particles = particles.slice(0, Math.max(10, params.particleCount / 20));
+            });
+            
+            // 交互模式切换
+            const modeButtons = {
+                add: document.getElementById('modeAdd'),
+                push: document.getElementById('modePush'),
+                vortex: document.getElementById('modeVortex')
+            };
+            
+            function setMode(mode) {
+                params.interactionMode = mode;
+                
+                // 更新按钮样式
+                Object.keys(modeButtons).forEach(key => {
+                    if (key === mode) {
+                        modeButtons[key].classList.remove('btn-secondary');
+                        modeButtons[key].classList.add('btn-primary');
+                    } else {
+                        modeButtons[key].classList.remove('btn-primary');
+                        modeButtons[key].classList.add('btn-secondary');
+                    }
+                });
+            }
+            
+            document.getElementById('modeAdd').addEventListener('click', () => setMode('add'));
+            document.getElementById('modePush').addEventListener('click', () => setMode('push'));
+            document.getElementById('modeVortex').addEventListener('click', () => setMode('vortex'));
+            
+            // 初始化并开始动画
+            initParticles();
+            animate();
+            
+            // 5秒后隐藏交互提示
+            setTimeout(() => {
+                const hint = document.getElementById('interactionHint');
+                hint.style.opacity = '0';
+                hint.style.transition = 'opacity 1s ease';
+                setTimeout(() => hint.style.display = 'none', 1000);
+            }, 5000);
+        });
+    </script>
+</body>
+</html>

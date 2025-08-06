@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>图片转Base64</title>
+</head>
+<body>
+    <input type="file" id="fileInput" accept="image/*">
+    <textarea id="base64Result" rows="10" cols="50" style="margin-top:10px;"></textarea>
+
+    <script>
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                document.getElementById('base64Result').value = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+    </script>
+</body>
+</html>

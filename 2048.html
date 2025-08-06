@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>2048</title>
+    <style>
+        .grid { display: grid; grid-template-columns: repeat(4, 60px); gap: 5px; margin:10px; }
+        .cell { width: 60px; height: 60px; background: #ccc; text-align: center; line-height: 60px; font-size: 24px; }
+    </style>
+</head>
+<body>
+    <div class="grid" id="grid"></div>
+
+    <script>
+        let board = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]];
+        function render() {
+            const grid = document.getElementById('grid');
+            grid.innerHTML = '';
+            board.forEach(row => {
+                row.forEach(cell => {
+                    const div = document.createElement('div');
+                    div.className = 'cell';
+                    div.innerText = cell || '';
+                    grid.appendChild(div);
+                });
+            });
+        }
+
+        function addRandomTile() {
+            const emptyCells = [];
+            board.forEach((row, i) => row.forEach((cell, j) => {
+                if (cell === 0) emptyCells.push({i, j});
+            }));
+            if (emptyCells.length) {
+                const {i, j} = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+                board[i][j] = Math.random() < 0.9? 2 : 4;
+            }
+        }
+
+        // 简化的合并逻辑（完整需处理方向、边界，这里示意核心）
+        function merge(row) {
+            return row.filter(x => x).reduce((acc, curr) => {
+                if (acc[acc.length - 1] === curr) {
+                    acc[acc.length - 1] *= 2;
+                } else {
+                    acc.push(curr);
+                }
+                return acc;
+            }, []).concat(new Array(4 - row.filter(x => x).length).fill(0));
+        }
+
+        document.addEventListener('keydown', (e) => {
+            switch(e.key) {
+                case 'ArrowUp': 
+                    board = board[0].map((_, col) => merge(board.map(row => row[col]))).map((col, row) => col.map((val, col) => board[col][row] = val));
+                    break;
+                // 其他方向（左、右、下）逻辑类似，需补全 merge 处理，这里简化演示
+                case 'ArrowRight': board = board.map(row => merge(row.reverse()).reverse()); break;
+            }
+            addRandomTile();
+            render();
+        });
+
+        // 初始化
+        addRandomTile();
+        addRandomTile();
+        render();
+    </script>
+</body>
+</html>

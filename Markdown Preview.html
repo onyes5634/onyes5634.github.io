@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Markdown 预览</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        textarea { width: 48%; height: 300px; float: left; }
+        #preview { width: 48%; float: right; border: 1px solid #ccc; padding: 10px; min-height: 300px; }
+    </style>
+</head>
+<body>
+    <textarea id="mdInput"># 试试写 Markdown</textarea>
+    <div id="preview"></div>
+
+    <script>
+        const input = document.getElementById('mdInput');
+        const preview = document.getElementById('preview');
+        input.addEventListener('input', () => {
+            preview.innerHTML = marked.parse(input.value);
+        });
+    </script>
+</body>
+</html>

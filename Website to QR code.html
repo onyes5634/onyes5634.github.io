@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>二维码生成器</title>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+</head>
+<body>
+    <input type="text" id="text" placeholder="输入内容生成二维码" style="width:80%;padding:8px;margin:10px;">
+    <button onclick="generateQR()">生成二维码</button>
+    <div id="qrcode" style="margin-top:20px;"></div>
+
+    <script>
+        function generateQR() {
+            const text = document.getElementById('text').value;
+            QRCode.toCanvas(document.getElementById('qrcode'), text, (error) => {
+                if (error) console.error(error)
+            });
+        }
+    </script>
+</body>
+</html>
