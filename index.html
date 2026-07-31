@@ -103,6 +103,7 @@
             gap: 12px;
             margin-bottom: 20px;
             flex-wrap: wrap;
+            position: relative;
         }
         .theme-toggle, .search-toggle {
             background: var(--tag-bg);
@@ -127,7 +128,8 @@
         .search-box {
             display: none;
             width: 100%;
-            margin-bottom: 15px;
+            margin-bottom: 0px;
+            position: relative;
         }
         .search-box.active { display: block; }
         .search-box input {
@@ -143,7 +145,63 @@
         }
         .search-box input:focus {
             border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(52,152,219,0.1);
         }
+
+        /* ===== 搜索下拉建议 ===== */
+        .search-suggestions {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            right: 0;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.12);
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+            z-index: 1000;
+            padding: 8px 0;
+        }
+        .search-suggestions.show { display: block; }
+        .search-suggestions .suggestion-item {
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--text-color);
+            cursor: pointer;
+            transition: background 0.15s ease;
+            font-size: 0.95rem;
+        }
+        .search-suggestions .suggestion-item:hover {
+            background: var(--section-bg);
+        }
+        .search-suggestions .suggestion-item i {
+            color: var(--primary);
+            width: 20px;
+            text-align: center;
+        }
+        .search-suggestions .suggestion-item .tag-hint {
+            font-size: 0.75rem;
+            color: var(--text-light);
+            background: var(--tag-bg);
+            padding: 2px 12px;
+            border-radius: 12px;
+            margin-left: auto;
+            flex-shrink: 0;
+        }
+        .search-suggestions .no-result {
+            padding: 20px;
+            text-align: center;
+            color: var(--text-light);
+            font-size: 0.95rem;
+        }
+        [data-theme="dark"] .search-suggestions {
+            border-color: var(--border-color);
+        }
+
         .search-empty {
             display: none;
             text-align: center;
@@ -338,7 +396,7 @@
             padding: 22px 24px;
             border-radius: 14px;
             border: 1px solid var(--border-color);
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: all 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
             cursor: pointer;
             user-select: none;
             -webkit-tap-highlight-color: transparent;
@@ -364,7 +422,7 @@
             }
         }
 
-        /* 悬停光效 - 鼠标跟随光晕 */
+        /* 悬停光效 */
         .project-item::before {
             content: '';
             position: absolute;
@@ -389,10 +447,10 @@
             box-shadow: 0 12px 35px var(--hover-shadow);
             border-color: var(--primary);
         }
-        /* 点击弹性 - 按压回弹 */
+        /* 点击弹性 - 柔和回弹 */
         .project-item:active {
             transform: translateY(0px) scale(0.95) !important;
-            transition: transform 0.12s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: transform 0.15s cubic-bezier(0.18, 0.89, 0.32, 1.28) !important;
         }
         .project-item.hidden { 
             display: none;
@@ -513,7 +571,7 @@
             background: var(--social-bg);
             text-decoration: none;
             border: 1px solid var(--border-color);
-            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: all 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28);
         }
         .social-link:hover {
             transform: translateY(-8px) scale(1.08);
@@ -546,7 +604,7 @@
             font-size: 1.4rem;
             cursor: pointer;
             box-shadow: 0 4px 20px rgba(52, 152, 219, 0.3);
-            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: all 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28);
             opacity: 0;
             transform: translateY(20px) scale(0.8);
             pointer-events: none;
@@ -597,6 +655,7 @@
             .back-to-top { bottom: 20px; right: 20px; width: 44px; height: 44px; font-size: 1.2rem; }
             .projects-section, .contact-section { padding: 20px 16px; }
             .social-link { width: 48px; height: 48px; font-size: 1.5rem; }
+            .search-suggestions .suggestion-item { padding: 8px 16px; font-size: 0.9rem; }
         }
         @media (max-width: 480px) {
             .container { padding: 16px 12px; }
@@ -633,7 +692,9 @@
 
         <!-- ===== 搜索框 ===== -->
         <div class="search-box" id="searchBox">
-            <input type="text" id="searchInput" placeholder="🔍 搜索项目名称... 例如：贪吃蛇、2048">
+            <input type="text" id="searchInput" placeholder="🔍 搜索项目名称..." autocomplete="off">
+            <!-- ===== 搜索下拉建议 ===== -->
+            <div class="search-suggestions" id="searchSuggestions"></div>
             <div class="search-empty" id="searchEmpty">😅 没有找到匹配的项目</div>
         </div>
 
@@ -675,22 +736,22 @@
             <div id="games" class="projects-section">
                 <h2 class="category-title"><i class="fas fa-gamepad"></i> 游戏类项目</h2>
                 <div class="project-list">
-                    <div class="project-item" data-name="贪吃蛇" onclick="window.open('snake-game.html', '_blank')">
+                    <div class="project-item" data-name="贪吃蛇" data-url="snake-game.html" onclick="window.open(this.dataset.url, '_blank')">
                         <h3>贪吃蛇游戏</h3>
                         <p>经典的贪吃蛇游戏，键盘方向键控制移动。</p>
                         <a href="snake-game.html"><i class="fas fa-play"></i> 开始游戏</a>
                     </div>
-                    <div class="project-item" data-name="2048" onclick="window.open('2048.html', '_blank')">
+                    <div class="project-item" data-name="2048" data-url="2048.html" onclick="window.open(this.dataset.url, '_blank')">
                         <h3>2048游戏</h3>
                         <p>热门数字拼图游戏，方向键移动，相同数字合并。</p>
                         <a href="2048.html"><i class="fas fa-play"></i> 开始游戏</a>
                     </div>
-                    <div class="project-item" data-name="打砖块" onclick="window.open('breakout-game.html', '_blank')">
+                    <div class="project-item" data-name="打砖块" data-url="breakout-game.html" onclick="window.open(this.dataset.url, '_blank')">
                         <h3>打砖块游戏</h3>
                         <p>移动挡板接住小球，击碎所有砖块获胜。</p>
                         <a href="breakout-game.html"><i class="fas fa-play"></i> 开始游戏</a>
                     </div>
-                    <div class="project-item" data-name="华容道" onclick="window.open('Digital Huarong Road.html', '_blank')">
+                    <div class="project-item" data-name="华容道" data-url="Digital Huarong Road.html" onclick="window.open(this.dataset.url, '_blank')">
                         <h3>数字华容道</h3>
                         <p>移动数字方块，按顺序排列完成挑战。</p>
                         <a href="Digital Huarong Road.html"><i class="fas fa-play"></i> 开始游戏</a>
@@ -702,42 +763,42 @@
             <div id="tools" class="projects-section">
                 <h2 class="category-title"><i class="fas fa-tools"></i> 实用工具类</h2>
                 <div class="project-list">
-                    <div class="project-item" data-name="二维码" onclick="window.open('Website to QR code.html', '_blank')">
+                    <div class="project-item" data-name="二维码" data-url="Website to QR code.html" onclick="window.open(this.dataset.url, '_blank')">
                         <h3>二维码生成器</h3>
                         <p>输入文本或网址，快速生成二维码图片。</p>
                         <a href="Website to QR code.html"><i class="fas fa-qrcode"></i> 使用工具</a>
                     </div>
-                    <div class="project-item" data-name="取色器" onclick="window.open('Screen Color Picker.html', '_blank')">
+                    <div class="project-item" data-name="取色器" data-url="Screen Color Picker.html" onclick="window.open(this.dataset.url, '_blank')">
                         <h3>屏幕取色器</h3>
                         <p>拾取屏幕任意位置颜色，获取十六进制值。</p>
                         <a href="Screen Color Picker.html"><i class="fas fa-eyedropper"></i> 使用工具</a>
                     </div>
-                    <div class="project-item" data-name="Markdown" onclick="window.open('Markdown Preview.html', '_blank')">
+                    <div class="project-item" data-name="Markdown" data-url="Markdown Preview.html" onclick="window.open(this.dataset.url, '_blank')">
                         <h3>Markdown预览器</h3>
                         <p>实时将Markdown格式文本转换为HTML预览。</p>
                         <a href="Markdown Preview.html"><i class="fas fa-markdown"></i> 使用工具</a>
                     </div>
-                    <div class="project-item" data-name="Base64" onclick="window.open('image-to-base64.html', '_blank')">
+                    <div class="project-item" data-name="Base64" data-url="image-to-base64.html" onclick="window.open(this.dataset.url, '_blank')">
                         <h3>图片转Base64</h3>
                         <p>上传图片文件，转换为Base64编码。</p>
                         <a href="image-to-base64.html"><i class="fas fa-image"></i> 使用工具</a>
                     </div>
-                    <div class="project-item" data-name="密码" onclick="window.open('Random Password Generator.html', '_blank')">
+                    <div class="project-item" data-name="密码" data-url="Random Password Generator.html" onclick="window.open(this.dataset.url, '_blank')">
                         <h3>随机密码生成器</h3>
                         <p>生成高强度随机密码，含大小写字母、数字、特殊符号。</p>
                         <a href="Random Password Generator.html"><i class="fas fa-key"></i> 使用工具</a>
                     </div>
-                    <div class="project-item" data-name="待办清单" onclick="window.open('todo.html', '_blank')">
+                    <div class="project-item" data-name="待办清单" data-url="todo.html" onclick="window.open(this.dataset.url, '_blank')">
                         <h3>✅ 待办清单</h3>
                         <p>增删改任务，自动保存到本地，每天必用。</p>
                         <a href="todo.html"><i class="fas fa-list-check"></i> 使用工具</a>
                     </div>
-                    <div class="project-item" data-name="番茄时钟" onclick="window.open('pomodoro.html', '_blank')">
+                    <div class="project-item" data-name="番茄时钟" data-url="pomodoro.html" onclick="window.open(this.dataset.url, '_blank')">
                         <h3>🍅 番茄时钟</h3>
                         <p>25分钟专注 + 5分钟休息，提高工作效率。</p>
                         <a href="pomodoro.html"><i class="fas fa-clock"></i> 使用工具</a>
                     </div>
-                    <div class="project-item" data-name="单位换算" onclick="window.open('unit-convert.html', '_blank')">
+                    <div class="project-item" data-name="单位换算" data-url="unit-convert.html" onclick="window.open(this.dataset.url, '_blank')">
                         <h3>📏 单位换算</h3>
                         <p>长度、重量、温度、体积快速换算。</p>
                         <a href="unit-convert.html"><i class="fas fa-arrows-left-right"></i> 使用工具</a>
@@ -749,12 +810,12 @@
             <div id="simulations" class="projects-section">
                 <h2 class="category-title"><i class="fas fa-flask"></i> 模拟实验类</h2>
                 <div class="project-list">
-                    <div class="project-item" data-name="太阳系" onclick="window.open('solar-system-simulation.html', '_blank')">
+                    <div class="project-item" data-name="太阳系" data-url="solar-system-simulation.html" onclick="window.open(this.dataset.url, '_blank')">
                         <h3>太阳系模拟器</h3>
                         <p>模拟太阳系行星运行轨迹。</p>
                         <a href="solar-system-simulation.html"><i class="fas fa-globe"></i> 查看模拟</a>
                     </div>
-                    <div class="project-item" data-name="流体" onclick="window.open('fluid-simulator.html', '_blank')">
+                    <div class="project-item" data-name="流体" data-url="fluid-simulator.html" onclick="window.open(this.dataset.url, '_blank')">
                         <h3>流体物理模拟器</h3>
                         <p>基于物理引擎的流体模拟，展示液体流动效果。</p>
                         <a href="fluid-simulator.html"><i class="fas fa-tint"></i> 查看模拟</a>
@@ -840,13 +901,23 @@
                 }
             });
 
-            // ===== 搜索功能 =====
+            // ===== 搜索功能（带下拉建议） =====
             var searchToggle = document.getElementById('searchToggle');
             var searchBox = document.getElementById('searchBox');
             var searchInput = document.getElementById('searchInput');
             var searchEmpty = document.getElementById('searchEmpty');
+            var suggestions = document.getElementById('searchSuggestions');
             var projectItems = document.querySelectorAll('.project-item');
             var projectSections = document.querySelectorAll('.projects-section');
+
+            // 收集所有项目数据
+            var projectData = [];
+            projectItems.forEach(function(item) {
+                var name = item.getAttribute('data-name') || '';
+                var url = item.getAttribute('data-url') || '';
+                var category = item.closest('.projects-section').querySelector('.category-title')?.textContent?.trim() || '';
+                projectData.push({ name: name, url: url, category: category, element: item });
+            });
 
             searchToggle.addEventListener('click', function() {
                 searchBox.classList.toggle('active');
@@ -854,19 +925,75 @@
                     searchInput.focus();
                 } else {
                     searchInput.value = '';
+                    suggestions.classList.remove('show');
+                    suggestions.innerHTML = '';
                     filterProjects('');
                 }
             });
 
             searchInput.addEventListener('input', function() {
-                filterProjects(this.value.trim().toLowerCase());
+                var keyword = this.value.trim().toLowerCase();
+                filterProjects(keyword);
+                showSuggestions(keyword);
             });
+
+            // 点击外部关闭下拉
+            document.addEventListener('click', function(e) {
+                if (!searchBox.contains(e.target) && e.target !== searchToggle) {
+                    suggestions.classList.remove('show');
+                }
+            });
+
+            function showSuggestions(keyword) {
+                if (keyword === '') {
+                    suggestions.classList.remove('show');
+                    suggestions.innerHTML = '';
+                    return;
+                }
+
+                var matches = projectData.filter(function(item) {
+                    return item.name.toLowerCase().includes(keyword);
+                });
+
+                if (matches.length === 0) {
+                    suggestions.innerHTML = '<div class="no-result">😅 没有找到匹配的项目</div>';
+                    suggestions.classList.add('show');
+                    return;
+                }
+
+                var html = '';
+                matches.forEach(function(item) {
+                    var icon = 'fa-cube';
+                    if (item.category.includes('游戏')) icon = 'fa-gamepad';
+                    else if (item.category.includes('工具')) icon = 'fa-tools';
+                    else if (item.category.includes('模拟')) icon = 'fa-flask';
+                    html += '<div class="suggestion-item" data-url="' + item.url + '">' +
+                        '<i class="fas ' + icon + '"></i>' +
+                        '<span>' + item.name + '</span>' +
+                        '<span class="tag-hint">' + item.category + '</span>' +
+                        '</div>';
+                });
+                suggestions.innerHTML = html;
+                suggestions.classList.add('show');
+
+                // 点击建议项跳转
+                suggestions.querySelectorAll('.suggestion-item').forEach(function(el) {
+                    el.addEventListener('click', function() {
+                        var url = this.dataset.url;
+                        if (url) window.open(url, '_blank');
+                        suggestions.classList.remove('show');
+                        searchInput.value = '';
+                        filterProjects('');
+                        searchBox.classList.remove('active');
+                    });
+                });
+            }
 
             function filterProjects(keyword) {
                 var hasVisible = false;
                 projectItems.forEach(function(item) {
                     var name = item.getAttribute('data-name') || '';
-                    var match = keyword === '' || name.includes(keyword) || item.textContent.toLowerCase().includes(keyword);
+                    var match = keyword === '' || name.toLowerCase().includes(keyword) || item.textContent.toLowerCase().includes(keyword);
                     item.classList.toggle('hidden', !match);
                     if (match) hasVisible = true;
                 });
