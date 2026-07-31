@@ -390,7 +390,7 @@
             margin-top: 20px;
         }
         
-        /* ===== 卡片样式 - 回弹质感（修复版） ===== */
+        /* ===== 卡片样式 - 回弹质感（最终修复版） ===== */
         .project-item {
             background: var(--item-bg);
             padding: 22px 24px;
@@ -1084,76 +1084,53 @@
                 });
             });
 
-            // ===== 卡片回弹 + 跳转（修复版：使用 setTimeout 替代 animationend） =====
+            // ===== 卡片回弹（最简单可靠的方式） =====
             document.querySelectorAll('.project-item').forEach(function(card) {
                 var url = card.getAttribute('data-url');
                 if (!url) return;
 
                 var isAnimating = false;
-                var bounceTimer = null;
-                var resetTimer = null;
 
-                function triggerBounce(e) {
-                    // 如果点击的是内部链接，不处理
-                    if (e && e.target.closest('a')) return;
-                    // 如果正在动画中，忽略本次点击
+                function handleClick(e) {
+                    // 如果点击的是内部链接（a标签），忽略
+                    if (e.target.closest('a')) {
+                        e.preventDefault();
+                        return;
+                    }
+                    
+                    // 防止动画期间重复点击
                     if (isAnimating) return;
-                    
                     isAnimating = true;
-                    
-                    // 移除之前的动画类
+
+                    // 触发回弹动画
                     card.classList.remove('pressed');
-                    // 强制回流确保动画重新触发
-                    void card.offsetWidth;
+                    void card.offsetWidth; // 强制回流
                     card.classList.add('pressed');
 
-                    // 清除之前的定时器
-                    if (bounceTimer) {
-                        clearTimeout(bounceTimer);
-                        bounceTimer = null;
-                    }
-                    if (resetTimer) {
-                        clearTimeout(resetTimer);
-                        resetTimer = null;
-                    }
-
-                    // 计算动画时长（触摸设备 350ms，鼠标 450ms）
+                    // 动画时长：鼠标 450ms，触摸 350ms
                     var isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-                    var animDuration = isTouch ? 350 : 450;
+                    var duration = isTouch ? 350 : 450;
 
-                    // 动画结束后移除 pressed 类并跳转
-                    bounceTimer = setTimeout(function() {
+                    // 动画结束后移除类并跳转
+                    setTimeout(function() {
                         card.classList.remove('pressed');
-                        // 跳转
                         window.open(url, '_blank');
-                        // 重置状态
                         isAnimating = false;
-                        bounceTimer = null;
-                    }, animDuration + 50);
-
-                    // 安全兜底：防止卡死
-                    resetTimer = setTimeout(function() {
-                        if (isAnimating) {
-                            card.classList.remove('pressed');
-                            isAnimating = false;
-                            resetTimer = null;
-                        }
-                    }, animDuration + 300);
+                    }, duration + 30);
                 }
 
-                // 鼠标事件
+                // 鼠标点击
                 card.addEventListener('mousedown', function(e) {
-                    // 忽略右键
                     if (e.button !== 0) return;
-                    triggerBounce(e);
+                    handleClick(e);
                 });
 
-                // 触摸事件
+                // 触摸点击
                 card.addEventListener('touchstart', function(e) {
-                    triggerBounce(e);
+                    handleClick(e);
                 }, { passive: true });
 
-                // 阻止内部链接默认行为（避免重复跳转）
+                // 阻止内部 a 标签的默认跳转
                 card.querySelectorAll('a').forEach(function(link) {
                     link.addEventListener('click', function(e) {
                         e.preventDefault();
