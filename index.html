@@ -55,7 +55,7 @@
             font-family: system-ui, -apple-system, sans-serif;
             max-width: 100%;
             margin: 0;
-            padding: 20px;
+            padding: 0;
             color: var(--text-color);
             line-height: 1.6;
             min-height: 100vh;
@@ -114,11 +114,11 @@
             100% { transform: translateX(-100px) translateY(100px); opacity: 0; }
         }
         
-        /* ===== 主卡片（全屏） ===== */
+        /* ===== 主卡片（真正全屏） ===== */
         .container {
             background-color: var(--bg-card);
             padding: 40px 50px;
-            border-radius: 20px;
+            border-radius: 0;
             box-shadow: var(--shadow);
             transition: background 0.4s ease, box-shadow 0.4s ease, transform 0.3s ease;
             position: relative;
@@ -126,9 +126,10 @@
             opacity: 0;
             transform: translateY(20px);
             animation: fadeInUp 0.5s ease forwards;
-            max-width: 1400px;
-            margin: 0 auto;
-            border: 1px solid var(--border-color);
+            max-width: 100%;
+            margin: 0;
+            border: none;
+            min-height: 100vh;
         }
         @keyframes fadeInUp {
             to { opacity: 1; transform: translateY(0); }
@@ -236,18 +237,12 @@
             padding: 3px;
             overflow: hidden;
         }
-        .profile-pic-inner {
+        .profile-pic img {
             width: 100%;
             height: 100%;
             border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg, #3498db, #9b59b6);
-            font-size: 3.8rem;
-            color: #fff;
-            font-weight: bold;
-            user-select: none;
+            object-fit: cover;
+            display: block;
         }
         .profile-pic:hover {
             transform: scale(1.05) rotate(4deg);
@@ -617,11 +612,10 @@
         
         /* ===== 响应式 ===== */
         @media (max-width: 768px) {
-            body { padding: 12px; }
-            .container { padding: 28px 18px; border-radius: 16px; }
+            body { padding: 0; }
+            .container { padding: 24px 16px; }
             h1 { font-size: 2.0rem; }
             .profile-pic { width: 110px; height: 110px; }
-            .profile-pic-inner { font-size: 3rem; }
             .social-link { font-size: 1.5rem; width: 48px; height: 48px; }
             .project-list { grid-template-columns: 1fr; }
             .category-nav { gap: 10px; }
@@ -632,11 +626,10 @@
             .contact-section { padding: 20px 16px; }
         }
         @media (max-width: 480px) {
-            .container { padding: 20px 14px; }
+            .container { padding: 16px 12px; }
             h1 { font-size: 1.6rem; }
             .intro { font-size: 1rem; }
             .profile-pic { width: 90px; height: 90px; }
-            .profile-pic-inner { font-size: 2.4rem; }
         }
         @media (prefers-reduced-motion: reduce) {
             * { animation-duration: 0.001s !important; transition-duration: 0.001s !important; }
@@ -680,7 +673,13 @@
         <!-- ===== 头部 ===== -->
         <header>
             <div class="profile-pic">
-                <div class="profile-pic-inner">😊</div>
+                <img src="https://raw.githubusercontent.com/onyes5634/onyes5634.github.io/main/wdtx.jpg?v=4" 
+                     alt="个人头像" 
+                     loading="lazy"
+                     width="134" 
+                     height="134"
+                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                <div class="profile-pic-inner" style="display:none;width:100%;height:100%;border-radius:50%;align-items:center;justify-content:center;background:linear-gradient(135deg,#3498db,#9b59b6);font-size:3.8rem;color:#fff;font-weight:bold;user-select:none;">😊</div>
             </div>
             <h1 class="glow-text" data-text="欢迎来到我的网站！">欢迎来到我的网站！</h1>
             <p class="subtitle">探索、分享与连接的空间</p>
@@ -817,7 +816,7 @@
 
         <!-- ===== 页脚 ===== -->
         <footer>
-            <p>© 2025 我的网站 | 托管于 GitHub Pages</p>
+            <p>© <span id="currentYear"></span> 我的网站 | 托管于 GitHub Pages</p>
         </footer>
     </div>
 
@@ -825,6 +824,11 @@
     <script>
         (function() {
             'use strict';
+
+            // ============================================================
+            // 0. 自动更新年份
+            // ============================================================
+            document.getElementById('currentYear').textContent = new Date().getFullYear();
 
             // ============================================================
             // 1. 加载动画
