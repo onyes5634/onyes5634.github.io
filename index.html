@@ -7,18 +7,8 @@
     <meta name="description" content="onyes5634 的个人网站，分享实用工具和小游戏">
     <meta name="keywords" content="工具, 游戏, 编程, 前端">
     
-    <!-- 性能优化：减少预连接，只保留必要的 -->
-    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
-    
-    <!-- 性能优化：Font Awesome 按需加载（只加载必要的图标子集） -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/fontawesome.min.css" media="print" onload="this.media='all'">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/solid.min.css" media="print" onload="this.media='all'">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/brands.min.css" media="print" onload="this.media='all'">
-    <noscript>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/fontawesome.min.css">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/solid.min.css">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/brands.min.css">
-    </noscript>
+    <!-- Font Awesome 完整版（只发一个请求，加载更快） -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         /* ===== 深色/浅色模式变量 ===== */
@@ -481,12 +471,14 @@
             padding-left: 8px;
         }
         
-        /* ===== 底部社交 ===== */
+        /* ===== 底部社交 + 友情链接 ===== */
         .social-links {
             margin-top: 50px;
             display: flex;
             justify-content: center;
+            align-items: center;
             gap: 30px;
+            flex-wrap: wrap;
         }
         .social-link {
             color: var(--text-color);
@@ -508,6 +500,43 @@
             box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
             color: var(--primary);
             border-color: var(--primary);
+        }
+
+        /* ===== 友情链接 ===== */
+        .friend-link {
+            color: var(--text-color);
+            font-size: 1.1rem;
+            transition: all 0.4s ease;
+            padding: 10px 24px;
+            border-radius: 30px;
+            background: var(--social-bg);
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+            text-decoration: none;
+            border: 1px solid var(--border-color);
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+        }
+        .friend-link i {
+            font-size: 1.2rem;
+            color: var(--primary);
+        }
+        .friend-link:hover {
+            transform: translateY(-8px) scale(1.04);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+            color: var(--primary);
+            border-color: var(--primary);
+            background: var(--primary);
+            color: #fff;
+        }
+        .friend-link:hover i {
+            color: #fff;
+        }
+        .friend-label {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            margin-right: 4px;
         }
         
         /* ===== 页脚 ===== */
@@ -633,6 +662,8 @@
             .back-to-top { bottom: 20px; right: 20px; width: 44px; height: 44px; font-size: 1.2rem; }
             .projects-section { padding: 20px 16px; }
             .contact-section { padding: 20px 16px; }
+            .social-links { gap: 16px; }
+            .friend-link { font-size: 0.95rem; padding: 8px 18px; }
         }
         @media (max-width: 480px) {
             .container { padding: 20px 14px; }
@@ -805,13 +836,16 @@
             </div>
         </main>
 
-        <!-- ===== 底部社交 ===== -->
+        <!-- ===== 底部社交 + 友情链接 ===== -->
         <div class="social-links">
             <a href="https://github.com/onyes5634" class="social-link" title="GitHub" target="_blank" rel="noopener noreferrer">
                 <i class="fab fa-github"></i>
             </a>
             <a href="mailto:onyes5634@163.com" class="social-link" title="发送邮件" target="_blank" rel="noopener noreferrer">
                 <i class="fas fa-envelope"></i>
+            </a>
+            <a href="https://xhc.dpdns.org/" class="friend-link" title="友情链接" target="_blank" rel="noopener noreferrer">
+                <i class="fas fa-link"></i> 友情链接
             </a>
         </div>
 
@@ -835,21 +869,4 @@
             // 1. 加载动画
             // ============================================================
             window.addEventListener('load', function() {
-                var loader = document.getElementById('loaderWrapper');
-                setTimeout(function() {
-                    loader.classList.add('hidden');
-                }, 400);
-            });
-
-            // ============================================================
-            // 2. 流星效果（性能优化：最多3颗）
-            // ============================================================
-            function createMeteors() {
-                var sky = document.getElementById('starrySky');
-                var MAX_METEORS = 3;
-                setInterval(function() {
-                    var existing = sky.querySelectorAll('.meteor').length;
-                    if (existing >= MAX_METEORS) return;
-                    var meteor = document.createElement('div');
-                    meteor.className = 'meteor';
-                    var size = Math.random() * 50
+                var loader
