@@ -666,7 +666,7 @@
 
         <!-- ===== 访问计数 ===== -->
         <div class="visitor-count">
-            <i class="fas fa-eye"></i> 访问量：<span id="visitCount">加载中...</span>
+            <i class="fas fa-eye"></i> 访问量：<span id="busuanzi_value_site_pv">加载中...</span>
         </div>
 
         <!-- ===== 页脚 ===== -->
@@ -758,18 +758,8 @@
                     if (target) target.scrollIntoView({ behavior: 'smooth' });
                 });
             });
-
-            // ===== 访问计数器 =====
-            var today = new Date().toDateString();
-            var lastVisit = localStorage.getItem('lastVisitDate');
-            var count = parseInt(localStorage.getItem('visitCount') || '0', 10);
-            if (lastVisit !== today) {
-                count += 1;
-                localStorage.setItem('visitCount', count);
-                localStorage.setItem('lastVisitDate', today);
-            }
-            document.getElementById('visitCount').textContent = count || '0';
         })();
     </script>
+<script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 </body>
 </html>
