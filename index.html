@@ -81,12 +81,11 @@
             transition: background 0.3s ease, color 0.3s ease;
             cursor: default;
         }
-        /* 可点击元素显示手型 */
         a, button, .project-item, .category-link, .tag, .social-link, .theme-toggle, .search-toggle {
             cursor: pointer;
         }
         
-        /* ===== 主容器（全屏） ===== */
+        /* ===== 主容器 ===== */
         .container {
             background: var(--bg-card);
             padding: 40px 50px;
@@ -333,7 +332,7 @@
             margin-top: 20px;
         }
         
-        /* ===== 卡片样式（含所有优化） ===== */
+        /* ===== 卡片样式 ===== */
         .project-item {
             background: var(--item-bg);
             padding: 22px 24px;
@@ -345,12 +344,10 @@
             -webkit-tap-highlight-color: transparent;
             position: relative;
             overflow: hidden;
-            /* 3. 卡片进入动画 - 初始状态 */
             opacity: 0;
-            transform: translateY(30px);
+            transform: translateY(30px) scale(1);
             animation: cardFadeIn 0.6s ease forwards;
         }
-        /* 每个卡片延迟不同 */
         .project-item:nth-child(1) { animation-delay: 0.05s; }
         .project-item:nth-child(2) { animation-delay: 0.10s; }
         .project-item:nth-child(3) { animation-delay: 0.15s; }
@@ -363,11 +360,11 @@
         @keyframes cardFadeIn {
             to {
                 opacity: 1;
-                transform: translateY(0);
+                transform: translateY(0) scale(1);
             }
         }
 
-        /* 4. 悬停光效 */
+        /* 悬停光效 - 鼠标跟随光晕 */
         .project-item::before {
             content: '';
             position: absolute;
@@ -375,25 +372,27 @@
             left: -50%;
             width: 200%;
             height: 200%;
-            background: radial-gradient(circle, rgba(52,152,219,0.08) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(52,152,219,0.12) 0%, transparent 70%);
             opacity: 0;
             transition: opacity 0.4s ease;
             pointer-events: none;
-            transform: translate(var(--mx, 0), var(--my, 0));
+            transform: translate(calc(var(--mx, 0) * 1px - 50%), calc(var(--my, 0) * 1px - 50%));
+            will-change: transform, opacity;
         }
         .project-item:hover::before {
             opacity: 1;
         }
 
+        /* 悬停上浮 */
         .project-item:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 25px var(--hover-shadow);
+            transform: translateY(-6px) scale(1.01);
+            box-shadow: 0 12px 35px var(--hover-shadow);
             border-color: var(--primary);
         }
-        /* 点击弹性 */
+        /* 点击弹性 - 按压回弹 */
         .project-item:active {
-            transform: scale(0.95) !important;
-            transition: transform 0.15s ease;
+            transform: translateY(0px) scale(0.95) !important;
+            transition: transform 0.12s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
         .project-item.hidden { 
             display: none;
@@ -430,7 +429,7 @@
         }
         .project-item a:hover { gap: 12px; color: var(--accent); }
         
-        /* ===== 5. 滚动进度条 ===== */
+        /* ===== 滚动进度条 ===== */
         .scroll-progress {
             position: fixed;
             top: 0;
@@ -514,12 +513,13 @@
             background: var(--social-bg);
             text-decoration: none;
             border: 1px solid var(--border-color);
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
         .social-link:hover {
-            transform: translateY(-6px) scale(1.05);
+            transform: translateY(-8px) scale(1.08);
             color: var(--primary);
             border-color: var(--primary);
+            box-shadow: 0 8px 25px rgba(52,152,219,0.15);
         }
         
         /* ===== 页脚 ===== */
@@ -546,7 +546,7 @@
             font-size: 1.4rem;
             cursor: pointer;
             box-shadow: 0 4px 20px rgba(52, 152, 219, 0.3);
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
             opacity: 0;
             transform: translateY(20px) scale(0.8);
             pointer-events: none;
@@ -559,6 +559,7 @@
         }
         .back-to-top:hover {
             transform: translateY(-4px) scale(1.08);
+            box-shadow: 0 8px 30px rgba(52, 152, 219, 0.4);
         }
         
         /* ===== 访问计数 ===== */
@@ -867,4 +868,46 @@
                     var name = item.getAttribute('data-name') || '';
                     var match = keyword === '' || name.includes(keyword) || item.textContent.toLowerCase().includes(keyword);
                     item.classList.toggle('hidden', !match);
-                    if (match) has
+                    if (match) hasVisible = true;
+                });
+                projectSections.forEach(function(section) {
+                    var visible = section.querySelectorAll('.project-item:not(.hidden)').length > 0;
+                    section.classList.toggle('hidden', !visible);
+                });
+                searchEmpty.classList.toggle('show', keyword !== '' && !hasVisible);
+            }
+
+            // ===== 回到顶部 =====
+            var backBtn = document.getElementById('backToTop');
+            window.addEventListener('scroll', function() {
+                backBtn.classList.toggle('visible', window.scrollY > 400);
+            });
+            backBtn.addEventListener('click', function() {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+
+            // ===== 分类导航平滑滚动 =====
+            document.querySelectorAll('a[href^="#"]').forEach(function(anchor) {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    var target = document.querySelector(this.getAttribute('href'));
+                    if (target) target.scrollIntoView({ behavior: 'smooth' });
+                });
+            });
+
+            // ===== 卡片鼠标跟随光晕 =====
+            document.querySelectorAll('.project-item').forEach(function(card) {
+                card.addEventListener('mousemove', function(e) {
+                    var rect = this.getBoundingClientRect();
+                    var x = e.clientX - rect.left;
+                    var y = e.clientY - rect.top;
+                    this.style.setProperty('--mx', x);
+                    this.style.setProperty('--my', y);
+                });
+            });
+
+        })();
+    </script>
+    <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+</body>
+</html>
