@@ -390,7 +390,7 @@
             margin-top: 20px;
         }
         
-        /* ===== 卡片样式 - 最终修复版（用 transition 替代 animation） ===== */
+        /* ===== 卡片样式 ===== */
         .project-item {
             background: var(--item-bg);
             padding: 22px 24px;
@@ -401,13 +401,11 @@
             -webkit-tap-highlight-color: transparent;
             position: relative;
             overflow: hidden;
-            /* 用 transition 实现淡入，不用 animation */
             opacity: 0;
             transform: translateY(30px) scale(1);
             transition: opacity 0.5s ease, transform 0.5s ease;
             will-change: transform, opacity;
         }
-        /* 卡片可见状态 - 由 JS 控制 */
         .project-item.visible {
             opacity: 1;
             transform: translateY(0) scale(1);
@@ -442,19 +440,17 @@
                         border-color 0.3s ease;
         }
 
-        /* ===== 回弹动画 - 只控制 scale，不影响位置 ===== */
+        /* ===== 回弹动画 - 一次回弹 ===== */
         @keyframes pressBounce {
             0%   { transform: scale(1); }
-            15%  { transform: scale(0.92); }
-            45%  { transform: scale(1.04); }
-            70%  { transform: scale(0.98); }
+            20%  { transform: scale(0.92); }
+            60%  { transform: scale(1.04); }
             100% { transform: scale(1); }
         }
         @keyframes pressBounceTouch {
             0%   { transform: scale(1); }
-            20%  { transform: scale(0.92); }
-            50%  { transform: scale(1.04); }
-            75%  { transform: scale(0.98); }
+            25%  { transform: scale(0.92); }
+            65%  { transform: scale(1.04); }
             100% { transform: scale(1); }
         }
 
@@ -907,7 +903,7 @@
                 progressBar.style.width = progress + '%';
             });
 
-            // ===== 卡片淡入（用 transition 替代 animation） =====
+            // ===== 卡片淡入 =====
             var projectItems = document.querySelectorAll('.project-item');
             projectItems.forEach(function(item, index) {
                 setTimeout(function() {
@@ -1065,7 +1061,7 @@
                 });
             });
 
-            // ===== 卡片回弹（最终极简版） =====
+            // ===== 卡片回弹（一次回弹） =====
             projectItems.forEach(function(card) {
                 var url = card.getAttribute('data-url');
                 if (!url) return;
@@ -1080,7 +1076,6 @@
                     if (isAnimating) return;
                     isAnimating = true;
 
-                    // 触发回弹
                     card.classList.remove('pressed');
                     void card.offsetWidth;
                     card.classList.add('pressed');
