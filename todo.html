@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>待办清单 - Onyes 的小站</title>
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: system-ui, sans-serif;
+            background: #f0f2f5;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+        .container {
+            max-width: 600px;
+            width: 100%;
+            background: #fff;
+            border-radius: 24px;
+            padding: 40px 35px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+            height: fit-content;
+        }
+        .header { display: flex; align-items: center; gap: 12px; margin-bottom: 25px; }
+        .header h1 { font-size: 1.8rem; font-weight: 700; color: #222; }
+        .header i { font-size: 2rem; color: #3498db; }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #3498db;
+            text-decoration: none;
+            font-size: 0.95rem;
+        }
+        .back-link:hover { text-decoration: underline; }
+        .input-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+        .input-row input {
+            flex: 1;
+            padding: 14px 18px;
+            border: 2px solid #e0e0e0;
+            border-radius: 14px;
+            font-size: 1rem;
+            outline: none;
+            transition: 0.2s;
+        }
+        .input-row input:focus { border-color: #3498db; }
+        .input-row button {
+            padding: 14px 24px;
+            background: #3498db;
+            color: #fff;
+            border: none;
+            border-radius: 14px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            white-space: nowrap;
+        }
+        .input-row button:hover { background: #2980b9; transform: scale(1.02); }
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            color: #888;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #eee;
+        }
+        .todo-list { list-style: none; }
+        .todo-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            background: #f8f9fb;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            transition: 0.2s;
+        }
+        .todo-item:hover { background: #eef1f5; }
+        .todo-item .checkbox {
+            width: 22px;
+            height: 22px;
+            border: 2px solid #ccc;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: 0.2s;
+            background: #fff;
+        }
+        .todo-item .checkbox.done {
+            background: #3498db;
+            border-color: #3498db;
+            color: #fff;
+        }
+        .todo-item .checkbox.done::after {
+            content: "✓";
+            font-size: 14px;
+            font-weight: 700;
+        }
+        .todo-item .text {
+            flex: 1;
+            font-size: 1rem;
+            color: #222;
+            word-break: break-word;
+        }
+        .todo-item .text.done {
+            text-decoration: line-through;
+            color: #aaa;
+        }
+        .todo-item .del {
+            color: #ccc;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: 0.2s;
+            padding: 0 4px;
+        }
+        .todo-item .del:hover { color: #e74c3c; }
+        .empty { text-align: center; color: #aaa; padding: 30px 0; font-size: 1rem; }
+        .clear-btn {
+            margin-top: 16px;
+            padding: 10px;
+            width: 100%;
+            border: 1px solid #eee;
+            border-radius: 12px;
+            background: transparent;
+            color: #aaa;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .clear-btn:hover { background: #fef0f0; color: #e74c3c; border-color: #e74c3c; }
+        @media (max-width: 480px) {
+            .container { padding: 25px 18px; }
+            .input-row { flex-wrap: wrap; }
+            .input-row button { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-link"><i class="fas fa-arrow-left"></i> 返回首页</a>
+        <div class="header">
+            <i class="fas fa-list-check"></i>
+            <h1>待办清单</h1>
+        </div>
+
+        <div class="input-row">
+            <input type="text" id="todoInput" placeholder="输入待办事项..." autofocus>
+            <button id="addBtn"><i class="fas fa-plus"></i> 添加</button>
+        </div>
+
+        <div class="stats">
+            <span id="totalCount">共 0 项</span>
+            <span id="doneCount">已完成 0 项</span>
+        </div>
+
+        <ul class="todo-list" id="todoList">
+            <li class="empty">✨ 还没有待办事项，添加一条吧</li>
+        </ul>
+
+        <button class="clear-btn" id="clearBtn"><i class="fas fa-trash-can"></i> 清除所有已完成</button>
+    </div>
+
+    <script>
+        let todos = JSON.parse(localStorage.getItem('todos')) || [];
+
+        function save() {
+            localStorage.setItem('todos', JSON.stringify(todos));
+            render();
+        }
+
+        function render() {
+            const list = document.getElementById('todoList');
+            const total = document.getElementById('totalCount');
+            const done = document.getElementById('doneCount');
+
+            if (todos.length === 0) {
+                list.innerHTML = '<li class="empty">✨ 还没有待办事项，添加一条吧</li>';
+                total.textContent = '共 0 项';
+                done.textContent = '已完成 0 项';
+                return;
+            }
+
+            let html = '';
+            let doneCount = 0;
+            todos.forEach((t, i) => {
+                if (t.done) doneCount++;
+                html += `
+                    <li class="todo-item">
+                        <div class="checkbox ${t.done ? 'done' : ''}" data-index="${i}"></div>
+                        <span class="text ${t.done ? 'done' : ''}">${escapeHtml(t.text)}</span>
+                        <span class="del" data-index="${i}"><i class="fas fa-xmark"></i></span>
+                    </li>
+                `;
+            });
+            list.innerHTML = html;
+            total.textContent = `共 ${todos.length} 项`;
+            done.textContent = `已完成 ${doneCount} 项`;
+
+            // 绑定事件
+            list.querySelectorAll('.checkbox').forEach(el => {
+                el.addEventListener('click', function() {
+                    const i = parseInt(this.dataset.index);
+                    todos[i].done = !todos[i].done;
+                    save();
+                });
+            });
+            list.querySelectorAll('.del').forEach(el => {
+                el.addEventListener('click', function() {
+                    const i = parseInt(this.dataset.index);
+                    todos.splice(i, 1);
+                    save();
+                });
+            });
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        document.getElementById('addBtn').addEventListener('click', function() {
+            const input = document.getElementById('todoInput');
+            const text = input.value.trim();
+            if (!text) return;
+            todos.push({ text, done: false });
+            input.value = '';
+            input.focus();
+            save();
+        });
+
+        document.getElementById('todoInput').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') document.getElementById('addBtn').click();
+        });
+
+        document.getElementById('clearBtn').addEventListener('click', function() {
+            todos = todos.filter(t => !t.done);
+            save();
+        });
+
+        render();
+    </script>
+</body>
+</html>

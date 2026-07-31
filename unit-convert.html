@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>单位换算 - Onyes 的小站</title>
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: system-ui, sans-serif;
+            background: #f0f2f5;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+        .container {
+            max-width: 560px;
+            width: 100%;
+            background: #fff;
+            border-radius: 24px;
+            padding: 40px 35px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+            height: fit-content;
+        }
+        .back-link { display: inline-block; margin-bottom: 20px; color: #3498db; text-decoration: none; font-size: 0.95rem; }
+        .back-link:hover { text-decoration: underline; }
+        .header { display: flex; align-items: center; gap: 12px; margin-bottom: 25px; }
+        .header h1 { font-size: 1.8rem; font-weight: 700; color: #222; }
+        .header i { font-size: 2rem; color: #27ae60; }
+        .type-selector {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 25px;
+        }
+        .type-btn {
+            padding: 8px 18px;
+            border: 2px solid #e0e0e0;
+            border-radius: 30px;
+            background: transparent;
+            color: #666;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: 0.2s;
+            font-weight: 500;
+        }
+        .type-btn.active { border-color: #27ae60; background: #eafaf1; color: #27ae60; }
+        .type-btn:hover { border-color: #27ae60; }
+        .converter { margin-top: 10px; }
+        .row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+        .row label { font-size: 0.85rem; color: #888; min-width: 50px; }
+        .row input, .row select {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 14px;
+            font-size: 1rem;
+            outline: none;
+            transition: 0.2s;
+            background: #fafbfc;
+        }
+        .row input:focus, .row select:focus { border-color: #27ae60; }
+        .swap-btn {
+            padding: 8px 14px;
+            border: none;
+            border-radius: 50%;
+            background: #ecf0f1;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: 0.2s;
+            color: #555;
+        }
+        .swap-btn:hover { background: #d5dbdb; transform: rotate(180deg); }
+        .result-box {
+            margin-top: 20px;
+            padding: 18px 20px;
+            background: #f8f9fb;
+            border-radius: 16px;
+            font-size: 1.2rem;
+            color: #222;
+            text-align: center;
+        }
+        .result-box small { color: #888; font-size: 0.85rem; }
+        .formula { font-size: 0.85rem; color: #aaa; text-align: center; margin-top: 12px; }
+        @media (max-width: 480px) {
+            .container { padding: 25px 18px; }
+            .row { flex-wrap: wrap; }
+            .row label { min-width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-link"><i class="fas fa-arrow-left"></i> 返回首页</a>
+        <div class="header">
+            <i class="fas fa-arrows-left-right"></i>
+            <h1>单位换算</h1>
+        </div>
+
+        <div class="type-selector" id="typeSelector">
+            <button class="type-btn active" data-type="length">📏 长度</button>
+            <button class="type-btn" data-type="weight">⚖️ 重量</button>
+            <button class="type-btn" data-type="temperature">🌡️ 温度</button>
+            <button class="type-btn" data-type="volume">💧 体积</button>
+        </div>
+
+        <div class="converter" id="converter">
+            <div class="row">
+                <label>从</label>
+                <input type="number" id="inputVal" value="1" step="any">
+                <select id="fromUnit"></select>
+            </div>
+            <div style="text-align:center;margin:-4px 0 6px;">
+                <button class="swap-btn" id="swapBtn"><i class="fas fa-arrow-down"></i></button>
+            </div>
+            <div class="row">
+                <label>到</label>
+                <input type="text" id="outputVal" readonly>
+                <select id="toUnit"></select>
+            </div>
+        </div>
+
+        <div class="result-box" id="resultBox">
+            <span id="resultText">1 米 = 1 米</span>
+            <br><small id="resultDetail">精确换算</small>
+        </div>
+        <div class="formula" id="formulaDisplay">1 米 = 1 米</div>
+    </div>
+
+    <script>
+        const units = {
+            length: {
+                name: '长度',
+                units: { '米': 1, '千米': 1000, '厘米': 0.01, '毫米': 0.001, '英尺': 0.3048, '英寸': 0.0254, '码': 0.9144, '英里': 1609.344 },
+                display: { '米': 'm', '千米': 'km', '厘米': 'cm', '毫米': 'mm', '英尺': 'ft', '英寸': 'in', '码': 'yd', '英里': 'mi' }
+            },
+            weight: {
+                name: '重量',
+                units: { '千克': 1, '克': 0.001, '毫克': 0.000001, '磅': 0.453592, '盎司': 0.0283495, '斤': 0.5, '两': 0.05 },
+                display: { '千克': 'kg', '克': 'g', '毫克': 'mg', '磅': 'lb', '盎司': 'oz', '斤': '斤', '两': '两' }
+            },
+            temperature: {
+                name: '温度',
+                units: { '摄氏度': 'C', '华氏度': 'F', '开尔文': 'K' },
+                display: { '摄氏度': '°C', '华氏度': '°F', '开尔文': 'K' }
+            },
+            volume: {
+                name: '体积',
+                units: { '升': 1, '毫升': 0.001, '加仑': 3.78541, '品脱': 0.473176, '杯': 0.236588 },
+                display: { '升': 'L', '毫升': 'mL', '加仑': 'gal', '品脱': 'pt', '杯': 'cup' }
+            }
+        };
+
+        let currentType = 'length';
+        let fromUnit = '米';
+        let toUnit = '千米';
+
+        const typeBtns = document.querySelectorAll('.type-btn');
+        const fromSelect = document.getElementById('fromUnit');
+        const toSelect = document.getElementById('toUnit');
+        const inputVal = document.getElementById('inputVal');
+        const outputVal = document.getElementById('outputVal');
+        const resultText = document.getElementById('resultText');
+        const resultDetail = document.getElementById('resultDetail');
+        const formulaDisplay = document.getElementById('formulaDisplay');
+        const swapBtn = document.getElementById('swapBtn');
+
+        function getUnitList(type) {
+            return Object.keys(units[type].units);
+        }
+
+        function isTemperature(type) { return type === 'temperature'; }
+
+        function convert(val, from, to, type) {
+            if (isTemperature(type)) {
+                if (from === '摄氏度' && to === '华氏度') return val * 9/5 + 32;
+                if (from === '华氏度' && to === '摄氏度') return (val - 32) * 5/9;
+                if (from === '摄氏度' && to === '开尔文') return val + 273.15;
+                if (from === '开尔文' && to === '摄氏度') return val - 273.15;
+                if (from === '华氏度' && to === '开尔文') return (val - 32) * 5/9 + 273.15;
+                if (from === '开尔文' && to === '华氏度') return (val - 273.15) * 9/5 + 32;
+                return val;
+            }
+            const base = val * units[type].units[from];
+            return base / units[type].units[to];
+        }
+
+        function renderUnits() {
+            const list = getUnitList(currentType);
+            const fromVal = fromSelect.value || fromUnit;
+            const toVal = toSelect.value || toUnit;
+            fromSelect.innerHTML = list.map(u => `<option value="${u}" ${u===fromVal?'selected':''}>${u}</option>`).join('');
+            toSelect.innerHTML = list.map(u => `<option value="${u}" ${u===toVal?'selected':''}>${u}</option>`).join('');
+            fromUnit = fromSelect.value;
+            toUnit = toSelect.value;
+            update();
+        }
+
+        function update() {
+            const val = parseFloat(inputVal.value) || 0;
+            const from = fromSelect.value;
+            const to = toSelect.value;
+            fromUnit = from;
+            toUnit = to;
+            const result = convert(val, from, to, currentType);
+            const displayVal = Number.isInteger(result) ? result : result.toFixed(6);
+            outputVal.value = displayVal;
+
+            const dispFrom = units[currentType].display[from] || from;
+            const dispTo = units[currentType].display[to] || to;
+            resultText.textContent = `${val} ${dispFrom} = ${displayVal} ${dispTo}`;
+            resultDetail.textContent = isTemperature(currentType) ? '温度换算' : `1 ${dispFrom} = ${convert(1, from, to, currentType).toFixed(6)} ${dispTo}`;
+            formulaDisplay.textContent = isTemperature(currentType) ? `${val} ${from} → ${to} = ${displayVal} ${dispTo}` : `${val} ${from} × ${(units[currentType].units[from] / units[currentType].units[to]).toFixed(6)} = ${displayVal} ${to}`;
+        }
+
+        function switchType(type) {
+            currentType = type;
+            typeBtns.forEach(b => b.classList.toggle('active', b.dataset.type === type));
+            const list = getUnitList(type);
+            fromUnit = list[0];
+            toUnit = list.length > 1 ? list[1] : list[0];
+            renderUnits();
+        }
+
+        typeBtns.forEach(btn => {
+            btn.addEventListener('click', () => switchType(btn.dataset.type));
+        });
+
+        fromSelect.addEventListener('change', update);
+        toSelect.addEventListener('change', update);
+        inputVal.addEventListener('input', update);
+
+        swapBtn.addEventListener('click', () => {
+            const tmp = fromSelect.value;
+            fromSelect.value = toSelect.value;
+            toSelect.value = tmp;
+            fromUnit = fromSelect.value;
+            toUnit = toSelect.value;
+            update();
+        });
+
+        // 初始化
+        switchType('length');
+    </script>
+</body>
+</html>
