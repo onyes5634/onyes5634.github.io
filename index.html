@@ -7,8 +7,8 @@
     <meta name="description" content="onyes5634 的个人网站，分享实用工具和小游戏">
     <meta name="keywords" content="工具, 游戏, 编程, 前端">
     
-    <!-- Font Awesome 完整版（只发一个请求，加载更快） -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- 使用国内 CDN 镜像，加载更快 -->
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         /* ===== 深色/浅色模式变量 ===== */
@@ -232,16 +232,22 @@
             border: 4px solid var(--bg-card);
             box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
             transition: transform 0.5s ease, box-shadow 0.3s ease;
-            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
             padding: 3px;
             overflow: hidden;
         }
-        .profile-pic img {
+        .profile-pic-inner {
             width: 100%;
             height: 100%;
             border-radius: 50%;
-            object-fit: cover;
-            display: block;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #3498db, #9b59b6);
+            font-size: 3.8rem;
+            color: #fff;
+            font-weight: bold;
+            user-select: none;
         }
         .profile-pic:hover {
             transform: scale(1.05) rotate(4deg);
@@ -471,14 +477,12 @@
             padding-left: 8px;
         }
         
-        /* ===== 底部社交 + 友情链接 ===== */
+        /* ===== 底部社交 ===== */
         .social-links {
             margin-top: 50px;
             display: flex;
             justify-content: center;
-            align-items: center;
             gap: 30px;
-            flex-wrap: wrap;
         }
         .social-link {
             color: var(--text-color);
@@ -500,43 +504,6 @@
             box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
             color: var(--primary);
             border-color: var(--primary);
-        }
-
-        /* ===== 友情链接 ===== */
-        .friend-link {
-            color: var(--text-color);
-            font-size: 1.1rem;
-            transition: all 0.4s ease;
-            padding: 10px 24px;
-            border-radius: 30px;
-            background: var(--social-bg);
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-            text-decoration: none;
-            border: 1px solid var(--border-color);
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            font-weight: 500;
-        }
-        .friend-link i {
-            font-size: 1.2rem;
-            color: var(--primary);
-        }
-        .friend-link:hover {
-            transform: translateY(-8px) scale(1.04);
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
-            color: var(--primary);
-            border-color: var(--primary);
-            background: var(--primary);
-            color: #fff;
-        }
-        .friend-link:hover i {
-            color: #fff;
-        }
-        .friend-label {
-            color: var(--text-light);
-            font-size: 0.9rem;
-            margin-right: 4px;
         }
         
         /* ===== 页脚 ===== */
@@ -654,6 +621,7 @@
             .container { padding: 28px 18px; border-radius: 16px; }
             h1 { font-size: 2.0rem; }
             .profile-pic { width: 110px; height: 110px; }
+            .profile-pic-inner { font-size: 3rem; }
             .social-link { font-size: 1.5rem; width: 48px; height: 48px; }
             .project-list { grid-template-columns: 1fr; }
             .category-nav { gap: 10px; }
@@ -662,13 +630,13 @@
             .back-to-top { bottom: 20px; right: 20px; width: 44px; height: 44px; font-size: 1.2rem; }
             .projects-section { padding: 20px 16px; }
             .contact-section { padding: 20px 16px; }
-            .social-links { gap: 16px; }
-            .friend-link { font-size: 0.95rem; padding: 8px 18px; }
         }
         @media (max-width: 480px) {
             .container { padding: 20px 14px; }
             h1 { font-size: 1.6rem; }
             .intro { font-size: 1rem; }
+            .profile-pic { width: 90px; height: 90px; }
+            .profile-pic-inner { font-size: 2.4rem; }
         }
         @media (prefers-reduced-motion: reduce) {
             * { animation-duration: 0.001s !important; transition-duration: 0.001s !important; }
@@ -712,11 +680,7 @@
         <!-- ===== 头部 ===== -->
         <header>
             <div class="profile-pic">
-                <img src="https://raw.githubusercontent.com/onyes5634/onyes5634.github.io/main/wdtx.jpg?v=3" 
-                     alt="个人头像" 
-                     loading="lazy"
-                     width="134" 
-                     height="134">
+                <div class="profile-pic-inner">😊</div>
             </div>
             <h1 class="glow-text" data-text="欢迎来到我的网站！">欢迎来到我的网站！</h1>
             <p class="subtitle">探索、分享与连接的空间</p>
@@ -836,16 +800,13 @@
             </div>
         </main>
 
-        <!-- ===== 底部社交 + 友情链接 ===== -->
+        <!-- ===== 底部社交 ===== -->
         <div class="social-links">
             <a href="https://github.com/onyes5634" class="social-link" title="GitHub" target="_blank" rel="noopener noreferrer">
                 <i class="fab fa-github"></i>
             </a>
             <a href="mailto:onyes5634@163.com" class="social-link" title="发送邮件" target="_blank" rel="noopener noreferrer">
                 <i class="fas fa-envelope"></i>
-            </a>
-            <a href="https://xhc.dpdns.org/" class="friend-link" title="友情链接" target="_blank" rel="noopener noreferrer">
-                <i class="fas fa-link"></i> 友情链接
             </a>
         </div>
 
@@ -869,4 +830,190 @@
             // 1. 加载动画
             // ============================================================
             window.addEventListener('load', function() {
-                var loader
+                var loader = document.getElementById('loaderWrapper');
+                setTimeout(function() {
+                    loader.classList.add('hidden');
+                }, 400);
+            });
+
+            // ============================================================
+            // 2. 流星效果（性能优化：最多3颗）
+            // ============================================================
+            function createMeteors() {
+                var sky = document.getElementById('starrySky');
+                var MAX_METEORS = 3;
+                setInterval(function() {
+                    var existing = sky.querySelectorAll('.meteor').length;
+                    if (existing >= MAX_METEORS) return;
+                    var meteor = document.createElement('div');
+                    meteor.className = 'meteor';
+                    var size = Math.random() * 50 + 50;
+                    var left = Math.random() * window.innerWidth;
+                    var top = Math.random() * window.innerHeight / 2;
+                    meteor.style.height = size + 'px';
+                    meteor.style.left = left + 'px';
+                    meteor.style.top = top + 'px';
+                    meteor.style.animationDelay = Math.random() * 5 + 's';
+                    sky.appendChild(meteor);
+                    setTimeout(function() {
+                        if (meteor.parentNode) meteor.remove();
+                    }, 2000);
+                }, 3000);
+            }
+            createMeteors();
+
+            // ============================================================
+            // 3. 平滑滚动（分类导航）
+            // ============================================================
+            document.querySelectorAll('a[href^="#"]').forEach(function(anchor) {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    var target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({ behavior: 'smooth' });
+                    }
+                });
+            });
+
+            // ============================================================
+            // 4. 回到顶部按钮
+            // ============================================================
+            var backBtn = document.getElementById('backToTop');
+            window.addEventListener('scroll', function() {
+                if (window.scrollY > 400) {
+                    backBtn.classList.add('visible');
+                } else {
+                    backBtn.classList.remove('visible');
+                }
+            });
+            backBtn.addEventListener('click', function() {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+
+            // ============================================================
+            // 5. 深色/浅色模式切换
+            // ============================================================
+            var themeToggle = document.getElementById('themeToggle');
+            var themeLabel = document.getElementById('themeLabel');
+            var currentTheme = localStorage.getItem('theme') || 'light';
+            if (currentTheme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                themeLabel.textContent = '浅色';
+                themeToggle.innerHTML = '<i class="fas fa-sun"></i> 浅色';
+            }
+            themeToggle.addEventListener('click', function() {
+                var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+                if (isDark) {
+                    document.documentElement.removeAttribute('data-theme');
+                    localStorage.setItem('theme', 'light');
+                    themeToggle.innerHTML = '<i class="fas fa-moon"></i> 深色';
+                } else {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                    localStorage.setItem('theme', 'dark');
+                    themeToggle.innerHTML = '<i class="fas fa-sun"></i> 浅色';
+                }
+            });
+
+            // ============================================================
+            // 6. 搜索功能
+            // ============================================================
+            var searchToggle = document.getElementById('searchToggle');
+            var searchBox = document.getElementById('searchBox');
+            var searchInput = document.getElementById('searchInput');
+            var searchEmpty = document.getElementById('searchEmpty');
+            var projectItems = document.querySelectorAll('.project-item');
+            var projectSections = document.querySelectorAll('.projects-section');
+
+            searchToggle.addEventListener('click', function() {
+                searchBox.classList.toggle('active');
+                if (searchBox.classList.contains('active')) {
+                    searchInput.focus();
+                } else {
+                    searchInput.value = '';
+                    filterProjects('');
+                }
+            });
+
+            searchInput.addEventListener('input', function() {
+                var keyword = this.value.trim().toLowerCase();
+                filterProjects(keyword);
+            });
+
+            function filterProjects(keyword) {
+                var hasVisible = false;
+                projectItems.forEach(function(item) {
+                    var name = item.getAttribute('data-name') || '';
+                    var text = item.textContent.toLowerCase();
+                    var match = keyword === '' || name.toLowerCase().includes(keyword) || text.includes(keyword);
+                    if (match) {
+                        item.classList.remove('hidden');
+                        hasVisible = true;
+                    } else {
+                        item.classList.add('hidden');
+                    }
+                });
+
+                projectSections.forEach(function(section) {
+                    var visibleItems = section.querySelectorAll('.project-item:not(.hidden)');
+                    if (visibleItems.length === 0) {
+                        section.classList.add('hidden');
+                    } else {
+                        section.classList.remove('hidden');
+                    }
+                });
+
+                if (keyword !== '' && !hasVisible) {
+                    searchEmpty.classList.add('show');
+                } else {
+                    searchEmpty.classList.remove('show');
+                }
+            }
+
+            // ============================================================
+            // 7. 访问计数器（基于 localStorage）
+            // ============================================================
+            function updateVisitCount() {
+                var count = localStorage.getItem('visitCount');
+                if (count === null) {
+                    count = 1;
+                } else {
+                    count = parseInt(count, 10) + 1;
+                }
+                localStorage.setItem('visitCount', count);
+                document.getElementById('visitCount').textContent = count;
+            }
+            var today = new Date().toDateString();
+            var lastVisit = localStorage.getItem('lastVisitDate');
+            if (lastVisit !== today) {
+                updateVisitCount();
+                localStorage.setItem('lastVisitDate', today);
+            } else {
+                var count = localStorage.getItem('visitCount');
+                document.getElementById('visitCount').textContent = count || '0';
+            }
+
+            // ============================================================
+            // 8. 图片懒加载（兜底）
+            // ============================================================
+            if ('IntersectionObserver' in window) {
+                var observer = new IntersectionObserver(function(entries) {
+                    entries.forEach(function(entry) {
+                        if (entry.isIntersecting) {
+                            var img = entry.target;
+                            if (img.dataset.src) {
+                                img.src = img.dataset.src;
+                                img.removeAttribute('data-src');
+                            }
+                            observer.unobserve(img);
+                        }
+                    });
+                });
+                document.querySelectorAll('img[loading="lazy"]').forEach(function(img) {
+                    observer.observe(img);
+                });
+            }
+
+        })();
+    </script>
+</body>
+</html>
