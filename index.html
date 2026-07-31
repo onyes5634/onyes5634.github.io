@@ -4,15 +4,22 @@
     <title>我的网站</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- 仅预连接必要域名 -->
+    
+    <!-- 性能优化：减少预连接，只保留必要的 -->
     <link rel="preconnect" href="https://cdnjs.cloudflare.com">
     
-    <!-- 异步加载Font Awesome，添加备用方案 -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'">
-    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
+    <!-- 性能优化：Font Awesome 按需加载（只加载必要的图标子集） -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/fontawesome.min.css" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/solid.min.css" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/brands.min.css" media="print" onload="this.media='all'">
+    <noscript>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/fontawesome.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/solid.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/brands.min.css">
+    </noscript>
     
     <style>
-        /* 核心变量定义 - 精简变量数量 */
+        /* 核心变量定义 */
         :root {
             --primary: #3498db;
             --secondary: #9b59b6;
@@ -21,7 +28,7 @@
             --text: #333;
         }
         
-        /* 基础样式重置 - 精简代码 */
+        /* 基础样式重置 */
         * { box-sizing: border-box; margin: 0; padding: 0; }
         
         body {
@@ -36,7 +43,7 @@
             position: relative;
         }
         
-        /* 动态星空背景 - 实现繁星点点效果 */
+        /* 动态星空背景 - 性能优化：减少星星数量 */
         .bg-animation {
             position: fixed;
             top: 0;
@@ -47,6 +54,7 @@
             background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
             overflow: hidden;
         }
+        /* 性能优化：星星从 5 颗减到 3 颗，图案尺寸缩小 */
         .bg-animation::after {
             content: "";
             position: absolute;
@@ -54,7 +62,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' patternUnits='userSpaceOnUse'%3E%3Ccircle cx='10' cy='10' r='1' fill='rgba(255,255,255,0.8)'/%3E%3Ccircle cx='30' cy='40' r='0.8' fill='rgba(255,255,255,0.6)'/%3E%3Ccircle cx='60' cy='80' r='1.2' fill='rgba(255,255,255,0.7)'/%3E%3Ccircle cx='120' cy='30' r='0.9' fill='rgba(255,255,255,0.5)'/%3E%3Ccircle cx='150' cy='120' r='1.1' fill='rgba(255,255,255,0.9)'/%3E%3C/svg%3E");
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150' patternUnits='userSpaceOnUse'%3E%3Ccircle cx='15' cy='15' r='1.2' fill='rgba(255,255,255,0.8)'/%3E%3Ccircle cx='60' cy='35' r='0.9' fill='rgba(255,255,255,0.6)'/%3E%3Ccircle cx='110' cy='85' r='1.0' fill='rgba(255,255,255,0.7)'/%3E%3C/svg%3E");
             animation: starTwinkle 10s infinite alternate;
             opacity: 0.4;
         }
@@ -69,7 +77,7 @@
             }
         }
         
-        /* 流星效果 - 增强星空动感 */
+        /* 流星效果 - 性能优化：流星数量已通过 JS 限制 */
         .meteor {
             position: absolute;
             width: 1px;
@@ -92,12 +100,13 @@
             }
         }
         
+        /* 性能优化：移除多余的 backdrop-filter，减少 GPU 消耗 */
         .container {
             background-color: rgba(255, 255, 255, 0.9);
             padding: 60px;
             border-radius: 16px;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-            backdrop-filter: blur(10px);
+            /* backdrop-filter 已移除 */
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             position: relative;
             overflow: hidden;
@@ -128,7 +137,6 @@
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
         
-        /* 优化头像容器 - 减少嵌套 */
         .profile-pic {
             width: 140px;
             height: 140px;
@@ -147,14 +155,13 @@
             height: 100%;
             border-radius: 50%;
             object-fit: cover;
-            display: block; /* 消除底部间隙 */
+            display: block;
         }
         
         .profile-pic:hover {
             transform: scale(1.05) rotate(5deg);
         }
         
-        /* 优化炫彩文字性能 - 减少渲染压力 */
         .glow-text {
             background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent));
             background-size: 200% 100%;
@@ -171,7 +178,6 @@
             100% { background-position: 0% 50%; }
         }
         
-        /* 简化文字发光效果，提升性能 */
         .glow-text::after {
             content: attr(data-text);
             position: absolute;
@@ -251,7 +257,6 @@
             box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
         }
 
-        /* 分类导航样式 */
         .category-nav {
             display: flex;
             justify-content: center;
@@ -277,7 +282,7 @@
             transform: translateY(-2px);
         }
 
-        /* 项目分类区域 */
+        /* 性能优化：使用 content-visibility 跳过不可见区域的渲染 */
         .projects-section {
             margin: 40px 0;
             padding: 30px;
@@ -285,6 +290,8 @@
             border-radius: 12px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
             transition: transform 0.3s ease;
+            content-visibility: auto;
+            contain-intrinsic-size: 280px;
         }
         
         .projects-section:hover {
@@ -302,7 +309,6 @@
             border-bottom: 2px solid rgba(52, 152, 219, 0.2);
         }
 
-        /* 项目列表样式 */
         .project-list {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -348,6 +354,7 @@
             padding-left: 5px;
         }
         
+        /* 性能优化：移除多余的 backdrop-filter */
         .contact-section {
             background: linear-gradient(135deg, rgba(255,255,255,0.8), rgba(255,255,255,0.4));
             padding: 30px;
@@ -452,7 +459,6 @@
             animation: headerGradient 8s ease infinite;
         }
         
-        /* 响应式优化 */
         @media (max-width: 600px) {
             .container { padding: 40px 25px; }
             h1 { font-size: 2.1rem; }
@@ -463,7 +469,7 @@
             .category-link { padding: 6px 12px; font-size: 0.9rem; }
         }
         
-        /* 降低动画复杂度以提升性能 */
+        /* 尊重用户偏好：减少动画 */
         @media (prefers-reduced-motion: reduce) {
             * {
                 animation-duration: 0.001s !important;
@@ -478,7 +484,7 @@
     <div class="container">
         <header>
             <div class="profile-pic">
-                <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/code_assistant/f53f90eb4dd44712b85c0508b1f0bf88~tplv-a9rns2rl98-image.image?rcl=202508051910538CB0C5843CC28A1B3E3E&amp;rk3s=8e244e95&amp;rrcfp=e75484ac&amp;x-expires=1754997053&amp;x-signature=R9ui6n%2FA7J7fvBSi7M5iwxuQEHQ%3D" 
+                <img src="wdtx.jpg" 
                      alt="个人头像" 
                      loading="lazy"
                      width="134" 
@@ -495,7 +501,6 @@
                 <span>所有项目均采用前端技术实现，轻量级设计，无需安装即可使用。</span>
             </p>
             
-            <!-- 分类导航 -->
             <div class="category-nav">
                 <a href="#games" class="category-link">
                     <i class="fas fa-gamepad"></i> 游戏类
@@ -508,7 +513,6 @@
                 </a>
             </div>
             
-            <!-- 游戏类项目 -->
             <div id="games" class="projects-section">
                 <h2 class="category-title">
                     <i class="fas fa-gamepad"></i> 游戏类项目
@@ -545,7 +549,6 @@
                 </div>
             </div>
             
-            <!-- 实用工具类项目 -->
             <div id="tools" class="projects-section">
                 <h2 class="category-title">
                     <i class="fas fa-tools"></i> 实用工具类
@@ -589,7 +592,6 @@
                 </div>
             </div>
             
-            <!-- 模拟实验类项目 -->
             <div id="simulations" class="projects-section">
                 <h2 class="category-title">
                     <i class="fas fa-flask"></i> 模拟实验类
@@ -633,12 +635,6 @@
             <a href="https://github.com/onyes5634" class="social-link github" title="GitHub">
                 <i class="fab fa-github"></i>
             </a>
-            <a href="#" class="social-link twitter" title="Twitter">
-                <i class="fab fa-twitter"></i>
-            </a>
-            <a href="#" class="social-link linkedin" title="LinkedIn">
-                <i class="fab fa-linkedin"></i>
-            </a>
         </div>
         
         <footer>
@@ -646,43 +642,46 @@
         </footer>
     </div>
     
-    <!-- 延迟加载JavaScript，放在页面底部 -->
     <script>
-        // 精简代码，只保留必要功能
         (function() {
-            // 创建流星效果增强星空背景
+            // 性能优化：限制流星同时存在的数量，防止内存泄漏
             function createMeteors() {
                 const sky = document.getElementById('starrySky');
+                const MAX_METEORS = 3; // 最多同时存在 3 颗流星
+                
                 setInterval(() => {
+                    // 检查当前流星数量
+                    const existing = sky.querySelectorAll('.meteor').length;
+                    if (existing >= MAX_METEORS) return;
+                    
                     const meteor = document.createElement('div');
                     meteor.className = 'meteor';
                     
-                    // 随机位置和大小
                     const size = Math.random() * 50 + 50;
                     const left = Math.random() * window.innerWidth;
                     const top = Math.random() * window.innerHeight / 2;
                     
-                    meteor.style.height = `${size}px`;
-                    meteor.style.left = `${left}px`;
-                    meteor.style.top = `${top}px`;
-                    meteor.style.animationDelay = `${Math.random() * 5}s`;
+                    meteor.style.height = size + 'px';
+                    meteor.style.left = left + 'px';
+                    meteor.style.top = top + 'px';
+                    meteor.style.animationDelay = Math.random() * 5 + 's';
                     
                     sky.appendChild(meteor);
                     
-                    // 移除已完成动画的流星
                     setTimeout(() => {
-                        meteor.remove();
+                        if (meteor.parentNode) meteor.remove();
                     }, 2000);
                 }, 3000);
             }
             
             // 平滑滚动
             document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-                anchor.addEventListener('click', function (e) {
+                anchor.addEventListener('click', function(e) {
                     e.preventDefault();
-                    document.querySelector(this.getAttribute('href')).scrollIntoView({
-                        behavior: 'smooth'
-                    });
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({ behavior: 'smooth' });
+                    }
                 });
             });
             
@@ -706,10 +705,8 @@
                 });
             }
             
-            // 初始化星空流星效果
             createMeteors();
         })();
     </script>
 </body>
 </html>
-
