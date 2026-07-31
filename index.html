@@ -390,7 +390,7 @@
             margin-top: 20px;
         }
         
-        /* ===== 卡片样式 - 回弹质感 ===== */
+        /* ===== 卡片样式 - 回弹质感（修复版） ===== */
         .project-item {
             background: var(--item-bg);
             padding: 22px 24px;
@@ -461,9 +461,9 @@
         }
         @keyframes pressBounceTouch {
             0%   { transform: translateY(0px) scale(1); }
-            15%  { transform: translateY(0px) scale(0.92); }
-            45%  { transform: translateY(0px) scale(1.04); }
-            70%  { transform: translateY(0px) scale(0.98); }
+            20%  { transform: translateY(0px) scale(0.92); }
+            50%  { transform: translateY(0px) scale(1.04); }
+            75%  { transform: translateY(0px) scale(0.98); }
             100% { transform: translateY(0px) scale(1); }
         }
 
@@ -472,13 +472,6 @@
         }
         /* 触摸设备用更快的动画 */
         @media (pointer: coarse) {
-            @keyframes pressBounceTouch {
-                0%   { transform: translateY(0px) scale(1); }
-                20%  { transform: translateY(0px) scale(0.92); }
-                50%  { transform: translateY(0px) scale(1.04); }
-                75%  { transform: translateY(0px) scale(0.98); }
-                100% { transform: translateY(0px) scale(1); }
-            }
             .project-item.pressed {
                 animation: pressBounceTouch 0.35s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
             }
@@ -1091,65 +1084,76 @@
                 });
             });
 
-            // ===== 卡片回弹 + 跳转（物理回弹质感） =====
+            // ===== 卡片回弹 + 跳转（修复版：使用 setTimeout 替代 animationend） =====
             document.querySelectorAll('.project-item').forEach(function(card) {
                 var url = card.getAttribute('data-url');
                 if (!url) return;
 
-                var pressTimer = null;
-                var isPressed = false;
+                var isAnimating = false;
+                var bounceTimer = null;
+                var resetTimer = null;
 
                 function triggerBounce(e) {
+                    // 如果点击的是内部链接，不处理
                     if (e && e.target.closest('a')) return;
-                    if (isPressed) return;
-                    isPressed = true;
+                    // 如果正在动画中，忽略本次点击
+                    if (isAnimating) return;
                     
-                    // 移除之前的动画类重新触发
+                    isAnimating = true;
+                    
+                    // 移除之前的动画类
                     card.classList.remove('pressed');
-                    // 强制回流
+                    // 强制回流确保动画重新触发
                     void card.offsetWidth;
                     card.classList.add('pressed');
 
-                    // 清除之前的跳转定时器
-                    if (pressTimer) {
-                        clearTimeout(pressTimer);
-                        pressTimer = null;
+                    // 清除之前的定时器
+                    if (bounceTimer) {
+                        clearTimeout(bounceTimer);
+                        bounceTimer = null;
+                    }
+                    if (resetTimer) {
+                        clearTimeout(resetTimer);
+                        resetTimer = null;
                     }
 
-                    // 动画结束后跳转（监听 animationend）
-                    var onAnimationEnd = function() {
-                        card.removeEventListener('animationend', onAnimationEnd);
-                        isPressed = false;
-                        // 延迟一点点跳转，让回弹感完整
-                        pressTimer = setTimeout(function() {
-                            window.open(url, '_blank');
-                            pressTimer = null;
-                        }, 50);
-                    };
-                    card.addEventListener('animationend', onAnimationEnd);
+                    // 计算动画时长（触摸设备 350ms，鼠标 450ms）
+                    var isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+                    var animDuration = isTouch ? 350 : 450;
 
-                    // 安全兜底：如果动画没触发，3秒后重置
-                    setTimeout(function() {
-                        if (isPressed) {
-                            isPressed = false;
+                    // 动画结束后移除 pressed 类并跳转
+                    bounceTimer = setTimeout(function() {
+                        card.classList.remove('pressed');
+                        // 跳转
+                        window.open(url, '_blank');
+                        // 重置状态
+                        isAnimating = false;
+                        bounceTimer = null;
+                    }, animDuration + 50);
+
+                    // 安全兜底：防止卡死
+                    resetTimer = setTimeout(function() {
+                        if (isAnimating) {
                             card.classList.remove('pressed');
+                            isAnimating = false;
+                            resetTimer = null;
                         }
-                    }, 500);
+                    }, animDuration + 300);
                 }
 
-                // 鼠标
+                // 鼠标事件
                 card.addEventListener('mousedown', function(e) {
-                    if (e.target.closest('a')) return;
+                    // 忽略右键
+                    if (e.button !== 0) return;
                     triggerBounce(e);
                 });
 
-                // 触摸
+                // 触摸事件
                 card.addEventListener('touchstart', function(e) {
-                    if (e.target.closest('a')) return;
                     triggerBounce(e);
                 }, { passive: true });
 
-                // 阻止内部链接默认行为
+                // 阻止内部链接默认行为（避免重复跳转）
                 card.querySelectorAll('a').forEach(function(link) {
                     link.addEventListener('click', function(e) {
                         e.preventDefault();
