@@ -390,13 +390,15 @@
             margin-top: 20px;
         }
         
-        /* ===== 卡片样式 ===== */
+        /* ===== 卡片样式 - 修复点击卡顿 ===== */
         .project-item {
             background: var(--item-bg);
             padding: 22px 24px;
             border-radius: 14px;
             border: 1px solid var(--border-color);
-            transition: all 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+            transition: transform 0.25s cubic-bezier(0.18, 0.89, 0.32, 1.28),
+                        box-shadow 0.3s ease,
+                        border-color 0.3s ease;
             cursor: pointer;
             user-select: none;
             -webkit-tap-highlight-color: transparent;
@@ -405,6 +407,7 @@
             opacity: 0;
             transform: translateY(30px) scale(1);
             animation: cardFadeIn 0.6s ease forwards;
+            /* 点击跳转用 JS 控制，不用 onclick */
         }
         .project-item:nth-child(1) { animation-delay: 0.05s; }
         .project-item:nth-child(2) { animation-delay: 0.10s; }
@@ -447,11 +450,17 @@
             box-shadow: 0 12px 35px var(--hover-shadow);
             border-color: var(--primary);
         }
-        /* 点击弹性 - 柔和回弹 */
-        .project-item:active {
-            transform: translateY(0px) scale(0.95) !important;
-            transition: transform 0.15s cubic-bezier(0.18, 0.89, 0.32, 1.28) !important;
+
+        /* 点击弹性 - 用 JS 加类控制，避免与 hover 冲突 */
+        .project-item.pressed {
+            transform: translateY(0px) scale(0.94) !important;
+            transition: transform 0.12s cubic-bezier(0.18, 0.89, 0.32, 1.28) !important;
         }
+        .project-item.released {
+            transform: translateY(0px) scale(1) !important;
+            transition: transform 0.25s cubic-bezier(0.18, 0.89, 0.32, 1.28) !important;
+        }
+
         .project-item.hidden { 
             display: none;
             animation: none;
@@ -460,7 +469,6 @@
             margin-bottom: 8px;
             color: var(--primary);
             font-size: 1.15rem;
-            pointer-events: none;
             position: relative;
             z-index: 1;
         }
@@ -469,7 +477,6 @@
             color: var(--text-light);
             margin-bottom: 14px;
             line-height: 1.5;
-            pointer-events: none;
             position: relative;
             z-index: 1;
         }
@@ -481,9 +488,9 @@
             color: var(--secondary);
             font-weight: 500;
             transition: gap 0.2s;
-            pointer-events: none;
             position: relative;
             z-index: 1;
+            pointer-events: none; /* 阻止点击链接，由卡片统一控制 */
         }
         .project-item a:hover { gap: 12px; color: var(--accent); }
         
@@ -639,6 +646,20 @@
             color: var(--primary);
             border: 1px solid var(--border-color);
         }
+
+        /* ===== 调试版本号 ===== */
+        .debug-version {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 0.7rem;
+            color: var(--text-light);
+            opacity: 0.4;
+            letter-spacing: 0.5px;
+            font-family: monospace;
+        }
+        .debug-version:hover {
+            opacity: 0.8;
+        }
         
         /* ===== 响应式 ===== */
         @media (max-width: 768px) {
@@ -736,22 +757,22 @@
             <div id="games" class="projects-section">
                 <h2 class="category-title"><i class="fas fa-gamepad"></i> 游戏类项目</h2>
                 <div class="project-list">
-                    <div class="project-item" data-name="贪吃蛇" data-url="snake-game.html" onclick="window.open(this.dataset.url, '_blank')">
+                    <div class="project-item" data-name="贪吃蛇" data-url="snake-game.html">
                         <h3>贪吃蛇游戏</h3>
                         <p>经典的贪吃蛇游戏，键盘方向键控制移动。</p>
                         <a href="snake-game.html"><i class="fas fa-play"></i> 开始游戏</a>
                     </div>
-                    <div class="project-item" data-name="2048" data-url="2048.html" onclick="window.open(this.dataset.url, '_blank')">
+                    <div class="project-item" data-name="2048" data-url="2048.html">
                         <h3>2048游戏</h3>
                         <p>热门数字拼图游戏，方向键移动，相同数字合并。</p>
                         <a href="2048.html"><i class="fas fa-play"></i> 开始游戏</a>
                     </div>
-                    <div class="project-item" data-name="打砖块" data-url="breakout-game.html" onclick="window.open(this.dataset.url, '_blank')">
+                    <div class="project-item" data-name="打砖块" data-url="breakout-game.html">
                         <h3>打砖块游戏</h3>
                         <p>移动挡板接住小球，击碎所有砖块获胜。</p>
                         <a href="breakout-game.html"><i class="fas fa-play"></i> 开始游戏</a>
                     </div>
-                    <div class="project-item" data-name="华容道" data-url="Digital Huarong Road.html" onclick="window.open(this.dataset.url, '_blank')">
+                    <div class="project-item" data-name="华容道" data-url="Digital Huarong Road.html">
                         <h3>数字华容道</h3>
                         <p>移动数字方块，按顺序排列完成挑战。</p>
                         <a href="Digital Huarong Road.html"><i class="fas fa-play"></i> 开始游戏</a>
@@ -763,42 +784,42 @@
             <div id="tools" class="projects-section">
                 <h2 class="category-title"><i class="fas fa-tools"></i> 实用工具类</h2>
                 <div class="project-list">
-                    <div class="project-item" data-name="二维码" data-url="Website to QR code.html" onclick="window.open(this.dataset.url, '_blank')">
+                    <div class="project-item" data-name="二维码" data-url="Website to QR code.html">
                         <h3>二维码生成器</h3>
                         <p>输入文本或网址，快速生成二维码图片。</p>
                         <a href="Website to QR code.html"><i class="fas fa-qrcode"></i> 使用工具</a>
                     </div>
-                    <div class="project-item" data-name="取色器" data-url="Screen Color Picker.html" onclick="window.open(this.dataset.url, '_blank')">
+                    <div class="project-item" data-name="取色器" data-url="Screen Color Picker.html">
                         <h3>屏幕取色器</h3>
                         <p>拾取屏幕任意位置颜色，获取十六进制值。</p>
                         <a href="Screen Color Picker.html"><i class="fas fa-eyedropper"></i> 使用工具</a>
                     </div>
-                    <div class="project-item" data-name="Markdown" data-url="Markdown Preview.html" onclick="window.open(this.dataset.url, '_blank')">
+                    <div class="project-item" data-name="Markdown" data-url="Markdown Preview.html">
                         <h3>Markdown预览器</h3>
                         <p>实时将Markdown格式文本转换为HTML预览。</p>
                         <a href="Markdown Preview.html"><i class="fas fa-markdown"></i> 使用工具</a>
                     </div>
-                    <div class="project-item" data-name="Base64" data-url="image-to-base64.html" onclick="window.open(this.dataset.url, '_blank')">
+                    <div class="project-item" data-name="Base64" data-url="image-to-base64.html">
                         <h3>图片转Base64</h3>
                         <p>上传图片文件，转换为Base64编码。</p>
                         <a href="image-to-base64.html"><i class="fas fa-image"></i> 使用工具</a>
                     </div>
-                    <div class="project-item" data-name="密码" data-url="Random Password Generator.html" onclick="window.open(this.dataset.url, '_blank')">
+                    <div class="project-item" data-name="密码" data-url="Random Password Generator.html">
                         <h3>随机密码生成器</h3>
                         <p>生成高强度随机密码，含大小写字母、数字、特殊符号。</p>
                         <a href="Random Password Generator.html"><i class="fas fa-key"></i> 使用工具</a>
                     </div>
-                    <div class="project-item" data-name="待办清单" data-url="todo.html" onclick="window.open(this.dataset.url, '_blank')">
+                    <div class="project-item" data-name="待办清单" data-url="todo.html">
                         <h3>✅ 待办清单</h3>
                         <p>增删改任务，自动保存到本地，每天必用。</p>
                         <a href="todo.html"><i class="fas fa-list-check"></i> 使用工具</a>
                     </div>
-                    <div class="project-item" data-name="番茄时钟" data-url="pomodoro.html" onclick="window.open(this.dataset.url, '_blank')">
+                    <div class="project-item" data-name="番茄时钟" data-url="pomodoro.html">
                         <h3>🍅 番茄时钟</h3>
                         <p>25分钟专注 + 5分钟休息，提高工作效率。</p>
                         <a href="pomodoro.html"><i class="fas fa-clock"></i> 使用工具</a>
                     </div>
-                    <div class="project-item" data-name="单位换算" data-url="unit-convert.html" onclick="window.open(this.dataset.url, '_blank')">
+                    <div class="project-item" data-name="单位换算" data-url="unit-convert.html">
                         <h3>📏 单位换算</h3>
                         <p>长度、重量、温度、体积快速换算。</p>
                         <a href="unit-convert.html"><i class="fas fa-arrows-left-right"></i> 使用工具</a>
@@ -810,12 +831,12 @@
             <div id="simulations" class="projects-section">
                 <h2 class="category-title"><i class="fas fa-flask"></i> 模拟实验类</h2>
                 <div class="project-list">
-                    <div class="project-item" data-name="太阳系" data-url="solar-system-simulation.html" onclick="window.open(this.dataset.url, '_blank')">
+                    <div class="project-item" data-name="太阳系" data-url="solar-system-simulation.html">
                         <h3>太阳系模拟器</h3>
                         <p>模拟太阳系行星运行轨迹。</p>
                         <a href="solar-system-simulation.html"><i class="fas fa-globe"></i> 查看模拟</a>
                     </div>
-                    <div class="project-item" data-name="流体" data-url="fluid-simulator.html" onclick="window.open(this.dataset.url, '_blank')">
+                    <div class="project-item" data-name="流体" data-url="fluid-simulator.html">
                         <h3>流体物理模拟器</h3>
                         <p>基于物理引擎的流体模拟，展示液体流动效果。</p>
                         <a href="fluid-simulator.html"><i class="fas fa-tint"></i> 查看模拟</a>
@@ -861,11 +882,25 @@
         <footer>
             <p>© <span id="currentYear"></span> Onyes 的实验室 | 托管于 GitHub Pages</p>
         </footer>
+
+        <!-- ===== 调试版本号 ===== -->
+        <div class="debug-version" id="debugVersion">v2.3.0 · 2026-07-31 18:42</div>
     </div>
 
     <script>
         (function() {
             'use strict';
+
+            // =============================================
+            // 调试版本号 - 自动生成
+            // =============================================
+            var now = new Date();
+            var dateStr = now.getFullYear() + '-' + 
+                         String(now.getMonth() + 1).padStart(2, '0') + '-' + 
+                         String(now.getDate()).padStart(2, '0') + ' ' +
+                         String(now.getHours()).padStart(2, '0') + ':' +
+                         String(now.getMinutes()).padStart(2, '0');
+            document.getElementById('debugVersion').textContent = 'v2.3.0 · ' + dateStr;
 
             // 年份自动更新
             document.getElementById('currentYear').textContent = new Date().getFullYear();
@@ -1030,6 +1065,71 @@
                     var y = e.clientY - rect.top;
                     this.style.setProperty('--mx', x);
                     this.style.setProperty('--my', y);
+                });
+            });
+
+            // ===== 卡片点击弹性 + 跳转（修复卡顿） =====
+            document.querySelectorAll('.project-item').forEach(function(card) {
+                var url = card.getAttribute('data-url');
+                if (!url) return;
+
+                var pressTimer = null;
+
+                card.addEventListener('mousedown', function(e) {
+                    // 忽略链接点击
+                    if (e.target.closest('a')) return;
+                    this.classList.add('pressed');
+                    this.classList.remove('released');
+                    // 清除之前的跳转定时器
+                    if (pressTimer) {
+                        clearTimeout(pressTimer);
+                        pressTimer = null;
+                    }
+                });
+
+                card.addEventListener('mouseup', function(e) {
+                    if (e.target.closest('a')) return;
+                    this.classList.remove('pressed');
+                    this.classList.add('released');
+                    // 延迟执行跳转，让弹性动画先播放
+                    var self = this;
+                    pressTimer = setTimeout(function() {
+                        window.open(url, '_blank');
+                        pressTimer = null;
+                    }, 180);
+                });
+
+                card.addEventListener('mouseleave', function(e) {
+                    this.classList.remove('pressed');
+                    this.classList.add('released');
+                    if (pressTimer) {
+                        clearTimeout(pressTimer);
+                        pressTimer = null;
+                    }
+                });
+
+                // 触摸设备支持
+                card.addEventListener('touchstart', function(e) {
+                    if (e.target.closest('a')) return;
+                    this.classList.add('pressed');
+                    this.classList.remove('released');
+                });
+
+                card.addEventListener('touchend', function(e) {
+                    if (e.target.closest('a')) return;
+                    this.classList.remove('pressed');
+                    this.classList.add('released');
+                    var self = this;
+                    setTimeout(function() {
+                        window.open(url, '_blank');
+                    }, 180);
+                });
+
+                // 阻止内部链接默认行为（避免重复跳转）
+                card.querySelectorAll('a').forEach(function(link) {
+                    link.addEventListener('click', function(e) {
+                        e.preventDefault();
+                    });
                 });
             });
 
