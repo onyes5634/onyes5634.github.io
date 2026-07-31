@@ -3,8 +3,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>我的网站</title>
-    <meta name="description" content="onyes5634 的个人网站，分享实用工具和小游戏">
+    <title>Onyes 的小站</title>
+    <meta name="description" content="Onyes 的个人网站，分享实用工具和小游戏">
     <meta name="keywords" content="工具, 游戏, 编程, 前端">
     
     <!-- Font Awesome 国内CDN -->
@@ -163,8 +163,14 @@
             color: #fff;
             font-weight: bold;
         }
-        .glow-text {
-            background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent));
+        
+        /* ===== 标题排版（优化后） ===== */
+        .site-title {
+            font-size: 3.2rem;
+            font-weight: 800;
+            letter-spacing: -1px;
+            margin-bottom: 6px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary), var(--accent));
             background-size: 300% 100%;
             -webkit-background-clip: text;
             background-clip: text;
@@ -177,25 +183,71 @@
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
         }
-        h1 { font-size: 2.6rem; margin-bottom: 10px; letter-spacing: -0.5px; }
-        .subtitle {
-            color: var(--text-light);
-            font-size: 1.2rem;
-            font-weight: 400;
-            margin-top: 10px;
-            display: inline-block;
-        }
-        .subtitle:hover { color: var(--primary); }
         
-        /* ===== 简介 ===== */
-        .intro {
-            margin-bottom: 35px;
-            font-size: 1.1rem;
-            line-height: 1.8;
-            text-align: justify;
-            color: var(--text-color);
+        .subtitle-wrap {
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
         }
-        .intro span:hover { color: var(--primary); }
+        .subtitle-wrap .line {
+            color: var(--text-light);
+            font-size: 0.8rem;
+            opacity: 0.3;
+        }
+        .subtitle-item {
+            color: var(--text-light);
+            font-size: 1.15rem;
+            font-weight: 400;
+            letter-spacing: 0.5px;
+            transition: color 0.2s;
+        }
+        .subtitle-item:hover {
+            color: var(--primary);
+        }
+        .subtitle-item i {
+            margin-right: 6px;
+            color: var(--primary);
+            opacity: 0.6;
+        }
+        
+        /* ===== 简介排版（优化后） ===== */
+        .intro {
+            margin: 30px 0 35px;
+            padding: 28px 32px;
+            background: var(--section-bg);
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            transition: background 0.3s ease;
+            text-align: center;
+        }
+        .intro p {
+            font-size: 1.08rem;
+            line-height: 1.9;
+            color: var(--text-color);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        .intro p:not(:last-child) {
+            margin-bottom: 6px;
+        }
+        .intro .highlight {
+            color: var(--primary);
+            font-weight: 600;
+        }
+        .intro .free-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: #fff;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 2px 14px;
+            border-radius: 20px;
+            margin-left: 4px;
+            vertical-align: middle;
+        }
         
         /* ===== 分类导航 ===== */
         .category-nav {
@@ -427,7 +479,10 @@
         /* ===== 响应式 ===== */
         @media (max-width: 768px) {
             .container { padding: 24px 16px; }
-            h1 { font-size: 2.0rem; }
+            .site-title { font-size: 2.4rem; }
+            .subtitle-item { font-size: 1rem; }
+            .intro { padding: 20px 18px; }
+            .intro p { font-size: 1rem; }
             .profile-pic { width: 110px; height: 110px; }
             .project-list { grid-template-columns: 1fr; }
             .category-nav { gap: 10px; }
@@ -439,8 +494,10 @@
         }
         @media (max-width: 480px) {
             .container { padding: 16px 12px; }
-            h1 { font-size: 1.6rem; }
-            .intro { font-size: 1rem; }
+            .site-title { font-size: 1.8rem; }
+            .subtitle-wrap { gap: 4px; }
+            .subtitle-item { font-size: 0.85rem; }
+            .intro p { font-size: 0.95rem; }
             .profile-pic { width: 90px; height: 90px; }
         }
     </style>
@@ -480,17 +537,23 @@
                      onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
                 <div class="fallback">😊</div>
             </div>
-            <h1 class="glow-text">欢迎来到我的网站！</h1>
-            <p class="subtitle">探索、分享与连接的空间</p>
+            <h1 class="site-title">Onyes 的小站</h1>
+            <div class="subtitle-wrap">
+                <span class="subtitle-item"><i class="fas fa-code"></i> 写代码</span>
+                <span class="line">·</span>
+                <span class="subtitle-item"><i class="fas fa-tools"></i> 做工具</span>
+                <span class="line">·</span>
+                <span class="subtitle-item"><i class="fas fa-lightbulb"></i> 玩创意</span>
+            </div>
         </header>
 
         <!-- ===== 主内容 ===== -->
         <main>
-            <p class="intro">
-                <span>这是一个公开网站，任何人都可以通过链接访问！</span>
-                <span>这里分享了我开发的各种实用工具和有趣的小游戏。</span>
-                <span>所有项目均采用前端技术实现，轻量级设计，无需安装即可使用。</span>
-            </p>
+            <!-- ===== 简介（优化排版） ===== -->
+            <div class="intro">
+                <p>👋 我是 <span class="highlight">Onyes</span>，热爱用前端技术创造有趣的东西。</p>
+                <p>这里所有的工具和游戏都 <span class="free-badge">✨ 免费</span> 使用，欢迎体验！</p>
+            </div>
 
             <!-- ===== 分类导航 ===== -->
             <div class="category-nav">
@@ -577,9 +640,9 @@
 
             <!-- ===== 标签 ===== -->
             <div class="tags">
-                <span class="tag">python</span>
-                <span class="tag">小游戏</span>
-                <span class="tag">实用工具</span>
+                <span class="tag">前端开发</span>
+                <span class="tag">独立创作者</span>
+                <span class="tag">开源爱好者</span>
             </div>
 
             <!-- ===== 联系方式 ===== -->
@@ -608,7 +671,7 @@
 
         <!-- ===== 页脚 ===== -->
         <footer>
-            <p>© <span id="currentYear"></span> 我的网站 | 托管于 GitHub Pages</p>
+            <p>© <span id="currentYear"></span> Onyes 的实验室 | 托管于 GitHub Pages</p>
         </footer>
     </div>
 
