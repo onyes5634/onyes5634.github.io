@@ -4,47 +4,116 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>流体物理模拟器</title>
-    <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#3B82F6',
-                        secondary: '#10B981',
-                        accent: '#8B5CF6',
-                        dark: '#1E293B',
-                        light: '#F8FAFC'
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'system-ui', 'sans-serif'],
-                    },
-                }
-            }
-        }
-    </script>
-    <style type="text/tailwindcss">
-        @layer utilities {
-            .content-auto {
-                content-visibility: auto;
-            }
-            .control-panel {
-                @apply bg-dark/80 backdrop-blur-md rounded-lg p-4 border border-white/10 shadow-lg;
-            }
-            .slider-container {
-                @apply flex flex-col gap-2 mb-4;
-            }
-            .btn-control {
-                @apply px-4 py-2 rounded-lg transition-all duration-300 flex items-center justify-center gap-2;
-            }
-            .btn-primary {
-                @apply bg-primary hover:bg-primary/80 text-white;
-            }
-            .btn-secondary {
-                @apply bg-dark hover:bg-dark/80 text-white border border-white/20;
-            }
-        }
+    <style>
+      :root{
+        --primary:#3B82F6;
+        --secondary:#10B981;
+        --accent:#8B5CF6;
+        --dark:#1E293B;
+        --light:#F8FAFC;
+      }
+      *{box-sizing:border-box;}
+      html,body{margin:0;padding:0;}
+      body{font-family:'Inter',system-ui,-apple-system,sans-serif;color:var(--light);min-height:100vh;overflow-x:hidden;}
+      .container{max-width:1280px;margin-left:auto;margin-right:auto;}
+      .mx-auto{margin-left:auto;margin-right:auto;}
+      .min-h-screen{min-height:100vh;}
+      .overflow-x-hidden{overflow-x:hidden;}
+      .px-4{padding-left:1rem;padding-right:1rem;}
+      .py-6{padding-top:1.5rem;padding-bottom:1.5rem;}
+      .px-3{padding-left:.75rem;padding-right:.75rem;}
+      .py-1\.5{padding-top:.375rem;padding-bottom:.375rem;}
+      .p-4{padding:1rem;}
+      .p-6{padding:1.5rem;}
+      .mt-1{margin-top:.25rem;}
+      .mt-8{margin-top:2rem;}
+      .mb-2{margin-bottom:.5rem;}
+      .mb-4{margin-bottom:1rem;}
+      .pb-2{padding-bottom:.5rem;}
+      .pt-4{padding-top:1rem;}
+      .mt-auto{margin-top:auto;}
+      .relative{position:relative;}
+      .absolute{position:absolute;}
+      .top-4{top:1rem;}
+      .left-4{left:1rem;}
+      .text-white{color:#fff;}
+      .text-light{color:var(--light);}
+      .text-slate-400{color:#94a3b8;}
+      .text-slate-300{color:#cbd5e1;}
+      .text-slate-500{color:#64748b;}
+      .text-primary{color:var(--primary);}
+      .text-\[clamp\(1\.5rem\2c 3vw\2c 2\.5rem\)\]{font-size:clamp(1.5rem,3vw,2.5rem);}
+      .font-bold{font-weight:700;}
+      .text-xl{font-size:1.25rem;}
+      .text-lg{font-size:1.125rem;}
+      .text-sm{font-size:.875rem;}
+      .font-semibold{font-weight:600;}
+      .flex{display:flex;}
+      .flex-col{flex-direction:column;}
+      .flex-wrap{flex-wrap:wrap;}
+      .items-center{align-items:center;}
+      .justify-between{justify-content:space-between;}
+      .justify-center{justify-content:center;}
+      .gap-2{gap:.5rem;}
+      .gap-6{gap:1.5rem;}
+      .flex-1{flex:1 1 0%;}
+      .grid{display:grid;}
+      .grid-cols-1{grid-template-columns:repeat(1,minmax(0,1fr));}
+      .grid-cols-5{grid-template-columns:repeat(5,minmax(0,1fr));}
+      .w-full{width:100%;}
+      .h-full{height:100%;}
+      .bg-dark\/80{background:rgba(30,41,59,.8);}
+      .bg-dark\/60{background:rgba(30,41,59,.6);}
+      .bg-dark\/40{background:rgba(30,41,59,.4);}
+      .bg-slate-800{background:#1e293b;}
+      .bg-blue-500{background:#3b82f6;}
+      .bg-red-500{background:#ef4444;}
+      .bg-green-500{background:#22c55e;}
+      .bg-purple-500{background:#a855f7;}
+      .border{border:1px solid rgba(255,255,255,.1);}
+      .border-b{border-bottom:1px solid rgba(255,255,255,.1);}
+      .border-t{border-top:1px solid rgba(255,255,255,.1);}
+      .border-white\/10{border-color:rgba(255,255,255,.1);}
+      .rounded-lg{border-radius:.5rem;}
+      .rounded-xl{border-radius:.75rem;}
+      .rounded-full{border-radius:9999px;}
+      .shadow-xl{box-shadow:0 20px 25px -5px rgba(0,0,0,.3);}
+      .shadow-lg{box-shadow:0 10px 15px -3px rgba(0,0,0,.3);}
+      .backdrop-blur-md{backdrop-filter:blur(12px);}
+      .backdrop-blur-sm{backdrop-filter:blur(4px);}
+      .overflow-hidden{overflow:hidden;}
+      .aspect-\[4\/3\]{aspect-ratio:4/3;}
+      .aspect-square{aspect-ratio:1/1;}
+      .transition-all{transition:all .3s ease;}
+      .duration-300{transition-duration:.3s;}
+      .block{display:block;}
+      .text-center{text-align:center;}
+      .accent-primary{accent-color:var(--primary);}
+      .ring-2{box-shadow:0 0 0 2px #fff;}
+      .ring-white{}
+      .bg-gradient-to-br{background-image:linear-gradient(to bottom right,var(--tw-from,#1E293B),var(--tw-to,#0f172a));}
+      .bg-gradient-to-r{background-image:linear-gradient(to right,var(--tw-from,#3b82f6),var(--tw-to,#a855f7));}
+      .from-dark{--tw-from:var(--dark);}
+      .to-slate-900{--tw-to:#0f172a;}
+      .from-blue-500{--tw-from:#3b82f6;}
+      .to-purple-500{--tw-to:#a855f7;}
+      .control-panel{background:rgba(30,41,59,.8);backdrop-filter:blur(12px);border-radius:.5rem;padding:1rem;border:1px solid rgba(255,255,255,.1);box-shadow:0 10px 15px -3px rgba(0,0,0,.3);}
+      .slider-container{display:flex;flex-direction:column;gap:.5rem;margin-bottom:1rem;}
+      .btn-control{padding:.5rem 1rem;border-radius:.5rem;transition:all .3s ease;display:flex;align-items:center;justify-content:center;gap:.5rem;cursor:pointer;border:none;font-size:1rem;font-family:inherit;}
+      .btn-primary{background:var(--primary);color:#fff;}
+      .btn-primary:hover{background:rgba(59,130,246,.8);}
+      .btn-secondary{background:var(--dark);color:#fff;border:1px solid rgba(255,255,255,.2);}
+      .btn-secondary:hover{background:rgba(30,41,59,.8);}
+      .color-option{cursor:pointer;border:none;}
+      @media (min-width:1024px){
+        .lg\:grid-cols-4{grid-template-columns:repeat(4,minmax(0,1fr));}
+        .lg\:col-span-3{grid-column:span 3 / span 3;}
+        .lg\:col-span-1{grid-column:span 1 / span 1;}
+      }
+      @media (min-width:768px){
+        .md\:grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr));}
+      }
     </style>
 </head>
 <body class="bg-gradient-to-br from-dark to-slate-900 text-light min-h-screen overflow-x-hidden">
@@ -190,11 +259,13 @@
             const canvas = document.getElementById('fluidCanvas');
             const ctx = canvas.getContext('2d');
             
-            // 设置Canvas尺寸
+            // 设置Canvas尺寸（处理 devicePixelRatio，避免高分屏发虚与过度绘制）
             function resizeCanvas() {
                 const container = canvas.parentElement;
-                canvas.width = container.clientWidth;
-                canvas.height = container.clientHeight;
+                const dpr = Math.min(window.devicePixelRatio || 1, 2);
+                canvas.width = Math.round(container.clientWidth * dpr);
+                canvas.height = Math.round(container.clientHeight * dpr);
+                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
             }
             
             // 初始化时调整一次尺寸，并监听窗口大小变化
@@ -261,8 +332,8 @@
                 
                 reset() {
                     // 随机初始位置
-                    this.x = Math.random() * canvas.width;
-                    this.y = Math.random() * canvas.height;
+                    this.x = Math.random() * canvas.clientWidth;
+                    this.y = Math.random() * canvas.clientHeight;
                     
                     // 随机初始速度
                     this.vx = (Math.random() - 0.5) * 2;
@@ -331,16 +402,16 @@
                     if (this.x < 0) {
                         this.x = 0;
                         this.vx = -this.vx * bounceFactor;
-                    } else if (this.x > canvas.width) {
-                        this.x = canvas.width;
+                    } else if (this.x > canvas.clientWidth) {
+                        this.x = canvas.clientWidth;
                         this.vx = -this.vx * bounceFactor;
                     }
                     
                     if (this.y < 0) {
                         this.y = 0;
                         this.vy = -this.vy * bounceFactor;
-                    } else if (this.y > canvas.height) {
-                        this.y = canvas.height;
+                    } else if (this.y > canvas.clientHeight) {
+                        this.y = canvas.clientHeight;
                         this.vy = -this.vy * bounceFactor;
                     }
                     
@@ -411,7 +482,7 @@
             function animate() {
                 // 清除画布（半透明黑色创建轨迹效果）
                 ctx.fillStyle = 'rgba(15, 23, 42, 0.15)';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillRect(0, 0, canvas.clientWidth, canvas.clientHeight);
                 
                 // 更新并绘制所有粒子
                 for (let i = 0; i < particles.length; i++) {
