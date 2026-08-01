@@ -31,7 +31,7 @@
         .header i { font-size: 2rem; color: #8b5cf6; }
         canvas {
             width: 100%;
-            aspect-ratio: 1.8 / 1;
+            aspect-ratio: 2.2 / 1;
             background: #f8fafc;
             border-radius: 16px;
             border: 2px solid #e2e8f0;
@@ -162,14 +162,14 @@
             var maxH = 0;
 
             var G = 9.8;
-            var SCALE = 2.0;
+            var SCALE = 1.5;
             var DT = 0.016;
 
             function resizeCanvas() {
                 var rect = canvas.getBoundingClientRect();
                 var w = canvas.clientWidth || rect.width || 400;
                 canvas.width = w;
-                canvas.height = w / 1.8;
+                canvas.height = w / 2.2;
                 W = canvas.width;
                 H = canvas.height;
                 groundY = H - 24;
@@ -204,7 +204,7 @@
                 ctx.fillStyle = '#94a3b8';
                 ctx.font = '10px system-ui';
                 ctx.textAlign = 'center';
-                for (var m = 0; m <= 60; m += 10) {
+                for (var m = 0; m <= 120; m += 20) {
                     var px = startX + m * SCALE;
                     if (px > W - 20) break;
                     ctx.fillRect(px, groundY, 1, 6);
@@ -308,7 +308,7 @@
                 if (isFlying) return;
 
                 var angleDeg = parseInt(angleSlider.value);
-                var speed = parseInt(speedSlider.value) / 4;
+                var speed = parseInt(speedSlider.value) / 3;
 
                 var rad = angleDeg * Math.PI / 180;
                 ball.x = startX;
