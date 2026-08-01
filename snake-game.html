@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>贪吃蛇 - Onyes 的小站</title>
-    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
@@ -107,10 +107,10 @@
 </head>
 <body>
     <div class="container">
-        <a href="/" class="back-link"><i class="fas fa-arrow-left"></i> 返回首页</a>
+        <a href="/" class="back-link"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H109.3l105.3-105.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg> 返回首页</a>
 
         <div class="header">
-            <h1><i class="fas fa-gamepad"></i> 贪吃蛇</h1>
+            <h1><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 640 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M192 64C86 64 0 150 0 256s86 192 192 192h256c106 0 192-86 192-192S554 64 448 64zm304 104a40 40 0 1 1 0 80a40 40 0 1 1 0-80M392 304a40 40 0 1 1 80 0a40 40 0 1 1-80 0M168 200c0-13.3 10.7-24 24-24s24 10.7 24 24v32h32c13.3 0 24 10.7 24 24s-10.7 24-24 24h-32v32c0 13.3-10.7 24-24 24s-24-10.7-24-24v-32h-32c-13.3 0-24-10.7-24-24s10.7-24 24-24h32z"/></svg> 贪吃蛇</h1>
             <div class="score-box">
                 <div class="score-item">
                     <div class="label">得分</div>
@@ -126,20 +126,20 @@
         <canvas id="gameCanvas" width="400" height="400"></canvas>
 
         <div class="controls">
-            <button class="start" id="startBtn"><i class="fas fa-play"></i> 开始</button>
-            <button class="pause" id="pauseBtn" disabled><i class="fas fa-pause"></i> 暂停</button>
-            <button class="reset" id="resetBtn"><i class="fas fa-undo"></i> 重置</button>
+            <button class="start" id="startBtn"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 384 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80v352c0 17.4 9.4 33.4 24.5 41.9S58.2 482 73 473l288-176c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41z"/></svg> 开始</button>
+            <button class="pause" id="pauseBtn" disabled><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 320 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M48 64C21.5 64 0 85.5 0 112v288c0 26.5 21.5 48 48 48h32c26.5 0 48-21.5 48-48V112c0-26.5-21.5-48-48-48zm192 0c-26.5 0-48 21.5-48 48v288c0 26.5 21.5 48 48 48h32c26.5 0 48-21.5 48-48V112c0-26.5-21.5-48-48-48z"/></svg> 暂停</button>
+            <button class="reset" id="resetBtn"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 512 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M48.5 224H40c-13.3 0-24-10.7-24-24V72c0-9.7 5.8-18.5 14.8-22.2S50.1 48.1 57 55l41.6 41.6c87.6-86.5 228.7-86.2 315.8 1c87.5 87.5 87.5 229.3 0 316.8s-229.3 87.5-316.8 0c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0c62.5 62.5 163.8 62.5 226.3 0s62.5-163.8 0-226.3c-62.2-62.2-162.7-62.5-225.3-1L185 183c6.9 6.9 8.9 17.2 5.2 26.2S177.7 224 168 224z"/></svg> 重置</button>
         </div>
 
         <div class="status" id="statusMsg">按「开始」或空格键启动</div>
 
         <div class="mobile-controls">
             <button class="empty"></button>
-            <button id="mUp"><i class="fas fa-chevron-up"></i></button>
+            <button id="mUp"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 512 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M233.4 105.4c12.5-12.5 32.8-12.5 45.3 0l192 192c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L256 173.3L86.6 342.6c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3l192-192z"/></svg></button>
             <button class="empty"></button>
-            <button id="mLeft"><i class="fas fa-chevron-left"></i></button>
-            <button id="mDown"><i class="fas fa-chevron-down"></i></button>
-            <button id="mRight"><i class="fas fa-chevron-right"></i></button>
+            <button id="mLeft"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 320 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l192 192c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L77.3 256L246.6 86.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-192 192z"/></svg></button>
+            <button id="mDown"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 512 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M233.4 406.6c12.5 12.5 32.8 12.5 45.3 0l192-192c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L256 338.7L86.6 169.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l192 192z"/></svg></button>
+            <button id="mRight"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 320 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M310.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-192 192c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L242.7 256L73.4 86.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l192 192z"/></svg></button>
         </div>
     </div>
 
@@ -180,9 +180,9 @@
                 statusMsg.textContent = '按「开始」或空格键启动';
                 statusMsg.className = 'status';
                 startBtn.disabled = false;
-                startBtn.innerHTML = '<i class="fas fa-play"></i> 开始';
+                startBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 384 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80v352c0 17.4 9.4 33.4 24.5 41.9S58.2 482 73 473l288-176c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41z"/></svg> 开始';
                 pauseBtn.disabled = true;
-                pauseBtn.innerHTML = '<i class="fas fa-pause"></i> 暂停';
+                pauseBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 320 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M48 64C21.5 64 0 85.5 0 112v288c0 26.5 21.5 48 48 48h32c26.5 0 48-21.5 48-48V112c0-26.5-21.5-48-48-48zm192 0c-26.5 0-48 21.5-48 48v288c0 26.5 21.5 48 48 48h32c26.5 0 48-21.5 48-48V112c0-26.5-21.5-48-48-48z"/></svg> 暂停';
                 if (loopId) { clearInterval(loopId); loopId = null; }
                 generateFood();
                 draw();
@@ -390,7 +390,7 @@
                 gameState = 'over';
                 if (loopId) { clearInterval(loopId); loopId = null; }
                 startBtn.disabled = false;
-                startBtn.innerHTML = '<i class="fas fa-redo"></i> 重来';
+                startBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 512 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M463.5 224h8.5c13.3 0 24-10.7 24-24V72c0-9.7-5.8-18.5-14.8-22.2S461.9 48.1 455 55l-41.6 41.6c-87.6-86.5-228.7-86.2-315.8 1c-87.5 87.5-87.5 229.3 0 316.8s229.3 87.5 316.8 0c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0c-62.5 62.5-163.8 62.5-226.3 0s-62.5-163.8 0-226.3c62.2-62.2 162.7-62.5 225.3-1L327 183c-6.9 6.9-8.9 17.2-5.2 26.2S334.3 224 344 224z"/></svg> 重来';
                 pauseBtn.disabled = true;
                 statusMsg.textContent = '💀 游戏结束！点击「重来」或按空格键';
                 statusMsg.className = 'status over';
@@ -405,9 +405,9 @@
                 }
                 gameState = 'running';
                 startBtn.disabled = true;
-                startBtn.innerHTML = '<i class="fas fa-play"></i> 进行中';
+                startBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 384 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80v352c0 17.4 9.4 33.4 24.5 41.9S58.2 482 73 473l288-176c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41z"/></svg> 进行中';
                 pauseBtn.disabled = false;
-                pauseBtn.innerHTML = '<i class="fas fa-pause"></i> 暂停';
+                pauseBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 320 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M48 64C21.5 64 0 85.5 0 112v288c0 26.5 21.5 48 48 48h32c26.5 0 48-21.5 48-48V112c0-26.5-21.5-48-48-48zm192 0c-26.5 0-48 21.5-48 48v288c0 26.5 21.5 48 48 48h32c26.5 0 48-21.5 48-48V112c0-26.5-21.5-48-48-48z"/></svg> 暂停';
                 statusMsg.textContent = '▶ 游戏中...';
                 statusMsg.className = 'status';
                 if (loopId) { clearInterval(loopId); }
@@ -419,12 +419,12 @@
                 if (gameState === 'running') {
                     gameState = 'paused';
                     if (loopId) { clearInterval(loopId); loopId = null; }
-                    pauseBtn.innerHTML = '<i class="fas fa-play"></i> 继续';
+                    pauseBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 384 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80v352c0 17.4 9.4 33.4 24.5 41.9S58.2 482 73 473l288-176c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41z"/></svg> 继续';
                     statusMsg.textContent = '⏸ 已暂停';
                     draw();
                 } else if (gameState === 'paused') {
                     gameState = 'running';
-                    pauseBtn.innerHTML = '<i class="fas fa-pause"></i> 暂停';
+                    pauseBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 320 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M48 64C21.5 64 0 85.5 0 112v288c0 26.5 21.5 48 48 48h32c26.5 0 48-21.5 48-48V112c0-26.5-21.5-48-48-48zm192 0c-26.5 0-48 21.5-48 48v288c0 26.5 21.5 48 48 48h32c26.5 0 48-21.5 48-48V112c0-26.5-21.5-48-48-48z"/></svg> 暂停';
                     statusMsg.textContent = '▶ 游戏中...';
                     if (loopId) { clearInterval(loopId); }
                     loopId = setInterval(step, TICK_INTERVAL);
@@ -436,9 +436,9 @@
                 if (loopId) { clearInterval(loopId); loopId = null; }
                 init();
                 startBtn.disabled = false;
-                startBtn.innerHTML = '<i class="fas fa-play"></i> 开始';
+                startBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 384 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80v352c0 17.4 9.4 33.4 24.5 41.9S58.2 482 73 473l288-176c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41z"/></svg> 开始';
                 pauseBtn.disabled = true;
-                pauseBtn.innerHTML = '<i class="fas fa-pause"></i> 暂停';
+                pauseBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 320 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M48 64C21.5 64 0 85.5 0 112v288c0 26.5 21.5 48 48 48h32c26.5 0 48-21.5 48-48V112c0-26.5-21.5-48-48-48zm192 0c-26.5 0-48 21.5-48 48v288c0 26.5 21.5 48 48 48h32c26.5 0 48-21.5 48-48V112c0-26.5-21.5-48-48-48z"/></svg> 暂停';
             }
 
             // ===== 方向控制 =====
@@ -472,6 +472,18 @@
 
             // 移动端方向按钮
             document.getElementById('mUp').addEventListener('click', function() { setDirection('up'); });
+
+            // 切到后台自动暂停，回到前台自动恢复
+            var autoPaused = false;
+            document.addEventListener('visibilitychange', function() {
+                if (document.hidden && gameState === 'running') {
+                    autoPaused = true;
+                    togglePause();
+                } else if (!document.hidden && autoPaused && gameState === 'paused') {
+                    autoPaused = false;
+                    togglePause();
+                }
+            });
             document.getElementById('mDown').addEventListener('click', function() { setDirection('down'); });
             document.getElementById('mLeft').addEventListener('click', function() { setDirection('left'); });
             document.getElementById('mRight').addEventListener('click', function() { setDirection('right'); });
