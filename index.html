@@ -609,7 +609,6 @@
             transition: gap 0.2s;
             position: relative;
             z-index: 1;
-            pointer-events: none;
         }
         .project-item a:hover { gap: 10px; color: var(--accent); }
         
@@ -1454,9 +1453,10 @@
             });
 
             document.addEventListener('dragover', function(e) {
+                // 必须阻止默认，否则 drop 不会触发
+                e.preventDefault();
                 var target = e.target.closest('.project-item');
                 if (!target) return;
-                e.preventDefault();
                 e.dataTransfer.dropEffect = 'move';
                 if (dragItem && dragItem !== target) {
                     document.querySelectorAll('.project-item').forEach(function(el) {
@@ -1472,9 +1472,10 @@
             });
 
             document.addEventListener('drop', function(e) {
+                // 必须阻止默认，否则会触发页面跳转
+                e.preventDefault();
                 var target = e.target.closest('.project-item');
                 if (!target) return;
-                e.preventDefault();
                 target.classList.remove('drag-over');
                 if (!dragItem || dragItem === target) return;
                 var parent = target.parentNode;
@@ -1490,7 +1491,7 @@
             });
 
             // =============================================
-            // 卡片点击跳转（修复打开两次的问题）
+            // 卡片点击跳转（修复打开两次）
             // =============================================
             document.addEventListener('click', function(e) {
                 // 只处理 .project-item 内部的点击，但排除收藏按钮和拖拽手柄
@@ -1498,14 +1499,16 @@
                 if (!card) return;
                 if (e.target.closest('.favorite-btn')) return;
                 if (e.target.closest('.drag-handle')) return;
-                // 如果点击的是 a 标签本身，阻止默认行为（因为我们要用自定义跳转）
+
                 var link = e.target.closest('a');
                 if (link) {
+                    // 阻止 a 标签的默认跳转
                     e.preventDefault();
                     var url = link.getAttribute('href');
                     if (url) window.open(url, '_blank');
                     return;
                 }
+
                 // 点击卡片其他区域，用 data-url 跳转
                 var url = card.dataset.url;
                 if (url) window.open(url, '_blank');
