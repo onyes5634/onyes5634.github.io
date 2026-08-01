@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>百分比计算器</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="skin.css">
+</head>
+<body>
+<header class="app-header">
+<a class="back" href="index.html"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H109.3l105.3-105.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg> 返回主页</a>
+<h1 class="app-title">百分比计算器</h1>
+<button class="theme-toggle" id="themeToggle" title="切换主题" aria-label="切换主题">🌙</button>
+</header>
+<div class="app-shell">
+<div class="card">
+
+<h2 class="tool-title">百分比 / 占比 / 增减幅度</h2>
+<div class="grid-2">
+<div class="col">
+<div class="tool-title">① 求占比</div>
+<div class="row"><input type="number" id="p1_part" class="grow" placeholder="部分"><input type="number" id="p1_total" class="grow" placeholder="总量"><button class="btn btn-primary" id="b1">=</button></div>
+<div id="r1" class="result-box">—</div>
+</div>
+<div class="col">
+<div class="tool-title">② 求百分比值</div>
+<div class="row"><input type="number" id="p2_base" class="grow" placeholder="基数"><input type="number" id="p2_pct" class="grow" placeholder="百分比%"><button class="btn btn-primary" id="b2">=</button></div>
+<div id="r2" class="result-box">—</div>
+</div>
+<div class="col">
+<div class="tool-title">③ 增减幅度</div>
+<div class="row"><input type="number" id="p3_from" class="grow" placeholder="原值"><input type="number" id="p3_to" class="grow" placeholder="新值"><button class="btn btn-primary" id="b3">=</button></div>
+<div id="r3" class="result-box">—</div>
+</div>
+</div>
+</div>
+</div>
+<script>
+
+const $ = id => document.getElementById(id);
+$('b1').onclick = function () {
+  const a = +$('p1_part').value, b = +$('p1_total').value;
+  $('r1').textContent = b ? (a / b * 100).toFixed(2) + '%' : '—';
+};
+$('b2').onclick = function () {
+  const a = +$('p2_base').value, b = +$('p2_pct').value;
+  $('r2').textContent = (a * b / 100).toFixed(2);
+};
+$('b3').onclick = function () {
+  const a = +$('p3_from').value, b = +$('p3_to').value;
+  $('r3').textContent = a ? (((b - a) / a) * 100).toFixed(2) + '%' : '—';
+};
+
+</script>
+<script defer src="skin.js"></script>
+</body>
+</html>
