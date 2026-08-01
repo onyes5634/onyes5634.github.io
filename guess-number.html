@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>猜数字</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="skin.css">
+</head>
+<body>
+<header class="app-header">
+<a class="back" href="index.html"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H109.3l105.3-105.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg> 返回主页</a>
+<h1 class="app-title">猜数字</h1>
+<button class="theme-toggle" id="themeToggle" title="切换主题" aria-label="切换主题">🌙</button>
+</header>
+<div class="app-shell">
+<div class="card">
+
+<style>
+.range-bar { display:flex; gap:0; margin:14px 0; border-radius:999px; overflow:hidden; }
+.range-bar span { flex:1; text-align:center; padding:6px 0; font-size:.85rem; }
+.range-bar .lo { background:rgba(231,76,60,.15); color:#e74c3c; }
+.range-bar .hi { background:rgba(46,204,113,.15); color:#2ecc71; }
+.history { margin-top:14px; display:flex; flex-wrap:wrap; gap:8px; }
+.history span { background:var(--tag-bg); border-radius:8px; padding:4px 10px; font-size:.9rem; }
+</style>
+<h2 class="tool-title">猜数字（1-100）</h2>
+<p class="hint">我随机想了一个 1-100 的整数，来猜猜看！</p>
+<div class="row">
+<input type="number" id="guess" class="grow" placeholder="输入你的猜测" min="1" max="100">
+<button class="btn btn-primary" id="go">猜！</button>
+<button class="btn" id="new">新游戏</button>
+</div>
+<div class="range-bar"><span class="lo" id="loTxt">1</span><span id="midTxt">🎯</span><span class="hi" id="hiTxt">100</span></div>
+<div id="msg" class="result-box">开始吧！</div>
+<div class="history" id="history"></div>
+</div>
+</div>
+<script>
+
+const $ = id => document.getElementById(id);
+let target = 0, tries = 0, lo = 1, hi = 100;
+function newGame() {
+  target = Math.floor(Math.random() * 100) + 1;
+  tries = 0; lo = 1; hi = 100;
+  $('loTxt').textContent = '1'; $('hiTxt').textContent = '100';
+  $('history').innerHTML = ''; $('msg').textContent = '新游戏开始！输入 1-100 的整数。';
+  $('guess').value = '';
+}
+$('new').onclick = newGame;
+$('go').onclick = function () {
+  const v = +$('guess').value;
+  if (!v || v < 1 || v > 100) { $('msg').textContent = '请输入 1-100 的整数'; return; }
+  tries++;
+  const span = document.createElement('span');
+  span.textContent = v;
+  let text;
+  if (v > target) { text = '大了，再小一点'; hi = Math.min(hi, v - 1); span.style.color = '#e74c3c'; }
+  else if (v < target) { text = '小了，再大一点'; lo = Math.max(lo, v + 1); span.style.color = '#2ecc71'; }
+  else { text = '\uD83C\uDF89 猜对了！答案就是 ' + target + '，共用了 ' + tries + ' 次'; span.style.color = '#f39c12'; }
+  $('loTxt').textContent = lo; $('hiTxt').textContent = hi;
+  $('history').appendChild(span);
+  $('msg').textContent = text;
+  $('guess').value = '';
+};
+newGame();
+
+</script>
+<script defer src="skin.js"></script>
+</body>
+</html>
