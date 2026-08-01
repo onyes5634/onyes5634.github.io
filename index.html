@@ -7,18 +7,29 @@
     <meta name="description" content="Onyes 的个人网站，分享实用工具和小游戏">
     <meta name="keywords" content="工具, 游戏, 编程, 前端">
     
-    <!-- Font Awesome -->
+    <!-- Font Awesome 国内CDN -->
     <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         /* ===== 1. 平滑滚动 ===== */
-        html { scroll-behavior: smooth; }
+        html {
+            scroll-behavior: smooth;
+        }
 
         /* ===== 2. 自定义滚动条 ===== */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: var(--bg-body); }
-        ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--secondary); }
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-body);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--secondary);
+        }
 
         /* ===== 颜色变量 ===== */
         :root {
@@ -42,7 +53,6 @@
             --nav-bg: rgba(255, 255, 255, 0.75);
             --nav-border: rgba(0, 0, 0, 0.06);
             --nav-text: #222;
-            --gold: #f59e0b;
         }
 
         [data-theme="dark"] {
@@ -63,7 +73,6 @@
             --nav-bg: rgba(22, 27, 34, 0.85);
             --nav-border: rgba(255, 255, 255, 0.06);
             --nav-text: #e6edf3;
-            --gold: #fbbf24;
         }
         
         /* ===== 基础样式 ===== */
@@ -103,7 +112,8 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            transition: background 0.3s ease, border-color 0.3s ease;
+            transition: background 0.3s ease,
+                        border-color 0.3s ease;
             will-change: transform;
         }
         .navbar .logo {
@@ -116,8 +126,13 @@
             font-size: 1.1rem;
             flex-shrink: 0;
         }
-        .navbar .logo i { color: var(--primary); font-size: 1.3rem; }
-        .navbar .logo:hover { color: var(--primary); }
+        .navbar .logo i {
+            color: var(--primary);
+            font-size: 1.3rem;
+        }
+        .navbar .logo:hover {
+            color: var(--primary);
+        }
         .navbar .nav-links {
             display: flex;
             align-items: center;
@@ -136,7 +151,10 @@
             transition: all 0.2s ease;
             position: relative;
         }
-        .navbar .nav-links a:hover { background: var(--primary); color: #fff; }
+        .navbar .nav-links a:hover {
+            background: var(--primary);
+            color: #fff;
+        }
         .navbar .nav-actions {
             display: flex;
             align-items: center;
@@ -156,10 +174,15 @@
             align-items: center;
             gap: 4px;
         }
-        .navbar .nav-actions button:hover { background: var(--primary); color: #fff; }
-        .navbar .nav-toggle { display: none !important; }
+        .navbar .nav-actions button:hover {
+            background: var(--primary);
+            color: #fff;
+        }
+        .navbar .nav-toggle {
+            display: none !important;
+        }
 
-        /* ===== 吸顶元素 ===== */
+        /* ===== 吸顶头像/标题（渐进式） ===== */
         .nav-compact {
             display: flex;
             align-items: center;
@@ -177,22 +200,33 @@
             overflow: hidden;
             border: 2px solid var(--primary);
             flex-shrink: 0;
+            transition: none;
         }
-        .nav-compact .mini-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .nav-compact .mini-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
         .nav-compact .mini-title {
             font-size: 1rem;
             font-weight: 700;
             color: var(--nav-text);
             white-space: nowrap;
+            transition: none;
         }
-        .nav-compact .mini-title .highlight { color: var(--primary); }
+        .nav-compact .mini-title .highlight {
+            color: var(--primary);
+        }
 
         /* ===== 弹性下拉效果 ===== */
         .elastic-wrapper {
             transition: transform 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28);
             will-change: transform;
         }
-        .elastic-wrapper.pull-down { transform: translateY(30px); }
+        .elastic-wrapper.pull-down {
+            transform: translateY(30px);
+        }
 
         /* ===== 主容器 ===== */
         .container {
@@ -223,7 +257,10 @@
             outline: none;
             transition: border 0.2s;
         }
-        .search-box input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(52,152,219,0.1); }
+        .search-box input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(52,152,219,0.1);
+        }
 
         /* ===== 搜索下拉建议 ===== */
         .search-suggestions {
@@ -252,8 +289,14 @@
             transition: background 0.15s ease;
             font-size: 0.95rem;
         }
-        .search-suggestions .suggestion-item:hover { background: var(--section-bg); }
-        .search-suggestions .suggestion-item i { color: var(--primary); width: 20px; text-align: center; }
+        .search-suggestions .suggestion-item:hover {
+            background: var(--section-bg);
+        }
+        .search-suggestions .suggestion-item i {
+            color: var(--primary);
+            width: 20px;
+            text-align: center;
+        }
         .search-suggestions .suggestion-item .tag-hint {
             font-size: 0.75rem;
             color: var(--text-light);
@@ -263,9 +306,22 @@
             margin-left: auto;
             flex-shrink: 0;
         }
-        .search-suggestions .no-result { padding: 20px; text-align: center; color: var(--text-light); font-size: 0.95rem; }
-        [data-theme="dark"] .search-suggestions { border-color: var(--border-color); }
-        .search-empty { display: none; text-align: center; padding: 30px; color: var(--text-light); }
+        .search-suggestions .no-result {
+            padding: 20px;
+            text-align: center;
+            color: var(--text-light);
+            font-size: 0.95rem;
+        }
+        [data-theme="dark"] .search-suggestions {
+            border-color: var(--border-color);
+        }
+
+        .search-empty {
+            display: none;
+            text-align: center;
+            padding: 30px;
+            color: var(--text-light);
+        }
         .search-empty.show { display: block; }
         
         /* ===== 头部 - 头像和标题同一行 ===== */
@@ -292,7 +348,13 @@
             padding: 3px;
             transition: transform 0.2s ease, width 0.2s ease, height 0.2s ease;
         }
-        .profile-pic img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; }
+        .profile-pic img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            display: block;
+        }
         .profile-pic .fallback {
             display: none;
             width: 100%;
@@ -306,6 +368,7 @@
             font-weight: bold;
         }
         
+        /* ===== 标题区域（右侧） ===== */
         .header-content {
             display: flex;
             flex-direction: column;
@@ -339,6 +402,7 @@
             100% { background-position: 0% 50%; }
         }
 
+        /* ===== 神秘按钮 ===== */
         .mystery-btn {
             display: inline-flex;
             align-items: center;
@@ -351,17 +415,23 @@
             font-size: 0.8rem;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.3s ease, transform 0.2s ease, font-size 0.2s ease, padding 0.2s ease;
             font-family: inherit;
             position: relative;
             animation: mysteryPulse 2s ease-in-out infinite;
         }
-        .mystery-btn:hover { background: var(--mystery-glow); color: #fff; transform: scale(1.05); box-shadow: 0 0 30px rgba(139, 92, 246, 0.3); }
+        .mystery-btn:hover {
+            background: var(--mystery-glow);
+            color: #fff;
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(139, 92, 246, 0.3);
+        }
         @keyframes mysteryPulse {
             0%, 100% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.3); }
             50% { box-shadow: 0 0 20px 6px rgba(139, 92, 246, 0.1); }
         }
 
+        /* ===== 副标题 ===== */
         .subtitle-wrap {
             display: flex;
             align-items: center;
@@ -369,7 +439,11 @@
             flex-wrap: wrap;
             transition: opacity 0.2s ease, transform 0.2s ease;
         }
-        .subtitle-wrap .line { color: var(--text-light); font-size: 0.7rem; opacity: 0.3; }
+        .subtitle-wrap .line {
+            color: var(--text-light);
+            font-size: 0.7rem;
+            opacity: 0.3;
+        }
         .subtitle-item {
             color: var(--text-light);
             font-size: 1rem;
@@ -377,8 +451,14 @@
             letter-spacing: 0.5px;
             transition: color 0.2s, font-size 0.2s ease;
         }
-        .subtitle-item:hover { color: var(--primary); }
-        .subtitle-item i { margin-right: 6px; color: var(--primary); opacity: 0.6; }
+        .subtitle-item:hover {
+            color: var(--primary);
+        }
+        .subtitle-item i {
+            margin-right: 6px;
+            color: var(--primary);
+            opacity: 0.6;
+        }
         
         /* ===== 简介 ===== */
         .intro {
@@ -397,8 +477,13 @@
             max-width: 700px;
             margin: 0 auto;
         }
-        .intro p:not(:last-child) { margin-bottom: 4px; }
-        .intro .highlight { color: var(--primary); font-weight: 600; }
+        .intro p:not(:last-child) {
+            margin-bottom: 4px;
+        }
+        .intro .highlight {
+            color: var(--primary);
+            font-weight: 600;
+        }
         .intro .free-badge {
             display: inline-block;
             background: linear-gradient(135deg, var(--primary), var(--secondary));
@@ -449,7 +534,6 @@
             border-radius: 16px;
             border: 1px solid var(--border-color);
             transition: background 0.3s ease;
-            position: relative;
         }
         .projects-section.hidden { display: none; }
         .category-title {
@@ -476,25 +560,20 @@
             padding: 18px 20px;
             border-radius: 14px;
             border: 1px solid var(--border-color);
-            cursor: grab;
+            cursor: pointer;
             user-select: none;
             -webkit-tap-highlight-color: transparent;
             position: relative;
             overflow: hidden;
-            transition: box-shadow 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
-            will-change: transform;
+            opacity: 0;
+            transform: translateY(30px) scale(1);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+            will-change: transform, opacity;
         }
-        .project-item.dragging {
-            opacity: 0.5;
-            transform: scale(0.95);
-            cursor: grabbing;
-            z-index: 100;
+        .project-item.visible {
+            opacity: 1;
+            transform: translateY(0) scale(1);
         }
-        .project-item.drag-over {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 2px var(--primary);
-        }
-        .project-item.hidden { display: none; }
 
         /* 悬停光效 */
         .project-item::before {
@@ -511,7 +590,9 @@
             transform: translate(calc(var(--mx, 0) * 1px - 50%), calc(var(--my, 0) * 1px - 50%));
             will-change: transform, opacity;
         }
-        .project-item:hover::before { opacity: 1; }
+        .project-item:hover::before {
+            opacity: 1;
+        }
 
         /* 悬停上浮 */
         .project-item:hover {
@@ -523,65 +604,31 @@
                         border-color 0.3s ease;
         }
 
-        /* ===== 收藏按钮 ===== */
-        .project-item .favorite-btn {
-            position: absolute;
-            top: 10px;
-            right: 12px;
-            background: transparent;
-            border: none;
-            color: var(--text-light);
-            font-size: 1.1rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            z-index: 2;
-            opacity: 0.3;
-            padding: 4px;
-        }
-        .project-item:hover .favorite-btn { opacity: 1; }
-        .project-item .favorite-btn:hover { transform: scale(1.2); }
-        .project-item .favorite-btn.favorited {
-            color: var(--gold);
-            opacity: 1;
-            animation: starPop 0.3s ease;
-        }
-        @keyframes starPop {
-            0% { transform: scale(0.5); }
-            70% { transform: scale(1.3); }
-            100% { transform: scale(1); }
-        }
-
-        /* ===== 拖拽手柄 ===== */
-        .project-item .drag-handle {
-            position: absolute;
-            top: 10px;
-            left: 12px;
-            color: var(--text-light);
-            font-size: 0.8rem;
-            opacity: 0.15;
-            cursor: grab;
-            transition: opacity 0.2s ease;
-            z-index: 2;
-        }
-        .project-item:hover .drag-handle { opacity: 0.5; }
-        .project-item:active .drag-handle { cursor: grabbing; }
-
-        /* ===== 回弹动画 ===== */
+        /* ===== 回弹动画 - 一次回弹 ===== */
         @keyframes pressBounce {
-            0% { transform: scale(1); }
-            20% { transform: scale(0.92); }
-            60% { transform: scale(1.04); }
+            0%   { transform: scale(1); }
+            20%  { transform: scale(0.92); }
+            60%  { transform: scale(1.04); }
             100% { transform: scale(1); }
         }
         @keyframes pressBounceTouch {
-            0% { transform: scale(1); }
-            25% { transform: scale(0.92); }
-            65% { transform: scale(1.04); }
+            0%   { transform: scale(1); }
+            25%  { transform: scale(0.92); }
+            65%  { transform: scale(1.04); }
             100% { transform: scale(1); }
         }
-        .project-item.pressed { animation: pressBounce 0.45s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards; }
+
+        .project-item.pressed {
+            animation: pressBounce 0.45s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
+        }
         @media (pointer: coarse) {
-            .project-item.pressed { animation: pressBounceTouch 0.35s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards; }
+            .project-item.pressed {
+                animation: pressBounceTouch 0.35s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
+            }
+        }
+
+        .project-item.hidden { 
+            display: none;
         }
         .project-item h3 {
             margin-bottom: 6px;
@@ -589,7 +636,6 @@
             font-size: 1.05rem;
             position: relative;
             z-index: 1;
-            padding-right: 30px;
         }
         .project-item p {
             font-size: 0.9rem;
@@ -609,6 +655,7 @@
             transition: gap 0.2s;
             position: relative;
             z-index: 1;
+            pointer-events: none;
         }
         .project-item a:hover { gap: 10px; color: var(--accent); }
         
@@ -735,8 +782,15 @@
             pointer-events: none;
             z-index: 100;
         }
-        .back-to-top.visible { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
-        .back-to-top:hover { transform: translateY(-4px) scale(1.08); box-shadow: 0 8px 30px rgba(52, 152, 219, 0.4); }
+        .back-to-top.visible {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            pointer-events: auto;
+        }
+        .back-to-top:hover {
+            transform: translateY(-4px) scale(1.08);
+            box-shadow: 0 8px 30px rgba(52, 152, 219, 0.4);
+        }
         
         /* ===== 访问计数 ===== */
         .visitor-count {
@@ -768,79 +822,11 @@
             letter-spacing: 0.5px;
             font-family: monospace;
         }
-        .debug-version:hover { opacity: 0.8; }
-
-        /* ===== 快捷键面板 ===== */
-        .shortcuts-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(8px);
-            z-index: 9998;
-            display: none;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-        .shortcuts-overlay.active { display: flex; }
-        .shortcuts-panel {
-            background: var(--bg-card);
-            border-radius: 24px;
-            padding: 40px 48px;
-            max-width: 500px;
-            width: 100%;
-            box-shadow: 0 30px 80px rgba(0,0,0,0.4);
-            border: 1px solid var(--border-color);
-            animation: slideUp 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
-        }
-        @keyframes slideUp {
-            from { transform: translateY(30px) scale(0.96); opacity: 0; }
-            to { transform: translateY(0) scale(1); opacity: 1; }
-        }
-        .shortcuts-panel h2 {
-            font-size: 1.5rem;
-            margin-bottom: 20px;
-            color: var(--text-color);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .shortcuts-panel h2 i { color: var(--primary); }
-        .shortcuts-panel .close-shortcuts {
-            margin-left: auto;
-            background: transparent;
-            border: none;
-            color: var(--text-light);
-            font-size: 1.4rem;
-            cursor: pointer;
-            padding: 4px 8px;
-            border-radius: 8px;
-            transition: 0.2s;
-        }
-        .shortcuts-panel .close-shortcuts:hover { background: var(--section-bg); color: var(--text-color); }
-        .shortcuts-panel .shortcut-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px solid var(--border-color);
-            font-size: 0.95rem;
-            color: var(--text-color);
-        }
-        .shortcuts-panel .shortcut-row:last-child { border-bottom: none; }
-        .shortcuts-panel .shortcut-row kbd {
-            background: var(--tag-bg);
-            padding: 2px 12px;
-            border-radius: 6px;
-            font-family: monospace;
-            font-size: 0.85rem;
-            border: 1px solid var(--border-color);
-            color: var(--text-color);
+        .debug-version:hover {
+            opacity: 0.8;
         }
 
-        /* ===== 神秘模态框 ===== */
+        /* ===== 神秘模态框（全屏） ===== */
         .mystery-overlay {
             position: fixed;
             top: 0;
@@ -853,14 +839,23 @@
             padding: 0;
             animation: fadeIn 0.3s ease;
         }
-        .mystery-overlay.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .mystery-overlay.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
         .mystery-modal {
             width: 100%;
             height: 100%;
             position: relative;
         }
-        .mystery-modal iframe { width: 100%; height: 100%; border: none; }
+        .mystery-modal iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
         .mystery-back-btn {
             position: absolute;
             top: 20px;
@@ -888,7 +883,9 @@
             transform: scale(1.04);
             border-color: rgba(255, 255, 255, 0.3);
         }
-        .mystery-back-btn i { font-size: 1rem; }
+        .mystery-back-btn i {
+            font-size: 1rem;
+        }
         .mystery-modal .loading-tip {
             position: absolute;
             top: 50%;
@@ -903,91 +900,259 @@
             z-index: 1;
             pointer-events: none;
         }
-        .mystery-modal .loading-tip i { font-size: 2.5rem; color: var(--mystery-glow); }
-
-        /* ===== Giscus 评论区 ===== */
-        .giscus-wrapper {
-            max-width: 1200px;
-            margin: 40px auto 0;
-            padding: 0 20px;
+        .mystery-modal .loading-tip i {
+            font-size: 2.5rem;
+            color: var(--mystery-glow);
         }
 
         /* ===== 响应式 ===== */
         @media (max-width: 768px) {
             body { padding-top: 56px; }
-            .navbar { height: 56px; padding: 0 16px; }
-            .navbar .nav-links { gap: 4px; }
-            .navbar .nav-links a { font-size: 0.75rem; padding: 4px 10px; }
-            .navbar .logo { font-size: 0.9rem; }
-            .container { padding: 20px 14px; }
-            header { gap: 16px; }
-            .profile-pic { width: 64px; height: 64px; }
-            .site-title { font-size: 1.8rem; }
-            .mystery-btn { font-size: 0.7rem; padding: 4px 12px; }
-            .subtitle-item { font-size: 0.85rem; }
-            .intro { padding: 14px 16px; }
-            .intro p { font-size: 0.9rem; }
-            .project-list { grid-template-columns: 1fr; gap: 12px; }
-            .project-item { padding: 14px 16px; }
-            .project-item h3 { font-size: 0.95rem; }
-            .project-item p { font-size: 0.85rem; }
-            .category-nav { gap: 8px; }
-            .category-link { padding: 6px 12px; font-size: 0.8rem; }
-            .back-to-top { bottom: 20px; right: 20px; width: 40px; height: 40px; font-size: 1.1rem; }
-            .projects-section, .contact-section { padding: 14px 12px; margin: 16px 0; }
-            .social-link { width: 40px; height: 40px; font-size: 1.2rem; }
-            .social-links { gap: 14px; }
-            .category-title { font-size: 1.1rem; }
-            .search-box input { font-size: 0.9rem; padding: 10px 14px; }
-            .search-suggestions .suggestion-item { padding: 8px 14px; font-size: 0.85rem; }
-            .debug-version { font-size: 0.55rem; }
-            .mystery-back-btn { top: 14px; left: 14px; padding: 6px 14px; font-size: 0.8rem; }
-            .nav-compact .mini-title { font-size: 0.85rem; }
-            .shortcuts-panel { padding: 28px 20px; }
+            .navbar {
+                height: 56px;
+                padding: 0 16px;
+            }
+            .navbar .nav-links {
+                gap: 4px;
+            }
+            .navbar .nav-links a {
+                font-size: 0.75rem;
+                padding: 4px 10px;
+            }
+            .navbar .logo {
+                font-size: 0.9rem;
+            }
+            .container { 
+                padding: 20px 14px; 
+            }
+            header {
+                gap: 16px;
+            }
+            .profile-pic { 
+                width: 64px; 
+                height: 64px; 
+            }
+            .site-title { 
+                font-size: 1.8rem; 
+            }
+            .mystery-btn {
+                font-size: 0.7rem;
+                padding: 4px 12px;
+            }
+            .subtitle-item { 
+                font-size: 0.85rem; 
+            }
+            .intro { 
+                padding: 14px 16px; 
+            }
+            .intro p { 
+                font-size: 0.9rem; 
+            }
+            .project-list { 
+                grid-template-columns: 1fr; 
+                gap: 12px;
+            }
+            .project-item {
+                padding: 14px 16px;
+            }
+            .project-item h3 {
+                font-size: 0.95rem;
+            }
+            .project-item p {
+                font-size: 0.85rem;
+            }
+            .category-nav { 
+                gap: 8px; 
+            }
+            .category-link { 
+                padding: 6px 12px; 
+                font-size: 0.8rem; 
+            }
+            .back-to-top { 
+                bottom: 20px; 
+                right: 20px; 
+                width: 40px; 
+                height: 40px; 
+                font-size: 1.1rem; 
+            }
+            .projects-section, .contact-section { 
+                padding: 14px 12px; 
+                margin: 16px 0;
+            }
+            .social-link { 
+                width: 40px; 
+                height: 40px; 
+                font-size: 1.2rem; 
+            }
+            .social-links {
+                gap: 14px;
+            }
+            .category-title {
+                font-size: 1.1rem;
+            }
+            .search-box input {
+                font-size: 0.9rem;
+                padding: 10px 14px;
+            }
+            .search-suggestions .suggestion-item {
+                padding: 8px 14px;
+                font-size: 0.85rem;
+            }
+            .debug-version {
+                font-size: 0.55rem;
+            }
+            .mystery-back-btn {
+                top: 14px;
+                left: 14px;
+                padding: 6px 14px;
+                font-size: 0.8rem;
+            }
+            .nav-compact .mini-title {
+                font-size: 0.85rem;
+            }
         }
 
         @media (max-width: 480px) {
             body { padding-top: 48px; }
-            .navbar { height: 48px; padding: 0 12px; }
-            .navbar .logo { font-size: 0.8rem; }
-            .navbar .logo i { font-size: 0.9rem; }
-            .navbar .nav-links a { font-size: 0.65rem; padding: 3px 8px; }
-            .container { padding: 12px 8px; }
-            header { gap: 12px; flex-direction: column; text-align: center; }
-            .header-content { align-items: center; }
-            .title-row { justify-content: center; }
-            .subtitle-wrap { justify-content: center; }
-            .profile-pic { width: 56px; height: 56px; }
-            .profile-pic .fallback { font-size: 2rem; }
-            .site-title { font-size: 1.4rem; }
-            .mystery-btn { font-size: 0.65rem; padding: 3px 10px; }
-            .subtitle-item { font-size: 0.75rem; }
-            .subtitle-wrap .line { font-size: 0.5rem; }
-            .intro p { font-size: 0.85rem; }
-            .project-item { padding: 12px 12px; }
-            .project-item h3 { font-size: 0.9rem; }
-            .project-item p { font-size: 0.8rem; margin-bottom: 10px; }
-            .project-item a { font-size: 0.8rem; }
-            .category-link { padding: 4px 8px; font-size: 0.7rem; }
-            .social-link { width: 36px; height: 36px; font-size: 1rem; }
-            .social-links { gap: 10px; }
-            .contact-title { font-size: 1rem; }
-            .contact-info { font-size: 0.85rem; }
-            .tag { font-size: 0.7rem; padding: 3px 10px; }
-            .tags { gap: 6px; }
-            .projects-section, .contact-section { padding: 10px 8px; margin: 12px 0; }
-            .category-title { font-size: 0.95rem; margin-bottom: 10px; }
-            .back-to-top { bottom: 14px; right: 14px; width: 34px; height: 34px; font-size: 0.9rem; }
-            footer { font-size: 0.7rem; margin-top: 24px; padding-top: 12px; }
-            .visitor-count { font-size: 0.7rem; }
-            .visitor-count span { padding: 1px 10px; }
-            .debug-version { font-size: 0.45rem; margin-top: 12px; }
-            .mystery-back-btn { top: 10px; left: 10px; padding: 5px 10px; font-size: 0.7rem; gap: 6px; }
-            .mystery-back-btn i { font-size: 0.8rem; }
-            .nav-compact .mini-title { font-size: 0.7rem; }
-            .nav-compact .mini-avatar { width: 24px; height: 24px; }
-            .shortcuts-panel { padding: 20px 16px; }
-            .shortcuts-panel h2 { font-size: 1.2rem; }
+            .navbar {
+                height: 48px;
+                padding: 0 12px;
+            }
+            .navbar .logo {
+                font-size: 0.8rem;
+            }
+            .navbar .logo i {
+                font-size: 0.9rem;
+            }
+            .navbar .nav-links a {
+                font-size: 0.65rem;
+                padding: 3px 8px;
+            }
+            .container { 
+                padding: 12px 8px; 
+            }
+            header {
+                gap: 12px;
+                flex-direction: column;
+                text-align: center;
+            }
+            .header-content {
+                align-items: center;
+            }
+            .title-row {
+                justify-content: center;
+            }
+            .subtitle-wrap {
+                justify-content: center;
+            }
+            .profile-pic { 
+                width: 56px; 
+                height: 56px; 
+            }
+            .profile-pic .fallback {
+                font-size: 2rem;
+            }
+            .site-title { 
+                font-size: 1.4rem; 
+            }
+            .mystery-btn {
+                font-size: 0.65rem;
+                padding: 3px 10px;
+            }
+            .subtitle-item { 
+                font-size: 0.75rem; 
+            }
+            .subtitle-wrap .line {
+                font-size: 0.5rem;
+            }
+            .intro p { 
+                font-size: 0.85rem; 
+            }
+            .project-item {
+                padding: 12px 12px;
+            }
+            .project-item h3 {
+                font-size: 0.9rem;
+            }
+            .project-item p {
+                font-size: 0.8rem;
+                margin-bottom: 10px;
+            }
+            .project-item a {
+                font-size: 0.8rem;
+            }
+            .category-link { 
+                padding: 4px 8px; 
+                font-size: 0.7rem; 
+            }
+            .social-link { 
+                width: 36px; 
+                height: 36px; 
+                font-size: 1rem; 
+            }
+            .social-links {
+                gap: 10px;
+            }
+            .contact-title {
+                font-size: 1rem;
+            }
+            .contact-info {
+                font-size: 0.85rem;
+            }
+            .tag {
+                font-size: 0.7rem;
+                padding: 3px 10px;
+            }
+            .tags {
+                gap: 6px;
+            }
+            .projects-section, .contact-section { 
+                padding: 10px 8px; 
+                margin: 12px 0;
+            }
+            .category-title {
+                font-size: 0.95rem;
+                margin-bottom: 10px;
+            }
+            .back-to-top { 
+                bottom: 14px; 
+                right: 14px; 
+                width: 34px; 
+                height: 34px; 
+                font-size: 0.9rem; 
+            }
+            footer {
+                font-size: 0.7rem;
+                margin-top: 24px;
+                padding-top: 12px;
+            }
+            .visitor-count {
+                font-size: 0.7rem;
+            }
+            .visitor-count span {
+                padding: 1px 10px;
+            }
+            .debug-version {
+                font-size: 0.45rem;
+                margin-top: 12px;
+            }
+            .mystery-back-btn {
+                top: 10px;
+                left: 10px;
+                padding: 5px 10px;
+                font-size: 0.7rem;
+                gap: 6px;
+            }
+            .mystery-back-btn i {
+                font-size: 0.8rem;
+            }
+            .nav-compact .mini-title {
+                font-size: 0.7rem;
+            }
+            .nav-compact .mini-avatar {
+                width: 24px;
+                height: 24px;
+            }
         }
     </style>
 </head>
@@ -995,52 +1160,49 @@
 
     <!-- ===== 顶部导航栏 ===== -->
     <nav class="navbar" id="navbar">
+        <!-- 吸顶元素（渐进式显示） -->
         <div class="nav-compact" id="navCompact">
             <div class="mini-avatar">
                 <img src="https://raw.githubusercontent.com/onyes5634/onyes5634.github.io/main/wdtx.jpg?v=4" alt="avatar">
             </div>
             <span class="mini-title"><span class="highlight">Onyes</span> 的小站</span>
         </div>
+
         <ul class="nav-links" id="navLinks">
             <li><a href="#tools">工具</a></li>
             <li><a href="#simulations">实验</a></li>
             <li><a href="#games">游戏</a></li>
             <li><a href="#" onclick="scrollToTop(event)">首页</a></li>
         </ul>
+
         <div class="nav-actions">
-            <button id="navSearchToggle" title="搜索"><i class="fas fa-search"></i></button>
-            <button id="navThemeToggle" title="切换主题"><i class="fas fa-moon"></i></button>
-            <button id="shortcutsToggle" title="快捷键"><i class="fas fa-keyboard"></i></button>
+            <button id="navSearchToggle" title="搜索">
+                <i class="fas fa-search"></i>
+            </button>
+            <button id="navThemeToggle" title="切换深色/浅色模式">
+                <i class="fas fa-moon"></i>
+            </button>
         </div>
     </nav>
-
-    <!-- ===== 快捷键面板 ===== -->
-    <div class="shortcuts-overlay" id="shortcutsOverlay">
-        <div class="shortcuts-panel">
-            <h2>
-                <i class="fas fa-keyboard"></i> 快捷键
-                <button class="close-shortcuts" id="closeShortcuts"><i class="fas fa-times"></i></button>
-            </h2>
-            <div class="shortcut-row"><span>🔍 聚焦搜索</span> <kbd>/</kbd></div>
-            <div class="shortcut-row"><span>❌ 关闭搜索 / 弹窗</span> <kbd>Esc</kbd></div>
-            <div class="shortcut-row"><span>⌨️ 打开快捷键面板</span> <kbd>?</kbd></div>
-            <div class="shortcut-row"><span>⭐ 收藏/取消收藏</span> <kbd>S</kbd></div>
-            <div class="shortcut-row"><span>⬆️ 回到顶部</span> <kbd>Home</kbd></div>
-            <div class="shortcut-row"><span>🌓 切换主题</span> <kbd>D</kbd></div>
-        </div>
-    </div>
 
     <!-- ===== 滚动进度条 ===== -->
     <div class="scroll-progress" id="scrollProgress"></div>
 
     <!-- ===== 回到顶部 ===== -->
-    <button class="back-to-top" id="backToTop" aria-label="回到顶部"><i class="fas fa-arrow-up"></i></button>
+    <button class="back-to-top" id="backToTop" aria-label="回到顶部">
+        <i class="fas fa-arrow-up"></i>
+    </button>
 
     <!-- ===== 神秘模态框 ===== -->
     <div class="mystery-overlay" id="mysteryOverlay">
         <div class="mystery-modal">
-            <button class="mystery-back-btn" id="mysteryBackBtn"><i class="fas fa-arrow-left"></i> 返回 Onyes 的小站</button>
-            <div class="loading-tip" id="loadingTip"><i class="fas fa-spinner fa-spin"></i><span>正在加载神秘世界...</span></div>
+            <button class="mystery-back-btn" id="mysteryBackBtn">
+                <i class="fas fa-arrow-left"></i> 返回 Onyes 的小站
+            </button>
+            <div class="loading-tip" id="loadingTip">
+                <i class="fas fa-spinner fa-spin"></i>
+                <span>正在加载神秘世界...</span>
+            </div>
             <iframe id="mysteryIframe" src="" allow="fullscreen"></iframe>
         </div>
     </div>
@@ -1058,18 +1220,21 @@
         <!-- ===== 弹性包裹 ===== -->
         <div class="elastic-wrapper" id="elasticWrapper">
 
-            <!-- ===== 头部 ===== -->
+            <!-- ===== 头部 - 头像和标题同一行 ===== -->
             <header id="mainHeader">
                 <div class="profile-pic" id="profilePic">
                     <img src="https://raw.githubusercontent.com/onyes5634/onyes5634.github.io/main/wdtx.jpg?v=4" 
-                         alt="头像" loading="lazy"
+                         alt="头像" 
+                         loading="lazy"
                          onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
                     <div class="fallback">😊</div>
                 </div>
                 <div class="header-content">
                     <div class="title-row" id="titleRow">
                         <h1 class="site-title" id="siteTitle">Onyes 的小站</h1>
-                        <button class="mystery-btn" id="mysteryBtn"><i class="fas fa-question-circle"></i> 神秘按钮</button>
+                        <button class="mystery-btn" id="mysteryBtn">
+                            <i class="fas fa-question-circle"></i> 神秘按钮
+                        </button>
                     </div>
                     <div class="subtitle-wrap" id="subtitleWrap">
                         <span class="subtitle-item"><i class="fas fa-code"></i> 写代码</span>
@@ -1087,256 +1252,212 @@
                 <p>这里所有的工具和游戏都 <span class="free-badge">✨ 免费</span> 使用，欢迎体验！</p>
             </div>
 
-            <!-- ===== 分类导航 ===== -->
-            <div class="category-nav">
-                <a href="#tools" class="category-link"><i class="fas fa-tools"></i> 实用工具</a>
-                <a href="#simulations" class="category-link"><i class="fas fa-flask"></i> 模拟实验</a>
-                <a href="#games" class="category-link"><i class="fas fa-gamepad"></i> 游戏类</a>
-            </div>
+            <!-- ===== 主内容 ===== -->
+            <main>
+                <div class="category-nav">
+                    <a href="#tools" class="category-link"><i class="fas fa-tools"></i> 实用工具</a>
+                    <a href="#simulations" class="category-link"><i class="fas fa-flask"></i> 模拟实验</a>
+                    <a href="#games" class="category-link"><i class="fas fa-gamepad"></i> 游戏类</a>
+                </div>
 
-            <!-- ============================================================ -->
-            <!-- ===== 实用工具类 ===== -->
-            <div id="tools" class="projects-section">
-                <h2 class="category-title"><i class="fas fa-tools"></i> 实用工具类</h2>
-                <div class="project-list" id="toolsList">
-                    <div class="project-item" data-id="tool-1" data-url="Website to QR code.html">
-                        <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
-                        <button class="favorite-btn" data-id="tool-1"><i class="fas fa-star"></i></button>
-                        <h3>二维码生成器</h3>
-                        <p>输入文本或网址，快速生成二维码图片。</p>
-                        <a href="Website to QR code.html"><i class="fas fa-qrcode"></i> 使用工具</a>
-                    </div>
-                    <div class="project-item" data-id="tool-2" data-url="qrcode-decoder.html">
-                        <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
-                        <button class="favorite-btn" data-id="tool-2"><i class="fas fa-star"></i></button>
-                        <h3>📷 二维码解码器</h3>
-                        <p>上传或粘贴二维码图片，快速解码出其中的内容。</p>
-                        <a href="qrcode-decoder.html"><i class="fas fa-qrcode"></i> 使用工具</a>
-                    </div>
-                    <div class="project-item" data-id="tool-3" data-url="Screen Color Picker.html">
-                        <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
-                        <button class="favorite-btn" data-id="tool-3"><i class="fas fa-star"></i></button>
-                        <h3>屏幕取色器</h3>
-                        <p>拾取屏幕任意位置颜色，获取十六进制值。</p>
-                        <a href="Screen Color Picker.html"><i class="fas fa-eyedropper"></i> 使用工具</a>
-                    </div>
-                    <div class="project-item" data-id="tool-4" data-url="Markdown Preview.html">
-                        <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
-                        <button class="favorite-btn" data-id="tool-4"><i class="fas fa-star"></i></button>
-                        <h3>Markdown预览器</h3>
-                        <p>实时将Markdown格式文本转换为HTML预览。</p>
-                        <a href="Markdown Preview.html"><i class="fas fa-markdown"></i> 使用工具</a>
-                    </div>
-                    <div class="project-item" data-id="tool-5" data-url="image-to-base64.html">
-                        <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
-                        <button class="favorite-btn" data-id="tool-5"><i class="fas fa-star"></i></button>
-                        <h3>图片转Base64</h3>
-                        <p>上传图片文件，转换为Base64编码。</p>
-                        <a href="image-to-base64.html"><i class="fas fa-image"></i> 使用工具</a>
-                    </div>
-                    <div class="project-item" data-id="tool-6" data-url="Random Password Generator.html">
-                        <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
-                        <button class="favorite-btn" data-id="tool-6"><i class="fas fa-star"></i></button>
-                        <h3>随机密码生成器</h3>
-                        <p>生成高强度随机密码，含大小写字母、数字、特殊符号。</p>
-                        <a href="Random Password Generator.html"><i class="fas fa-key"></i> 使用工具</a>
-                    </div>
-                    <div class="project-item" data-id="tool-7" data-url="todo.html">
-                        <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
-                        <button class="favorite-btn" data-id="tool-7"><i class="fas fa-star"></i></button>
-                        <h3>✅ 待办清单</h3>
-                        <p>增删改任务，自动保存到本地，每天必用。</p>
-                        <a href="todo.html"><i class="fas fa-list-check"></i> 使用工具</a>
-                    </div>
-                    <div class="project-item" data-id="tool-8" data-url="pomodoro.html">
-                        <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
-                        <button class="favorite-btn" data-id="tool-8"><i class="fas fa-star"></i></button>
-                        <h3>🍅 番茄时钟</h3>
-                        <p>25分钟专注 + 5分钟休息，提高工作效率。</p>
-                        <a href="pomodoro.html"><i class="fas fa-clock"></i> 使用工具</a>
-                    </div>
-                    <div class="project-item" data-id="tool-9" data-url="unit-convert.html">
-                        <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
-                        <button class="favorite-btn" data-id="tool-9"><i class="fas fa-star"></i></button>
-                        <h3>📏 单位换算</h3>
-                        <p>长度、重量、温度、体积快速换算。</p>
-                        <a href="unit-convert.html"><i class="fas fa-arrows-left-right"></i> 使用工具</a>
-                    </div>
-                    <div class="project-item" data-id="tool-10" data-url="countdown.html">
-                        <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
-                        <button class="favorite-btn" data-id="tool-10"><i class="fas fa-star"></i></button>
-                        <h3>⏳ 倒计时器</h3>
-                        <p>设置目标时间，实时倒计时，支持暂停和预设时长。</p>
-                        <a href="countdown.html"><i class="fas fa-hourglass-half"></i> 使用工具</a>
-                    </div>
-                    <div class="project-item" data-id="tool-11" data-url="miaobiao.html">
-                        <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
-                        <button class="favorite-btn" data-id="tool-11"><i class="fas fa-star"></i></button>
-                        <h3>⏱️ 秒表</h3>
-                        <p>精确计时，支持计次记录，适合运动训练和测试。</p>
-                        <a href="miaobiao.html"><i class="fas fa-stopwatch"></i> 使用工具</a>
-                    </div>
-                    <div class="project-item" data-id="tool-12" data-url="jisuanqi.html">
-                        <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
-                        <button class="favorite-btn" data-id="tool-12"><i class="fas fa-star"></i></button>
-                        <h3>🧮 计算器</h3>
-                        <p>基础四则运算，键盘支持，日常计算好帮手。</p>
-                        <a href="jisuanqi.html"><i class="fas fa-calculator"></i> 使用工具</a>
+                <!-- ===== 实用工具类 ===== -->
+                <div id="tools" class="projects-section">
+                    <h2 class="category-title"><i class="fas fa-tools"></i> 实用工具类</h2>
+                    <div class="project-list">
+                        <div class="project-item" data-name="二维码" data-url="Website to QR code.html">
+                            <h3>二维码生成器</h3>
+                            <p>输入文本或网址，快速生成二维码图片。</p>
+                            <a href="Website to QR code.html"><i class="fas fa-qrcode"></i> 使用工具</a>
+                        </div>
+                        <div class="project-item" data-name="二维码解码器" data-url="qrcode-decoder.html">
+                            <h3>📷 二维码解码器</h3>
+                            <p>上传或粘贴二维码图片，快速解码出其中的内容。</p>
+                            <a href="qrcode-decoder.html"><i class="fas fa-qrcode"></i> 使用工具</a>
+                        </div>
+                        <div class="project-item" data-name="取色器" data-url="Screen Color Picker.html">
+                            <h3>屏幕取色器</h3>
+                            <p>拾取屏幕任意位置颜色，获取十六进制值。</p>
+                            <a href="Screen Color Picker.html"><i class="fas fa-eyedropper"></i> 使用工具</a>
+                        </div>
+                        <div class="project-item" data-name="Markdown" data-url="Markdown Preview.html">
+                            <h3>Markdown预览器</h3>
+                            <p>实时将Markdown格式文本转换为HTML预览。</p>
+                            <a href="Markdown Preview.html"><i class="fas fa-markdown"></i> 使用工具</a>
+                        </div>
+                        <div class="project-item" data-name="Base64" data-url="image-to-base64.html">
+                            <h3>图片转Base64</h3>
+                            <p>上传图片文件，转换为Base64编码。</p>
+                            <a href="image-to-base64.html"><i class="fas fa-image"></i> 使用工具</a>
+                        </div>
+                        <div class="project-item" data-name="密码" data-url="Random Password Generator.html">
+                            <h3>随机密码生成器</h3>
+                            <p>生成高强度随机密码，含大小写字母、数字、特殊符号。</p>
+                            <a href="Random Password Generator.html"><i class="fas fa-key"></i> 使用工具</a>
+                        </div>
+                        <div class="project-item" data-name="待办清单" data-url="todo.html">
+                            <h3>✅ 待办清单</h3>
+                            <p>增删改任务，自动保存到本地，每天必用。</p>
+                            <a href="todo.html"><i class="fas fa-list-check"></i> 使用工具</a>
+                        </div>
+                        <div class="project-item" data-name="番茄时钟" data-url="pomodoro.html">
+                            <h3>🍅 番茄时钟</h3>
+                            <p>25分钟专注 + 5分钟休息，提高工作效率。</p>
+                            <a href="pomodoro.html"><i class="fas fa-clock"></i> 使用工具</a>
+                        </div>
+                        <div class="project-item" data-name="单位换算" data-url="unit-convert.html">
+                            <h3>📏 单位换算</h3>
+                            <p>长度、重量、温度、体积快速换算。</p>
+                            <a href="unit-convert.html"><i class="fas fa-arrows-left-right"></i> 使用工具</a>
+                        </div>
+                        <div class="project-item" data-name="倒计时器" data-url="countdown.html">
+                            <h3>⏳ 倒计时器</h3>
+                            <p>设置目标时间，实时倒计时，支持暂停和预设时长。</p>
+                            <a href="countdown.html"><i class="fas fa-hourglass-half"></i> 使用工具</a>
+                        </div>
+                        <div class="project-item" data-name="秒表" data-url="miaobiao.html">
+                            <h3>⏱️ 秒表</h3>
+                            <p>精确计时，支持计次记录，适合运动训练和测试。</p>
+                            <a href="miaobiao.html"><i class="fas fa-stopwatch"></i> 使用工具</a>
+                        </div>
+                        <div class="project-item" data-name="计算器" data-url="jisuanqi.html">
+                            <h3>🧮 计算器</h3>
+                            <p>基础四则运算，键盘支持，日常计算好帮手。</p>
+                            <a href="jisuanqi.html"><i class="fas fa-calculator"></i> 使用工具</a>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- ===== 模拟实验类 ===== -->
-            <div id="simulations" class="projects-section">
-                <h2 class="category-title"><i class="fas fa-flask"></i> 模拟实验类</h2>
-                <div class="project-list" id="simulationsList">
-                    <div class="project-item" data-id="sim-1" data-url="solar-system-simulation.html">
-                        <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
-                        <button class="favorite-btn" data-id="sim-1"><i class="fas fa-star"></i></button>
-                        <h3>太阳系模拟器</h3>
-                        <p>模拟太阳系行星运行轨迹。</p>
-                        <a href="solar-system-simulation.html"><i class="fas fa-globe"></i> 查看模拟</a>
-                    </div>
-                    <div class="project-item" data-id="sim-2" data-url="fluid-simulator.html">
-                        <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
-                        <button class="favorite-btn" data-id="sim-2"><i class="fas fa-star"></i></button>
-                        <h3>流体物理模拟器</h3>
-                        <p>基于物理引擎的流体模拟，展示液体流动效果。</p>
-                        <a href="fluid-simulator.html"><i class="fas fa-tint"></i> 查看模拟</a>
-                    </div>
-                    <div class="project-item" data-id="sim-3" data-url="color-mixer.html">
-                        <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
-                        <button class="favorite-btn" data-id="sim-3"><i class="fas fa-star"></i></button>
-                        <h3>🎨 颜色混合</h3>
-                        <p>红绿蓝三色滑块，实时混合出你想要的任意颜色。</p>
-                        <a href="color-mixer.html"><i class="fas fa-palette"></i> 查看模拟</a>
-                    </div>
-                    <div class="project-item" data-id="sim-4" data-url="sound-visualizer.html">
-                        <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
-                        <button class="favorite-btn" data-id="sim-4"><i class="fas fa-star"></i></button>
-                        <h3>🎵 音波可视化</h3>
-                        <p>用麦克风捕捉声音，实时显示音频波形。</p>
-                        <a href="sound-visualizer.html"><i class="fas fa-wave-square"></i> 查看模拟</a>
-                    </div>
-                    <div class="project-item" data-id="sim-5" data-url="projectile.html">
-                        <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
-                        <button class="favorite-btn" data-id="sim-5"><i class="fas fa-star"></i></button>
-                        <h3>🚀 抛体运动</h3>
-                        <p>调整角度和初速度，模拟抛物线运动轨迹。</p>
-                        <a href="projectile.html"><i class="fas fa-rocket"></i> 查看模拟</a>
-                    </div>
-                    <div class="project-item" data-id="sim-6" data-url="circuit.html">
-                        <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
-                        <button class="favorite-btn" data-id="sim-6"><i class="fas fa-star"></i></button>
-                        <h3>⚡ 电路模拟</h3>
-                        <p>开关控制电路通断，观察灯泡亮灭和电流变化。</p>
-                        <a href="circuit.html"><i class="fas fa-bolt"></i> 查看模拟</a>
-                    </div>
-                    <div class="project-item" data-id="sim-7" data-url="heat-conduction.html">
-                        <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
-                        <button class="favorite-btn" data-id="sim-7"><i class="fas fa-star"></i></button>
-                        <h3>🌡️ 热传导模拟</h3>
-                        <p>加热金属板，观察热量从热源向四周扩散的过程。</p>
-                        <a href="heat-conduction.html"><i class="fas fa-fire"></i> 查看模拟</a>
+                <!-- ===== 模拟实验类 ===== -->
+                <div id="simulations" class="projects-section">
+                    <h2 class="category-title"><i class="fas fa-flask"></i> 模拟实验类</h2>
+                    <div class="project-list">
+                        <div class="project-item" data-name="太阳系" data-url="solar-system-simulation.html">
+                            <h3>太阳系模拟器</h3>
+                            <p>模拟太阳系行星运行轨迹。</p>
+                            <a href="solar-system-simulation.html"><i class="fas fa-globe"></i> 查看模拟</a>
+                        </div>
+                        <div class="project-item" data-name="流体" data-url="fluid-simulator.html">
+                            <h3>流体物理模拟器</h3>
+                            <p>基于物理引擎的流体模拟，展示液体流动效果。</p>
+                            <a href="fluid-simulator.html"><i class="fas fa-tint"></i> 查看模拟</a>
+                        </div>
+                        <div class="project-item" data-name="颜色混合" data-url="color-mixer.html">
+                            <h3>🎨 颜色混合</h3>
+                            <p>红绿蓝三色滑块，实时混合出你想要的任意颜色。</p>
+                            <a href="color-mixer.html"><i class="fas fa-palette"></i> 查看模拟</a>
+                        </div>
+                        <div class="project-item" data-name="音波可视化" data-url="sound-visualizer.html">
+                            <h3>🎵 音波可视化</h3>
+                            <p>用麦克风捕捉声音，实时显示音频波形。</p>
+                            <a href="sound-visualizer.html"><i class="fas fa-wave-square"></i> 查看模拟</a>
+                        </div>
+                        <div class="project-item" data-name="抛体运动" data-url="projectile.html">
+                            <h3>🚀 抛体运动</h3>
+                            <p>调整角度和初速度，模拟抛物线运动轨迹。</p>
+                            <a href="projectile.html"><i class="fas fa-rocket"></i> 查看模拟</a>
+                        </div>
+                        <div class="project-item" data-name="电路模拟" data-url="circuit.html">
+                            <h3>⚡ 电路模拟</h3>
+                            <p>开关控制电路通断，观察灯泡亮灭和电流变化。</p>
+                            <a href="circuit.html"><i class="fas fa-bolt"></i> 查看模拟</a>
+                        </div>
+                        <div class="project-item" data-name="热传导" data-url="heat-conduction.html">
+                            <h3>🌡️ 热传导模拟</h3>
+                            <p>加热金属板，观察热量从热源向四周扩散的过程。</p>
+                            <a href="heat-conduction.html"><i class="fas fa-fire"></i> 查看模拟</a>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- ===== 游戏类 ===== -->
-            <div id="games" class="projects-section">
-                <h2 class="category-title"><i class="fas fa-gamepad"></i> 游戏类项目</h2>
-                <div class="project-list" id="gamesList">
-                    <div class="project-item" data-id="game-1" data-url="snake-game.html">
-                        <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
-                        <button class="favorite-btn" data-id="game-1"><i class="fas fa-star"></i></button>
-                        <h3>贪吃蛇游戏</h3>
-                        <p>经典的贪吃蛇游戏，键盘方向键控制移动。</p>
-                        <a href="snake-game.html"><i class="fas fa-play"></i> 开始游戏</a>
-                    </div>
-                    <div class="project-item" data-id="game-2" data-url="2048.html">
-                        <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
-                        <button class="favorite-btn" data-id="game-2"><i class="fas fa-star"></i></button>
-                        <h3>2048游戏</h3>
-                        <p>热门数字拼图游戏，方向键移动，相同数字合并。</p>
-                        <a href="2048.html"><i class="fas fa-play"></i> 开始游戏</a>
-                    </div>
-                    <div class="project-item" data-id="game-3" data-url="breakout-game.html">
-                        <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
-                        <button class="favorite-btn" data-id="game-3"><i class="fas fa-star"></i></button>
-                        <h3>打砖块游戏</h3>
-                        <p>移动挡板接住小球，击碎所有砖块获胜。</p>
-                        <a href="breakout-game.html"><i class="fas fa-play"></i> 开始游戏</a>
-                    </div>
-                    <div class="project-item" data-id="game-4" data-url="number-puzzle.html">
-                        <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
-                        <button class="favorite-btn" data-id="game-4"><i class="fas fa-star"></i></button>
-                        <h3>🧩 数字华容道</h3>
-                        <p>4×4 滑块拼图，按顺序排列数字，考验你的逻辑思维。</p>
-                        <a href="number-puzzle.html"><i class="fas fa-play"></i> 开始游戏</a>
-                    </div>
-                    <div class="project-item" data-id="game-5" data-url="whack-mole.html">
-                        <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
-                        <button class="favorite-btn" data-id="game-5"><i class="fas fa-star"></i></button>
-                        <h3>🔨 打地鼠</h3>
-                        <p>30秒限时挑战，看看你的反应速度有多快！</p>
-                        <a href="whack-mole.html"><i class="fas fa-play"></i> 开始游戏</a>
-                    </div>
-                    <div class="project-item" data-id="game-6" data-url="jigsaw-puzzle.html">
-                        <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
-                        <button class="favorite-btn" data-id="game-6"><i class="fas fa-star"></i></button>
-                        <h3>🧩 拼图游戏</h3>
-                        <p>3×3 数字拼图，用最少的步数完成挑战。</p>
-                        <a href="jigsaw-puzzle.html"><i class="fas fa-play"></i> 开始游戏</a>
+                <!-- ===== 游戏类 ===== -->
+                <div id="games" class="projects-section">
+                    <h2 class="category-title"><i class="fas fa-gamepad"></i> 游戏类项目</h2>
+                    <div class="project-list">
+                        <div class="project-item" data-name="贪吃蛇" data-url="snake-game.html">
+                            <h3>贪吃蛇游戏</h3>
+                            <p>经典的贪吃蛇游戏，键盘方向键控制移动。</p>
+                            <a href="snake-game.html"><i class="fas fa-play"></i> 开始游戏</a>
+                        </div>
+                        <div class="project-item" data-name="2048" data-url="2048.html">
+                            <h3>2048游戏</h3>
+                            <p>热门数字拼图游戏，方向键移动，相同数字合并。</p>
+                            <a href="2048.html"><i class="fas fa-play"></i> 开始游戏</a>
+                        </div>
+                        <div class="project-item" data-name="打砖块" data-url="breakout-game.html">
+                            <h3>打砖块游戏</h3>
+                            <p>移动挡板接住小球，击碎所有砖块获胜。</p>
+                            <a href="breakout-game.html"><i class="fas fa-play"></i> 开始游戏</a>
+                        </div>
+                        <div class="project-item" data-name="数字华容道" data-url="number-puzzle.html">
+                            <h3>🧩 数字华容道</h3>
+                            <p>4×4 滑块拼图，按顺序排列数字，考验你的逻辑思维。</p>
+                            <a href="number-puzzle.html"><i class="fas fa-play"></i> 开始游戏</a>
+                        </div>
+                        <div class="project-item" data-name="打地鼠" data-url="whack-mole.html">
+                            <h3>🔨 打地鼠</h3>
+                            <p>30秒限时挑战，看看你的反应速度有多快！</p>
+                            <a href="whack-mole.html"><i class="fas fa-play"></i> 开始游戏</a>
+                        </div>
+                        <div class="project-item" data-name="拼图游戏" data-url="jigsaw-puzzle.html">
+                            <h3>🧩 拼图游戏</h3>
+                            <p>3×3 数字拼图，用最少的步数完成挑战。</p>
+                            <a href="jigsaw-puzzle.html"><i class="fas fa-play"></i> 开始游戏</a>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- ===== 标签 ===== -->
-            <div class="tags">
-                <span class="tag">前端开发</span>
-                <span class="tag">独立创作者</span>
-                <span class="tag">开源爱好者</span>
-            </div>
+                <div class="tags">
+                    <span class="tag">前端开发</span>
+                    <span class="tag">独立创作者</span>
+                    <span class="tag">开源爱好者</span>
+                </div>
 
-            <!-- ===== 联系方式 ===== -->
-            <div class="contact-section">
-                <h2 class="contact-title"><i class="fas fa-paper-plane"></i> 联系方式</h2>
-                <a href="mailto:onyes5634@163.com" class="contact-info"><i class="fas fa-envelope"></i> onyes5634@163.com</a>
-            </div>
+                <div class="contact-section">
+                    <h2 class="contact-title"><i class="fas fa-paper-plane"></i> 联系方式</h2>
+                    <a href="mailto:onyes5634@163.com" class="contact-info">
+                        <i class="fas fa-envelope"></i> onyes5634@163.com
+                    </a>
+                </div>
+            </main>
 
-            <!-- ===== 社交链接 ===== -->
             <div class="social-links">
-                <a href="https://github.com/onyes5634" class="social-link" title="GitHub" target="_blank"><i class="fab fa-github"></i></a>
-                <a href="mailto:onyes5634@163.com" class="social-link" title="发送邮件" target="_blank"><i class="fas fa-envelope"></i></a>
-                <a href="https://xhc.dpdns.org/" class="social-link" title="友情链接" target="_blank" style="font-size:1rem;font-weight:600;width:auto;padding:0 20px;border-radius:30px;">🔗 友情链接</a>
+                <a href="https://github.com/onyes5634" class="social-link" title="GitHub" target="_blank">
+                    <i class="fab fa-github"></i>
+                </a>
+                <a href="mailto:onyes5634@163.com" class="social-link" title="发送邮件" target="_blank">
+                    <i class="fas fa-envelope"></i>
+                </a>
+                <a href="https://xhc.dpdns.org/" class="social-link" title="友情链接" target="_blank" style="font-size:1rem;font-weight:600;width:auto;padding:0 20px;border-radius:30px;">
+                    🔗 友情链接
+                </a>
             </div>
 
-            <!-- ===== 访问计数 ===== -->
-            <div class="visitor-count"><i class="fas fa-eye"></i> 访问量：<span id="busuanzi_value_site_pv">加载中...</span></div>
-
-            <!-- ===== 页脚 ===== -->
-            <footer><p>© <span id="currentYear"></span> Onyes 的实验室 | 托管于 GitHub Pages</p></footer>
-
-            <!-- ===== Giscus 评论区 ===== -->
-            <div class="giscus-wrapper">
-                <script src="https://giscus.app/client.js"
-                    data-repo="onyes5634/onyes5634.github.io"
-                    data-repo-id="R_kgDOPYccPg"
-                    data-category="Announcements"
-                    data-category-id="DIC_kwDOPYccPs4DCcQJ"
-                    data-mapping="pathname"
-                    data-strict="0"
-                    data-reactions-enabled="1"
-                    data-emit-metadata="0"
-                    data-input-position="bottom"
-                    data-theme="preferred_color_scheme"
-                    data-lang="zh-CN"
-                    crossorigin="anonymous"
-                    async>
-                </script>
+            <div class="visitor-count">
+                <i class="fas fa-eye"></i> 访问量：<span id="busuanzi_value_site_pv">加载中...</span>
             </div>
 
-            <div class="debug-version" id="debugVersion">v2.4.0</div>
+            <footer>
+                <p>© <span id="currentYear"></span> Onyes 的实验室 | 托管于 GitHub Pages</p>
+            </footer>
+ <!-- ===== Giscus 评论区 ===== -->
+        <div class="giscus-wrapper" style="max-width:1200px;margin:40px auto 0;padding:0 20px;">
+            <script src="https://giscus.app/client.js"
+                data-repo="onyes5634/onyes5634.github.io"
+                data-repo-id="R_kgDOPYccPg"
+                data-category="Announcements"
+                data-category-id="DIC_kwDOPYccPs4DCcQJ"
+                data-mapping="pathname"
+                data-strict="0"
+                data-reactions-enabled="1"
+                data-emit-metadata="0"
+                data-input-position="bottom"
+                data-theme="preferred_color_scheme"
+                data-lang="zh-CN"
+                crossorigin="anonymous"
+                async>
+            </script>
+        </div>
+            <div class="debug-version" id="debugVersion">v2.3.0 · 2026-07-31 18:42</div>
 
         </div><!-- .elastic-wrapper -->
     </div><!-- .container -->
@@ -1346,261 +1467,69 @@
             'use strict';
 
             // =============================================
-            // 版本号
+            // 调试版本号
             // =============================================
-            document.getElementById('debugVersion').textContent = 'v2.4.0 · ' + new Date().toISOString().slice(0, 10);
+            var now = new Date();
+            var dateStr = now.getFullYear() + '-' + 
+                         String(now.getMonth() + 1).padStart(2, '0') + '-' + 
+                         String(now.getDate()).padStart(2, '0') + ' ' +
+                         String(now.getHours()).padStart(2, '0') + ':' +
+                         String(now.getMinutes()).padStart(2, '0');
+            document.getElementById('debugVersion').textContent = 'v2.3.0 · ' + dateStr;
             document.getElementById('currentYear').textContent = new Date().getFullYear();
 
             // =============================================
-            // 状态管理
+            // 导航栏进度条
             // =============================================
-            var FAVORITES_KEY = 'onyes_favorites';
-            var ORDER_KEY = 'onyes_order';
-            var favorites = JSON.parse(localStorage.getItem(FAVORITES_KEY) || '[]');
+            var scrollProgress = document.getElementById('scrollProgress');
 
-            // =============================================
-            // 收藏功能
-            // =============================================
-            function updateFavoritesUI() {
-                document.querySelectorAll('.favorite-btn').forEach(function(btn) {
-                    var id = btn.dataset.id;
-                    if (favorites.includes(id)) {
-                        btn.classList.add('favorited');
-                    } else {
-                        btn.classList.remove('favorited');
-                    }
-                });
+            function updateProgress() {
+                var currentScrollY = window.scrollY;
+                var docHeight = document.documentElement.scrollHeight - window.innerHeight;
+                var progress = docHeight > 0 ? (currentScrollY / docHeight) * 100 : 0;
+                scrollProgress.style.width = progress + '%';
             }
 
-            // 绑定收藏按钮事件（使用事件委托，避免重新绑定）
-            document.addEventListener('click', function(e) {
-                var btn = e.target.closest('.favorite-btn');
-                if (!btn) return;
-                e.stopPropagation();
-                var id = btn.dataset.id;
-                var idx = favorites.indexOf(id);
-                if (idx > -1) {
-                    favorites.splice(idx, 1);
-                } else {
-                    favorites.push(id);
-                    btn.style.transform = 'scale(1.4)';
-                    setTimeout(function() { btn.style.transform = ''; }, 300);
-                }
-                localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
-                updateFavoritesUI();
+            window.addEventListener('scroll', function() {
+                updateProgress();
+            });
+
+            window.addEventListener('load', function() {
+                updateProgress();
             });
 
             // =============================================
-            // 拖拽排序功能
+            // 回到顶部函数
             // =============================================
-            var dragItem = null;
-
-            function saveOrder() {
-                var allItems = document.querySelectorAll('.project-item');
-                var ids = [];
-                allItems.forEach(function(item) {
-                    ids.push(item.dataset.id);
-                });
-                localStorage.setItem(ORDER_KEY, JSON.stringify(ids));
-            }
-
-            function restoreOrder() {
-                var savedOrder = JSON.parse(localStorage.getItem(ORDER_KEY) || 'null');
-                if (!savedOrder) return;
-                var allItems = document.querySelectorAll('.project-item');
-                var itemMap = {};
-                allItems.forEach(function(item) {
-                    itemMap[item.dataset.id] = item;
-                });
-                var parent = allItems[0] ? allItems[0].parentNode : null;
-                if (!parent) return;
-                var sorted = [];
-                savedOrder.forEach(function(id) {
-                    if (itemMap[id]) {
-                        sorted.push(itemMap[id]);
-                        delete itemMap[id];
-                    }
-                });
-                for (var key in itemMap) {
-                    sorted.push(itemMap[key]);
-                }
-                sorted.forEach(function(item) {
-                    parent.appendChild(item);
-                });
-            }
-
-            // 绑定拖拽事件（使用事件委托）
-            document.addEventListener('dragstart', function(e) {
-                var item = e.target.closest('.project-item');
-                if (!item) return;
-                dragItem = item;
-                item.classList.add('dragging');
-                e.dataTransfer.effectAllowed = 'move';
-                e.dataTransfer.setData('text/plain', item.dataset.id);
-            });
-
-            document.addEventListener('dragend', function(e) {
-                var item = e.target.closest('.project-item');
-                if (!item) return;
-                item.classList.remove('dragging');
-                document.querySelectorAll('.project-item').forEach(function(el) {
-                    el.classList.remove('drag-over');
-                });
-                if (dragItem) {
-                    saveOrder();
-                    dragItem = null;
-                }
-            });
-
-            document.addEventListener('dragover', function(e) {
-                // 必须阻止默认，否则 drop 不会触发
-                e.preventDefault();
-                var target = e.target.closest('.project-item');
-                if (!target) return;
-                e.dataTransfer.dropEffect = 'move';
-                if (dragItem && dragItem !== target) {
-                    document.querySelectorAll('.project-item').forEach(function(el) {
-                        el.classList.remove('drag-over');
-                    });
-                    target.classList.add('drag-over');
-                }
-            });
-
-            document.addEventListener('dragleave', function(e) {
-                var target = e.target.closest('.project-item');
-                if (target) target.classList.remove('drag-over');
-            });
-
-            document.addEventListener('drop', function(e) {
-                // 必须阻止默认，否则会触发页面跳转
-                e.preventDefault();
-                var target = e.target.closest('.project-item');
-                if (!target) return;
-                target.classList.remove('drag-over');
-                if (!dragItem || dragItem === target) return;
-                var parent = target.parentNode;
-                var items = Array.from(parent.querySelectorAll('.project-item'));
-                var fromIdx = items.indexOf(dragItem);
-                var toIdx = items.indexOf(target);
-                if (fromIdx < toIdx) {
-                    parent.insertBefore(dragItem, target.nextSibling);
-                } else {
-                    parent.insertBefore(dragItem, target);
-                }
-                saveOrder();
-            });
+            window.scrollToTop = function(e) {
+                if (e) e.preventDefault();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            };
 
             // =============================================
-            // 卡片点击跳转（修复打开两次）
+            // 导航栏搜索按钮
             // =============================================
-            document.addEventListener('click', function(e) {
-                // 只处理 .project-item 内部的点击，但排除收藏按钮和拖拽手柄
-                var card = e.target.closest('.project-item');
-                if (!card) return;
-                if (e.target.closest('.favorite-btn')) return;
-                if (e.target.closest('.drag-handle')) return;
-
-                var link = e.target.closest('a');
-                if (link) {
-                    // 阻止 a 标签的默认跳转
-                    e.preventDefault();
-                    var url = link.getAttribute('href');
-                    if (url) window.open(url, '_blank');
-                    return;
-                }
-
-                // 点击卡片其他区域，用 data-url 跳转
-                var url = card.dataset.url;
-                if (url) window.open(url, '_blank');
-            });
-
-            // =============================================
-            // 快捷键面板
-            // =============================================
-            var shortcutsOverlay = document.getElementById('shortcutsOverlay');
-            var closeShortcuts = document.getElementById('closeShortcuts');
-
-            function toggleShortcuts(show) {
-                if (show === undefined) {
-                    shortcutsOverlay.classList.toggle('active');
-                } else if (show) {
-                    shortcutsOverlay.classList.add('active');
-                } else {
-                    shortcutsOverlay.classList.remove('active');
-                }
-            }
-
-            document.getElementById('shortcutsToggle').addEventListener('click', function() {
-                toggleShortcuts();
-            });
-
-            closeShortcuts.addEventListener('click', function() {
-                toggleShortcuts(false);
-            });
-
-            shortcutsOverlay.addEventListener('click', function(e) {
-                if (e.target === this) toggleShortcuts(false);
-            });
-
-            document.addEventListener('keydown', function(e) {
-                if (e.key === '?' && !e.ctrlKey && !e.metaKey && !e.altKey) {
-                    e.preventDefault();
-                    toggleShortcuts();
-                }
-                if (e.key === 'Escape') {
-                    if (shortcutsOverlay.classList.contains('active')) {
-                        toggleShortcuts(false);
-                    }
-                    if (searchBox.classList.contains('active')) {
-                        searchBox.classList.remove('active');
-                        searchInput.value = '';
-                        suggestions.classList.remove('show');
-                        filterProjects('');
-                    }
-                }
-                if (e.key === '/' && !e.ctrlKey && !e.metaKey && !e.altKey) {
-                    var tag = e.target.tagName;
-                    if (tag !== 'INPUT' && tag !== 'TEXTAREA' && tag !== 'SELECT') {
-                        e.preventDefault();
-                        searchBox.classList.add('active');
-                        searchInput.focus();
-                    }
-                }
-                if (e.key === 's' && !e.ctrlKey && !e.metaKey && !e.altKey) {
-                    var active = document.activeElement;
-                    if (active && active.tagName === 'INPUT') return;
-                    var hovered = document.querySelector('.project-item:hover');
-                    if (hovered) {
-                        var btn = hovered.querySelector('.favorite-btn');
-                        if (btn) btn.click();
-                    }
-                }
-                if (e.key === 'd' && !e.ctrlKey && !e.metaKey && !e.altKey) {
-                    var tag = e.target.tagName;
-                    if (tag !== 'INPUT' && tag !== 'TEXTAREA' && tag !== 'SELECT') {
-                        e.preventDefault();
-                        navThemeToggle.click();
-                    }
-                }
-                if (e.key === 'Home' && !e.ctrlKey && !e.metaKey) {
-                    e.preventDefault();
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                }
-            });
-
-            // =============================================
-            // 其他功能（导航栏、搜索、深色模式等）
-            // =============================================
+            var navSearchToggle = document.getElementById('navSearchToggle');
             var searchBox = document.getElementById('searchBox');
             var searchInput = document.getElementById('searchInput');
             var suggestions = document.getElementById('searchSuggestions');
-            var searchEmpty = document.getElementById('searchEmpty');
-            var navSearchToggle = document.getElementById('navSearchToggle');
-            var navThemeToggle = document.getElementById('navThemeToggle');
-            var backBtn = document.getElementById('backToTop');
-            var scrollProgress = document.getElementById('scrollProgress');
 
-            // 深色模式
+            navSearchToggle.addEventListener('click', function() {
+                searchBox.classList.toggle('active');
+                if (searchBox.classList.contains('active')) {
+                    searchInput.focus();
+                } else {
+                    searchInput.value = '';
+                    suggestions.classList.remove('show');
+                    suggestions.innerHTML = '';
+                    filterProjects('');
+                }
+            });
+
+            // =============================================
+            // 导航栏深色模式按钮
+            // =============================================
+            var navThemeToggle = document.getElementById('navThemeToggle');
             var currentTheme = localStorage.getItem('theme') || 'light';
             if (currentTheme === 'dark') {
                 document.documentElement.setAttribute('data-theme', 'dark');
@@ -1619,67 +1548,95 @@
                 }
             });
 
-            // 搜索
-            navSearchToggle.addEventListener('click', function() {
-                searchBox.classList.toggle('active');
-                if (searchBox.classList.contains('active')) {
-                    searchInput.focus();
-                } else {
-                    searchInput.value = '';
-                    suggestions.classList.remove('show');
-                    filterProjects('');
-                }
-            });
-
-            // 进度条
-            function updateProgress() {
-                var scrollY = window.scrollY;
-                var docHeight = document.documentElement.scrollHeight - window.innerHeight;
-                var progress = docHeight > 0 ? (scrollY / docHeight) * 100 : 0;
-                scrollProgress.style.width = progress + '%';
-                backBtn.classList.toggle('visible', scrollY > 400);
-            }
-            window.addEventListener('scroll', updateProgress);
-            window.addEventListener('load', updateProgress);
-
-            // 回到顶部
-            backBtn.addEventListener('click', function() {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            });
-
-            window.scrollToTop = function(e) {
-                if (e) e.preventDefault();
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            };
-
-            // 分类导航平滑滚动
-            document.querySelectorAll('a[href^="#"]').forEach(function(anchor) {
-                anchor.addEventListener('click', function(e) {
-                    var targetId = this.getAttribute('href');
-                    if (targetId === '#') return;
-                    e.preventDefault();
-                    var target = document.querySelector(targetId);
-                    if (target) target.scrollIntoView({ behavior: 'smooth' });
-                });
+            // =============================================
+            // 卡片淡入
+            // =============================================
+            var projectItems = document.querySelectorAll('.project-item');
+            projectItems.forEach(function(item, index) {
+                setTimeout(function() {
+                    item.classList.add('visible');
+                }, 50 + index * 50);
             });
 
             // =============================================
             // 搜索功能
             // =============================================
+            var searchEmpty = document.getElementById('searchEmpty');
+            var projectSections = document.querySelectorAll('.projects-section');
+
+            var projectData = [];
+            projectItems.forEach(function(item) {
+                var name = item.getAttribute('data-name') || '';
+                var url = item.getAttribute('data-url') || '';
+                var category = item.closest('.projects-section').querySelector('.category-title')?.textContent?.trim() || '';
+                projectData.push({ name: name, url: url, category: category, element: item });
+            });
+
+            searchInput.addEventListener('input', function() {
+                var keyword = this.value.trim().toLowerCase();
+                filterProjects(keyword);
+                showSuggestions(keyword);
+            });
+
+            document.addEventListener('click', function(e) {
+                if (!searchBox.contains(e.target) && e.target !== navSearchToggle) {
+                    suggestions.classList.remove('show');
+                }
+            });
+
+            function showSuggestions(keyword) {
+                if (keyword === '') {
+                    suggestions.classList.remove('show');
+                    suggestions.innerHTML = '';
+                    return;
+                }
+
+                var matches = projectData.filter(function(item) {
+                    return item.name.toLowerCase().includes(keyword);
+                });
+
+                if (matches.length === 0) {
+                    suggestions.innerHTML = '<div class="no-result">😅 没有找到匹配的项目</div>';
+                    suggestions.classList.add('show');
+                    return;
+                }
+
+                var html = '';
+                matches.forEach(function(item) {
+                    var icon = 'fa-cube';
+                    if (item.category.includes('游戏')) icon = 'fa-gamepad';
+                    else if (item.category.includes('工具')) icon = 'fa-tools';
+                    else if (item.category.includes('模拟')) icon = 'fa-flask';
+                    html += '<div class="suggestion-item" data-url="' + item.url + '">' +
+                        '<i class="fas ' + icon + '"></i>' +
+                        '<span>' + item.name + '</span>' +
+                        '<span class="tag-hint">' + item.category + '</span>' +
+                        '</div>';
+                });
+                suggestions.innerHTML = html;
+                suggestions.classList.add('show');
+
+                suggestions.querySelectorAll('.suggestion-item').forEach(function(el) {
+                    el.addEventListener('click', function() {
+                        var url = this.dataset.url;
+                        if (url) window.open(url, '_blank');
+                        suggestions.classList.remove('show');
+                        searchInput.value = '';
+                        filterProjects('');
+                        searchBox.classList.remove('active');
+                    });
+                });
+            }
+
             function filterProjects(keyword) {
                 var hasVisible = false;
-                document.querySelectorAll('.project-item').forEach(function(item) {
-                    var name = item.dataset.id || '';
-                    var text = item.textContent.toLowerCase();
-                    var match = keyword === '' || name.toLowerCase().includes(keyword) || text.includes(keyword);
-                    if (match) {
-                        item.classList.remove('hidden');
-                        hasVisible = true;
-                    } else {
-                        item.classList.add('hidden');
-                    }
+                projectItems.forEach(function(item) {
+                    var name = item.getAttribute('data-name') || '';
+                    var match = keyword === '' || name.toLowerCase().includes(keyword) || item.textContent.toLowerCase().includes(keyword);
+                    item.classList.toggle('hidden', !match);
+                    if (match) hasVisible = true;
                 });
-                document.querySelectorAll('.projects-section').forEach(function(section) {
+                projectSections.forEach(function(section) {
                     var visible = section.querySelectorAll('.project-item:not(.hidden)').length > 0;
                     section.classList.toggle('hidden', !visible);
                 });
@@ -1687,42 +1644,84 @@
             }
 
             // =============================================
-            // 卡片回弹
+            // 回到顶部按钮
             // =============================================
-            document.querySelectorAll('.project-item').forEach(function(card) {
-                var url = card.dataset.url;
+            var backBtn = document.getElementById('backToTop');
+            window.addEventListener('scroll', function() {
+                backBtn.classList.toggle('visible', window.scrollY > 400);
+            });
+            backBtn.addEventListener('click', function() {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+
+            // =============================================
+            // 分类导航平滑滚动
+            // =============================================
+            document.querySelectorAll('a[href^="#"]').forEach(function(anchor) {
+                anchor.addEventListener('click', function(e) {
+                    var targetId = this.getAttribute('href');
+                    if (targetId === '#') return;
+                    e.preventDefault();
+                    var target = document.querySelector(targetId);
+                    if (target) {
+                        target.scrollIntoView({ behavior: 'smooth' });
+                    }
+                });
+            });
+
+            // =============================================
+            // 卡片鼠标跟随光晕
+            // =============================================
+            projectItems.forEach(function(card) {
+                card.addEventListener('mousemove', function(e) {
+                    var rect = this.getBoundingClientRect();
+                    var x = e.clientX - rect.left;
+                    var y = e.clientY - rect.top;
+                    this.style.setProperty('--mx', x);
+                    this.style.setProperty('--my', y);
+                });
+            });
+
+            // =============================================
+            // 卡片回弹（带滑动检测）
+            // =============================================
+            projectItems.forEach(function(card) {
+                var url = card.getAttribute('data-url');
                 if (!url) return;
+
                 var isAnimating = false;
-                var touchStartX = 0, touchStartY = 0, isSwiping = false;
+                var touchStartX = 0;
+                var touchStartY = 0;
+                var isSwiping = false;
 
                 function handlePress(e) {
-                    if (e && e.target.closest('a')) { e.preventDefault(); return; }
-                    if (e && e.target.closest('.favorite-btn')) return;
-                    if (e && e.target.closest('.drag-handle')) return;
+                    if (e && e.target.closest('a')) {
+                        e.preventDefault();
+                        return;
+                    }
                     if (isAnimating) return;
                     isAnimating = true;
+
                     card.classList.remove('pressed');
                     void card.offsetWidth;
                     card.classList.add('pressed');
+
                     var isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
                     var duration = isTouch ? 350 : 450;
+
                     setTimeout(function() {
                         card.classList.remove('pressed');
-                        if (url) window.open(url, '_blank');
+                        window.open(url, '_blank');
                         isAnimating = false;
                     }, duration + 30);
                 }
 
                 card.addEventListener('mousedown', function(e) {
                     if (e.button !== 0) return;
-                    if (e.target.closest('.favorite-btn')) return;
-                    if (e.target.closest('.drag-handle')) return;
                     handlePress(e);
                 });
 
                 card.addEventListener('touchstart', function(e) {
-                    if (e.target.closest('.favorite-btn')) return;
-                    if (e.target.closest('.drag-handle')) return;
                     var touch = e.touches[0];
                     touchStartX = touch.clientX;
                     touchStartY = touch.clientY;
@@ -1733,37 +1732,29 @@
                     var touch = e.touches[0];
                     var dx = touch.clientX - touchStartX;
                     var dy = touch.clientY - touchStartY;
-                    if (Math.abs(dx) > 10 || Math.abs(dy) > 10) isSwiping = true;
+                    if (Math.abs(dx) > 10 || Math.abs(dy) > 10) {
+                        isSwiping = true;
+                    }
                 }, { passive: true });
 
                 card.addEventListener('touchend', function(e) {
-                    if (isSwiping) { touchStartX = 0; touchStartY = 0; return; }
-                    if (e.target.closest('.favorite-btn')) return;
-                    if (e.target.closest('.drag-handle')) return;
+                    if (isSwiping) {
+                        touchStartX = 0;
+                        touchStartY = 0;
+                        return;
+                    }
                     handlePress(e);
                 }, { passive: true });
 
                 card.querySelectorAll('a').forEach(function(link) {
-                    link.addEventListener('click', function(e) { e.preventDefault(); });
+                    link.addEventListener('click', function(e) {
+                        e.preventDefault();
+                    });
                 });
             });
 
             // =============================================
-            // 鼠标跟随光晕
-            // =============================================
-            document.addEventListener('mousemove', function(e) {
-                var hovered = document.querySelector('.project-item:hover');
-                if (hovered) {
-                    var rect = hovered.getBoundingClientRect();
-                    var x = e.clientX - rect.left;
-                    var y = e.clientY - rect.top;
-                    hovered.style.setProperty('--mx', x);
-                    hovered.style.setProperty('--my', y);
-                }
-            });
-
-            // =============================================
-            // 神秘按钮
+            // 神秘按钮功能
             // =============================================
             var mysteryBtn = document.getElementById('mysteryBtn');
             var mysteryOverlay = document.getElementById('mysteryOverlay');
@@ -1779,8 +1770,13 @@
                 mysteryIframe.src = 'https://69e16495f75e490cae1df55e1ed3535f.gz4.agentos-app.net/index.html';
                 mysteryOverlay.classList.add('active');
                 document.body.style.overflow = 'hidden';
-                mysteryIframe.onload = function() { loadingTip.style.display = 'none'; };
-                setTimeout(function() { loadingTip.style.display = 'none'; }, 4000);
+
+                mysteryIframe.onload = function() {
+                    loadingTip.style.display = 'none';
+                };
+                setTimeout(function() {
+                    loadingTip.style.display = 'none';
+                }, 4000);
             }
 
             function closeMystery() {
@@ -1788,22 +1784,131 @@
                 isMysteryOpen = false;
                 mysteryOverlay.classList.remove('active');
                 document.body.style.overflow = '';
-                setTimeout(function() { mysteryIframe.src = ''; }, 300);
+                setTimeout(function() {
+                    mysteryIframe.src = '';
+                }, 300);
             }
 
             mysteryBtn.addEventListener('click', openMystery);
             mysteryBackBtn.addEventListener('click', closeMystery);
+
             document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape' && isMysteryOpen) closeMystery();
+                if (e.key === 'Escape' && isMysteryOpen) {
+                    closeMystery();
+                }
             });
 
             // =============================================
-            // 初始化恢复顺序
+            // 1. 顶部弹性下拉效果
             // =============================================
-            setTimeout(function() {
-                restoreOrder();
-                updateFavoritesUI();
-            }, 100);
+            var elasticWrapper = document.getElementById('elasticWrapper');
+            var startY = 0;
+            var isPulling = false;
+
+            document.addEventListener('touchstart', function(e) {
+                if (window.scrollY === 0) {
+                    startY = e.touches[0].clientY;
+                    isPulling = true;
+                }
+            }, { passive: true });
+
+            document.addEventListener('touchmove', function(e) {
+                if (!isPulling || window.scrollY > 0) {
+                    isPulling = false;
+                    return;
+                }
+                var currentY = e.touches[0].clientY;
+                var delta = currentY - startY;
+                if (delta > 0 && window.scrollY === 0) {
+                    var pull = Math.min(delta * 0.3, 40);
+                    elasticWrapper.style.transform = 'translateY(' + pull + 'px)';
+                }
+            }, { passive: true });
+
+            document.addEventListener('touchend', function(e) {
+                if (isPulling && elasticWrapper.style.transform !== '') {
+                    elasticWrapper.style.transform = 'translateY(0px)';
+                    elasticWrapper.style.transition = 'transform 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28)';
+                    setTimeout(function() {
+                        elasticWrapper.style.transition = '';
+                    }, 600);
+                }
+                isPulling = false;
+            }, { passive: true });
+
+            var wheelPull = 0;
+            document.addEventListener('wheel', function(e) {
+                if (window.scrollY === 0 && e.deltaY < 0) {
+                    wheelPull = Math.min(wheelPull + Math.abs(e.deltaY) * 0.1, 40);
+                    elasticWrapper.style.transform = 'translateY(' + wheelPull + 'px)';
+                    clearTimeout(window._wheelReset);
+                    window._wheelReset = setTimeout(function() {
+                        elasticWrapper.style.transform = 'translateY(0px)';
+                        elasticWrapper.style.transition = 'transform 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28)';
+                        setTimeout(function() {
+                            elasticWrapper.style.transition = '';
+                        }, 600);
+                        wheelPull = 0;
+                    }, 300);
+                }
+            }, { passive: true });
+
+            // =============================================
+            // 2. 渐进式吸顶动画
+            // =============================================
+            var navCompact = document.getElementById('navCompact');
+            var profilePic = document.getElementById('profilePic');
+            var siteTitle = document.getElementById('siteTitle');
+            var titleRow = document.getElementById('titleRow');
+            var subtitleWrap = document.getElementById('subtitleWrap');
+            var introSection = document.getElementById('introSection');
+            var header = document.getElementById('mainHeader');
+            var headerContent = document.querySelector('.header-content');
+
+            var headerHeight = header.offsetHeight;
+
+            window.addEventListener('scroll', function() {
+                var scrollY = window.scrollY;
+                var startScroll = 20;
+                var endScroll = headerHeight - 20;
+                var progress = Math.max(0, Math.min(1, (scrollY - startScroll) / (endScroll - startScroll)));
+
+                // 吸顶元素
+                navCompact.style.opacity = progress;
+                navCompact.style.transform = 'translateY(' + (-10 + progress * 10) + 'px) scale(' + (0.9 + progress * 0.1) + ')';
+
+                // 头像
+                var avatarSize = 80 - (80 - 32) * progress;
+                profilePic.style.width = avatarSize + 'px';
+                profilePic.style.height = avatarSize + 'px';
+
+                // 标题
+                var titleSize = 2.2 - (2.2 - 1.2) * progress;
+                siteTitle.style.fontSize = titleSize + 'rem';
+
+                // 标题行 gap
+                titleRow.style.gap = (12 - (12 - 6) * progress) + 'px';
+
+                // 副标题
+                subtitleWrap.style.opacity = 1 - progress * 0.9;
+                subtitleWrap.style.transform = 'translateY(' + (progress * 8) + 'px)';
+
+                // 神秘按钮
+                var mysteryBtn = document.getElementById('mysteryBtn');
+                if (mysteryBtn) {
+                    mysteryBtn.style.transform = 'scale(' + (1 - progress * 0.15) + ')';
+                    mysteryBtn.style.opacity = 1 - progress * 0.7;
+                }
+
+                // 简介区域
+                introSection.style.opacity = 1 - progress * 0.9;
+                introSection.style.transform = 'translateY(' + (progress * 12) + 'px) scale(' + (1 - progress * 0.03) + ')';
+                introSection.style.margin = (20 - progress * 16) + 'px 0 ' + (25 - progress * 20) + 'px';
+                introSection.style.padding = (18 - progress * 12) + 'px ' + (24 - progress * 14) + 'px';
+
+                // 头部底部边框渐隐
+                header.style.borderBottomColor = 'rgba(0, 0, 0, ' + (0.06 * (1 - progress * 0.9)) + ')';
+            });
 
         })();
     </script>
