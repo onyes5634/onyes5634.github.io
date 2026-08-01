@@ -49,6 +49,7 @@
             --section-bg: #f8f9fb;
             --item-bg: #ffffff;
             --hover-shadow: rgba(0, 0, 0, 0.08);
+            --mystery-glow: #8b5cf6;
         }
 
         [data-theme="dark"] {
@@ -65,6 +66,7 @@
             --section-bg: #161b22;
             --item-bg: #21262d;
             --hover-shadow: rgba(255, 255, 255, 0.04);
+            --mystery-glow: #a78bfa;
         }
         
         /* ===== 基础样式 ===== */
@@ -250,11 +252,18 @@
         }
         
         /* ===== 标题排版 ===== */
+        .title-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
         .site-title {
             font-size: 3.2rem;
             font-weight: 800;
             letter-spacing: -1px;
-            margin-bottom: 6px;
+            margin-bottom: 0;
             background: linear-gradient(135deg, var(--primary), var(--secondary), var(--accent));
             background-size: 300% 100%;
             -webkit-background-clip: text;
@@ -267,6 +276,35 @@
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
+        }
+
+        /* ===== 神秘按钮 ===== */
+        .mystery-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 20px;
+            border: 2px solid var(--mystery-glow);
+            border-radius: 50px;
+            background: transparent;
+            color: var(--mystery-glow);
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            position: relative;
+            animation: mysteryPulse 2s ease-in-out infinite;
+        }
+        .mystery-btn:hover {
+            background: var(--mystery-glow);
+            color: #fff;
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(139, 92, 246, 0.3);
+        }
+        @keyframes mysteryPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.3); }
+            50% { box-shadow: 0 0 20px 6px rgba(139, 92, 246, 0.1); }
         }
         
         .subtitle-wrap {
@@ -662,14 +700,106 @@
         .debug-version:hover {
             opacity: 0.8;
         }
-        
+
+        /* ===== 神秘模态框 ===== */
+        .mystery-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.92);
+            z-index: 9999;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            animation: fadeIn 0.3s ease;
+        }
+        .mystery-overlay.active {
+            display: flex;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .mystery-modal {
+            width: 100%;
+            max-width: 1200px;
+            height: 90vh;
+            background: #fff;
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+            animation: slideUp 0.35s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+        }
+        [data-theme="dark"] .mystery-modal {
+            background: #161b22;
+        }
+        @keyframes slideUp {
+            from { transform: translateY(40px) scale(0.96); opacity: 0; }
+            to { transform: translateY(0) scale(1); opacity: 1; }
+        }
+        .mystery-modal .close-btn {
+            position: absolute;
+            top: 14px;
+            right: 18px;
+            background: rgba(0,0,0,0.5);
+            border: none;
+            color: #fff;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 1.4rem;
+            cursor: pointer;
+            z-index: 10;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .mystery-modal .close-btn:hover {
+            background: rgba(255,255,255,0.2);
+            transform: rotate(90deg);
+        }
+        .mystery-modal iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        .mystery-modal .loading-tip {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #94a3b8;
+            font-size: 0.95rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+        .mystery-modal .loading-tip i {
+            font-size: 2.5rem;
+            color: var(--mystery-glow);
+        }
+
         /* ===== 响应式 ===== */
         @media (max-width: 768px) {
             .container { 
                 padding: 20px 14px; 
             }
+            .title-row {
+                flex-direction: column;
+                gap: 10px;
+            }
             .site-title { 
                 font-size: 2.0rem; 
+            }
+            .mystery-btn {
+                font-size: 0.8rem;
+                padding: 6px 16px;
             }
             .subtitle-item { 
                 font-size: 0.9rem; 
@@ -745,6 +875,10 @@
             .debug-version {
                 font-size: 0.6rem;
             }
+            .mystery-modal {
+                height: 85vh;
+                border-radius: 14px;
+            }
         }
 
         @media (max-width: 480px) {
@@ -753,6 +887,10 @@
             }
             .site-title { 
                 font-size: 1.6rem; 
+            }
+            .mystery-btn {
+                font-size: 0.7rem;
+                padding: 4px 12px;
             }
             .subtitle-wrap { 
                 gap: 4px; 
@@ -846,6 +984,10 @@
                 font-size: 0.5rem;
                 margin-top: 16px;
             }
+            .mystery-modal {
+                height: 80vh;
+                border-radius: 10px;
+            }
         }
     </style>
 </head>
@@ -858,6 +1000,20 @@
     <button class="back-to-top" id="backToTop" aria-label="回到顶部">
         <i class="fas fa-arrow-up"></i>
     </button>
+
+    <!-- ===== 神秘模态框 ===== -->
+    <div class="mystery-overlay" id="mysteryOverlay">
+        <div class="mystery-modal">
+            <div class="loading-tip" id="loadingTip">
+                <i class="fas fa-spinner fa-spin"></i>
+                <span>正在加载神秘世界...</span>
+            </div>
+            <button class="close-btn" id="mysteryCloseBtn" title="关闭">
+                <i class="fas fa-times"></i>
+            </button>
+            <iframe id="mysteryIframe" src="" allow="fullscreen"></iframe>
+        </div>
+    </div>
 
     <!-- ===== 主容器 ===== -->
     <div class="container">
@@ -888,7 +1044,12 @@
                      onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
                 <div class="fallback">😊</div>
             </div>
-            <h1 class="site-title">Onyes 的小站</h1>
+            <div class="title-row">
+                <h1 class="site-title">Onyes 的小站</h1>
+                <button class="mystery-btn" id="mysteryBtn">
+                    <i class="fas fa-question-circle"></i> 神秘按钮
+                </button>
+            </div>
             <div class="subtitle-wrap">
                 <span class="subtitle-item"><i class="fas fa-code"></i> 写代码</span>
                 <span class="line">·</span>
@@ -1349,6 +1510,61 @@
                         e.preventDefault();
                     });
                 });
+            });
+
+            // ============================================================
+            // 神秘按钮功能
+            // ============================================================
+            var mysteryBtn = document.getElementById('mysteryBtn');
+            var mysteryOverlay = document.getElementById('mysteryOverlay');
+            var mysteryCloseBtn = document.getElementById('mysteryCloseBtn');
+            var mysteryIframe = document.getElementById('mysteryIframe');
+            var loadingTip = document.getElementById('loadingTip');
+            var isMysteryOpen = false;
+
+            function openMystery() {
+                if (isMysteryOpen) return;
+                isMysteryOpen = true;
+                loadingTip.style.display = 'flex';
+                mysteryIframe.src = 'https://69e16495f75e490cae1df55e1ed3535f.gz4.agentos-app.net/index.html';
+                mysteryOverlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
+
+                // iframe 加载完成后隐藏 loading
+                mysteryIframe.onload = function() {
+                    loadingTip.style.display = 'none';
+                };
+                // 3秒后无论是否加载完成都隐藏 loading（防止卡死）
+                setTimeout(function() {
+                    loadingTip.style.display = 'none';
+                }, 4000);
+            }
+
+            function closeMystery() {
+                if (!isMysteryOpen) return;
+                isMysteryOpen = false;
+                mysteryOverlay.classList.remove('active');
+                document.body.style.overflow = '';
+                setTimeout(function() {
+                    mysteryIframe.src = '';
+                }, 300);
+            }
+
+            mysteryBtn.addEventListener('click', openMystery);
+            mysteryCloseBtn.addEventListener('click', closeMystery);
+
+            // 点击遮罩背景关闭（点击模态框本身不关闭）
+            mysteryOverlay.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeMystery();
+                }
+            });
+
+            // ESC 键关闭
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && isMysteryOpen) {
+                    closeMystery();
+                }
             });
 
         })();
