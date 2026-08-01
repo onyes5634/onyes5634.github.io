@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>热传导模拟 - Onyes 的小站</title>
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: #0f172a;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 30px 20px;
+        }
+        .container {
+            max-width: 600px;
+            width: 100%;
+            background: #1e293b;
+            border-radius: 24px;
+            padding: 30px 32px 35px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.04);
+        }
+        .back-link { display: inline-flex; align-items: center; gap: 8px; color: #94a3b8; text-decoration: none; font-size: 0.85rem; margin-bottom: 16px; }
+        .back-link:hover { color: #a78bfa; }
+        .header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+        .header h1 { font-size: 1.5rem; font-weight: 700; color: #f1f5f9; }
+        .header i { color: #f97316; margin-right: 8px; }
+        .canvas-wrapper {
+            background: #0f172a;
+            border-radius: 16px;
+            border: 1px solid #334155;
+            overflow: hidden;
+        }
+        canvas { width: 100%; aspect-ratio: 1.3/1; display: block; }
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin-top: 14px;
+        }
+        .controls button {
+            padding: 10px;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            font-family: inherit;
+        }
+        .controls .heat { background: #f97316; color: #0f172a; }
+        .controls .heat:hover { background: #ea580c; transform: scale(1.02); }
+        .controls .heat:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+        .controls .reset { background: #334155; color: #cbd5e1; }
+        .controls .reset:hover { background: #475569; }
+        .info {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin-top: 14px;
+            padding: 12px 16px;
+            background: #0f172a;
+            border-radius: 12px;
+            border: 1px solid #334155;
+            font-size: 0.8rem;
+            color: #94a3b8;
+            text-align: center;
+        }
+        .info span { color: #f1f5f9; font-weight: 600; display: block; margin-top: 2px; }
+        .info .hot { color: #f97316; }
+        .info .cold { color: #3b82f6; }
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-top: 12px;
+            font-size: 0.7rem;
+            color: #94a3b8;
+        }
+        .legend .dot { display: inline-block; width: 12px; height: 12px; border-radius: 4px; vertical-align: middle; margin-right: 4px; }
+        .legend .dot.hot { background: #f97316; }
+        .legend .dot.cold { background: #3b82f6; }
+        .legend .dot.mid { background: #8b5cf6; }
+        @media (max-width: 480px) {
+            .container { padding: 20px 16px; }
+            .controls { grid-template-columns: 1fr; }
+            .info { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-link"><i class="fas fa-arrow-left"></i> 返回首页</a>
+        <div class="header">
+            <h1><i class="fas fa-fire"></i>热传导模拟</h1>
+        </div>
+
+        <div class="canvas-wrapper">
+            <canvas id="canvas"></canvas>
+        </div>
+
+        <div class="controls">
+            <button class="heat" id="heatBtn"><i class="fas fa-fire"></i> 加热</button>
+            <button class="reset" id="resetBtn"><i class="fas fa-undo"></i> 重置</button>
+        </div>
+
+        <div class="info">
+            <div>最高温度 <span id="maxTemp">25.0 °C</span></div>
+            <div>平均温度 <span id="avgTemp">25.0 °C</span></div>
+            <div>热源 <span id="sourceStatus">⏸️ 关闭</span></div>
+        </div>
+
+        <div class="legend">
+            <span><span class="dot hot"></span> 热</span>
+            <span><span class="dot mid"></span> 中</span>
+            <span><span class="dot cold"></span> 冷</span>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            var canvas = document.getElementById('canvas');
+            var ctx = canvas.getContext('2d');
+
+            var heatBtn = document.getElementById('heatBtn');
+            var resetBtn = document.getElementById('resetBtn');
+            var maxTemp = document.getElementById('maxTemp');
+            var avgTemp = document.getElementById('avgTemp');
+            var sourceStatus = document.getElementById('sourceStatus');
+
+            var W, H;
+            var GRID = 20;
+            var cols, rows;
+            var grid = [];
+            var isHeating = false;
+            var heatSourceX = 0;
+            var heatSourceY = 0;
+            var animId = null;
+
+            // 物理参数
+            var DIFFUSION_RATE = 0.15;
+            var HEAT_POWER = 0.8;
+            var COOLING_RATE = 0.005;
+            var AMBIENT_TEMP = 25;
+
+            function resizeCanvas() {
+                var rect = canvas.getBoundingClientRect();
+                canvas.width = rect.width || 400;
+                canvas.height = canvas.width / 1.3;
+                W = canvas.width;
+                H = canvas.height;
+                cols = Math.floor(W / GRID);
+                rows = Math.floor(H / GRID);
+                heatSourceX = Math.floor(cols * 0.3);
+                heatSourceY = Math.floor(rows * 0.5);
+                initGrid();
+                draw();
+            }
+
+            function initGrid() {
+                grid = [];
+                for (var i = 0; i < rows; i++) {
+                    grid[i] = [];
+                    for (var j = 0; j < cols; j++) {
+                        grid[i][j] = AMBIENT_TEMP;
+                    }
+                }
+            }
+
+            function getColor(temp) {
+                var t = (temp - 20) / 60;
+                t = Math.max(0, Math.min(1, t));
+                // 蓝 → 紫 → 橙 → 红
+                var r, g, b;
+                if (t < 0.5) {
+                    var u = t / 0.5;
+                    r = 59 + u * 170;
+                    g = 130 + u * 20;
+                    b = 246 - u * 190;
+                } else {
+                    var u = (t - 0.5) / 0.5;
+                    r = 229 + u * 26;
+                    g = 150 - u * 80;
+                    b = 56 - u * 40;
+                }
+                return 'rgb(' + Math.round(r) + ',' + Math.round(g) + ',' + Math.round(b) + ')';
+            }
+
+            function draw() {
+                ctx.clearRect(0, 0, W, H);
+
+                // 绘制网格
+                var cellW = W / cols;
+                var cellH = H / rows;
+                for (var i = 0; i < rows; i++) {
+                    for (var j = 0; j < cols; j++) {
+                        var temp = grid[i][j];
+                        ctx.fillStyle = getColor(temp);
+                        ctx.fillRect(j * cellW, i * cellH, cellW + 0.5, cellH + 0.5);
+                    }
+                }
+
+                // 网格线（细线）
+                ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+                ctx.lineWidth = 0.5;
+                for (var i = 0; i <= rows; i++) {
+                    ctx.beginPath();
+                    ctx.moveTo(0, i * cellH);
+                    ctx.lineTo(W, i * cellH);
+                    ctx.stroke();
+                }
+                for (var j = 0; j <= cols; j++) {
+                    ctx.beginPath();
+                    ctx.moveTo(j * cellW, 0);
+                    ctx.lineTo(j * cellW, H);
+                    ctx.stroke();
+                }
+
+                // 热源标记
+                if (isHeating) {
+                    var sx = heatSourceX * cellW + cellW / 2;
+                    var sy = heatSourceY * cellH + cellH / 2;
+                    ctx.shadowColor = 'rgba(249, 115, 22, 0.5)';
+                    ctx.shadowBlur = 25;
+                    ctx.fillStyle = 'rgba(249, 115, 22, 0.15)';
+                    ctx.beginPath();
+                    ctx.arc(sx, sy, 30, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.shadowBlur = 0;
+                    ctx.fillStyle = 'rgba(249, 115, 22, 0.8)';
+                    ctx.font = '16px Inter, system-ui, sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('🔥', sx, sy + 6);
+                }
+            }
+
+            function physicsStep() {
+                var newGrid = [];
+                for (var i = 0; i < rows; i++) {
+                    newGrid[i] = [];
+                    for (var j = 0; j < cols; j++) {
+                        newGrid[i][j] = grid[i][j];
+                    }
+                }
+
+                for (var i = 0; i < rows; i++) {
+                    for (var j = 0; j < cols; j++) {
+                        var temp = grid[i][j];
+                        var neighbors = 0;
+                        var sum = 0;
+
+                        // 上
+                        if (i > 0) { sum += grid[i-1][j]; neighbors++; }
+                        // 下
+                        if (i < rows - 1) { sum += grid[i+1][j]; neighbors++; }
+                        // 左
+                        if (j > 0) { sum += grid[i][j-1]; neighbors++; }
+                        // 右
+                        if (j < cols - 1) { sum += grid[i][j+1]; neighbors++; }
+
+                        if (neighbors > 0) {
+                            var avg = sum / neighbors;
+                            newGrid[i][j] += (avg - temp) * DIFFUSION_RATE;
+                        }
+
+                        // 冷却（向环境散热）
+                        newGrid[i][j] -= (newGrid[i][j] - AMBIENT_TEMP) * COOLING_RATE;
+
+                        // 热源加热
+                        if (isHeating && i === heatSourceY && j === heatSourceX) {
+                            newGrid[i][j] += HEAT_POWER;
+                        }
+
+                        // 边界限制
+                        newGrid[i][j] = Math.max(AMBIENT_TEMP, Math.min(AMBIENT_TEMP + 70, newGrid[i][j]));
+                    }
+                }
+
+                grid = newGrid;
+                updateStats();
+                draw();
+                animId = requestAnimationFrame(physicsStep);
+            }
+
+            function updateStats() {
+                var max = AMBIENT_TEMP;
+                var sum = 0;
+                var count = 0;
+                for (var i = 0; i < rows; i++) {
+                    for (var j = 0; j < cols; j++) {
+                        var t = grid[i][j];
+                        if (t > max) max = t;
+                        sum += t;
+                        count++;
+                    }
+                }
+                maxTemp.textContent = max.toFixed(1) + ' °C';
+                avgTemp.textContent = (sum / count).toFixed(1) + ' °C';
+            }
+
+            function toggleHeat() {
+                isHeating = !isHeating;
+                heatBtn.textContent = isHeating ? '🔥 加热中...' : ' 加热';
+                heatBtn.classList.toggle('heat');
+                sourceStatus.textContent = isHeating ? '🔥 开启' : '⏸️ 关闭';
+                if (isHeating) {
+                    heatBtn.style.background = '#f97316';
+                    heatBtn.style.color = '#0f172a';
+                } else {
+                    heatBtn.style.background = '#334155';
+                    heatBtn.style.color = '#cbd5e1';
+                }
+            }
+
+            function resetGrid() {
+                isHeating = false;
+                heatBtn.textContent = ' 加热';
+                heatBtn.style.background = '#334155';
+                heatBtn.style.color = '#cbd5e1';
+                sourceStatus.textContent = '⏸️ 关闭';
+                initGrid();
+                updateStats();
+                draw();
+            }
+
+            heatBtn.addEventListener('click', toggleHeat);
+            resetBtn.addEventListener('click', resetGrid);
+
+            resizeCanvas();
+            window.addEventListener('resize', function() {
+                resizeCanvas();
+            });
+
+            // 启动物理循环
+            physicsStep();
+        })();
+    </script>
+</body>
+</html>
