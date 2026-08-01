@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>二维码生成器 - Onyes 的小站</title>
     <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js">
+    <script src="https://cdn.bootcdn.net/ajax/libs/qrcodejs/1.0.0/qrcode.min.js?v=20260801">
     </script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -90,6 +90,7 @@
             margin-top: 8px;
             min-height: 24px;
         }
+        .error-msg.success { color: #22c55e; }
         .download-area {
             display: flex;
             gap: 12px;
@@ -193,6 +194,7 @@
                 qrContainer.style.display = 'none';
                 placeholder.style.display = 'block';
                 errorMsg.textContent = '';
+                errorMsg.className = 'error-msg';
                 downloadPng.disabled = true;
                 downloadSvg.disabled = true;
                 currentCanvas = null;
@@ -200,7 +202,6 @@
                 text = text.trim();
                 if (!text) {
                     errorMsg.textContent = '⚠️ 请输入内容';
-                    qrWrapper.classList.remove('has-qr');
                     return;
                 }
 
@@ -218,30 +219,25 @@
                     placeholder.style.display = 'none';
                     qrWrapper.classList.add('has-qr');
 
-                    // 生成二维码
-                    QRCode.toCanvas(canvas, text, {
+                    // qrcodejs 的用法
+                    new QRCode(canvas, {
+                        text: text,
                         width: 280,
-                        margin: 2,
-                        color: {
-                            dark: '#1e293b',
-                            light: '#ffffff'
-                        }
-                    }, function(error) {
-                        if (error) {
-                            errorMsg.textContent = '⚠️ 生成失败: ' + error.message;
-                            qrContainer.style.display = 'none';
-                            placeholder.style.display = 'block';
-                            qrWrapper.classList.remove('has-qr');
-                            return;
-                        }
-                        currentCanvas = canvas;
-                        currentText = text;
-                        downloadPng.disabled = false;
-                        downloadSvg.disabled = false;
-                        errorMsg.textContent = '✅ 生成成功！点击下方按钮下载';
+                        height: 280,
+                        colorDark: '#1e293b',
+                        colorLight: '#ffffff',
+                        correctLevel: QRCode.CorrectLevel.H
                     });
+
+                    currentCanvas = canvas;
+                    currentText = text;
+                    downloadPng.disabled = false;
+                    downloadSvg.disabled = false;
+                    errorMsg.textContent = '✅ 生成成功！点击下方按钮下载';
+                    errorMsg.className = 'error-msg success';
                 } catch (e) {
                     errorMsg.textContent = '⚠️ 生成失败: ' + e.message;
+                    errorMsg.className = 'error-msg';
                 }
             }
 
@@ -255,12 +251,9 @@
 
             function downloadSVG() {
                 if (!currentCanvas) return;
-                // 从 canvas 导出 SVG（利用 QRCode 库的 toDataURL 不支持 SVG，用 canvas 转）
                 try {
                     var svgData = currentCanvas.toDataURL('image/svg+xml');
-                    // 部分浏览器不支持 SVG 导出，用 PNG 替代
                     if (!svgData || svgData.indexOf('svg') === -1) {
-                        // 降级：下载 PNG
                         downloadPNG();
                         return;
                     }
@@ -269,7 +262,6 @@
                     link.href = svgData;
                     link.click();
                 } catch (e) {
-                    // 降级：下载 PNG
                     downloadPNG();
                 }
             }
@@ -286,7 +278,6 @@
                 }
             });
 
-            // 预设按钮
             presetBtns.forEach(function(btn) {
                 btn.addEventListener('click', function() {
                     var text = this.dataset.text;
