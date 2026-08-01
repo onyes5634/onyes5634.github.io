@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>大小写转换</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="skin.css">
+</head>
+<body>
+<header class="app-header">
+<a class="back" href="index.html"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H109.3l105.3-105.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg> 返回主页</a>
+<h1 class="app-title">大小写转换</h1>
+<button class="theme-toggle" id="themeToggle" title="切换主题" aria-label="切换主题">🌙</button>
+</header>
+<div class="app-shell">
+<div class="card">
+
+<h2 class="tool-title">大小写 / 驼峰 / 下划线 / 全半角</h2>
+<div class="col">
+<textarea id="in" class="mini" placeholder="输入文本"></textarea>
+<div class="row">
+<button class="btn btn-primary" id="up">转大写</button>
+<button class="btn" id="low">转小写</button>
+<button class="btn" id="cap">单词首字母大写</button>
+<button class="btn" id="camel">驼峰 camelCase</button>
+<button class="btn" id="snake">下划线 snake_case</button>
+<button class="btn" id="full">全角</button>
+<button class="btn" id="half">半角</button>
+</div>
+<textarea id="out" class="mini" placeholder="结果输出" readonly></textarea>
+</div>
+</div>
+</div>
+<script>
+
+const $ = id => document.getElementById(id);
+$('up').onclick = () => $('out').value = $('in').value.toUpperCase();
+$('low').onclick = () => $('out').value = $('in').value.toLowerCase();
+$('cap').onclick = () => $('out').value = $('in').value.toLowerCase().replace(/(^|\s)\S/g, c => c.toUpperCase());
+$('camel').onclick = () => $('out').value = $('in').value.toLowerCase().replace(/[_\-\s]+(\w)/g, (_, c) => c.toUpperCase()).replace(/^[A-Z]/, c => c.toLowerCase());
+$('snake').onclick = () => $('out').value = $('in').value.trim().toLowerCase().replace(/[A-Z]/g, c => '_' + c.toLowerCase()).replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+$('full').onclick = () => $('out').value = $('in').value.replace(/[A-Za-z0-9]/g, c => String.fromCharCode(c.charCodeAt(0) + 0xFEE0));
+$('half').onclick = () => $('out').value = $('in').value.replace(/[\uff01-\uff5e]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xFEE0)).replace(/\u3000/g, ' ');
+
+</script>
+<script defer src="skin.js"></script>
+</body>
+</html>
