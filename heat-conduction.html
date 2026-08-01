@@ -17,7 +17,7 @@
             padding: 30px 20px;
         }
         .container {
-            max-width: 600px;
+            max-width: 720px;
             width: 100%;
             background: #1e293b;
             border-radius: 24px;
@@ -27,69 +27,78 @@
         }
         .back-link { display: inline-flex; align-items: center; gap: 8px; color: #94a3b8; text-decoration: none; font-size: 0.85rem; margin-bottom: 16px; }
         .back-link:hover { color: #a78bfa; }
-        .header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+        .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
         .header h1 { font-size: 1.5rem; font-weight: 700; color: #f1f5f9; }
-        .header i { color: #f97316; margin-right: 8px; }
+        .header h1 i { color: #f97316; margin-right: 8px; }
+        .header-badge { font-size: 0.7rem; color: #94a3b8; background: #334155; padding: 4px 14px; border-radius: 20px; border: 1px solid #475569; }
         .canvas-wrapper {
             background: #0f172a;
             border-radius: 16px;
             border: 1px solid #334155;
             overflow: hidden;
+            position: relative;
         }
-        canvas { width: 100%; aspect-ratio: 1.3/1; display: block; }
+        canvas { width: 100%; aspect-ratio: 1.6/1; display: block; }
+        .colorbar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 10px;
+            padding: 6px 16px;
+            background: #0f172a;
+            border-radius: 8px;
+            border: 1px solid #334155;
+        }
+        .colorbar .gradient {
+            width: 120px;
+            height: 10px;
+            border-radius: 4px;
+            background: linear-gradient(to right, #3b82f6, #8b5cf6, #f97316, #ef4444);
+        }
+        .colorbar .label { font-size: 0.6rem; color: #64748b; }
         .controls {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 10px;
+            display: flex;
+            gap: 12px;
             margin-top: 14px;
+            flex-wrap: wrap;
         }
         .controls button {
-            padding: 10px;
+            padding: 10px 20px;
             border: none;
             border-radius: 10px;
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             font-weight: 600;
             cursor: pointer;
             transition: 0.2s;
             font-family: inherit;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
-        .controls .heat { background: #f97316; color: #0f172a; }
-        .controls .heat:hover { background: #ea580c; transform: scale(1.02); }
-        .controls .heat:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
-        .controls .reset { background: #334155; color: #cbd5e1; }
-        .controls .reset:hover { background: #475569; }
-        .info {
+        .controls .heat-btn { background: #f97316; color: #0f172a; }
+        .controls .heat-btn:hover { background: #ea580c; transform: scale(1.03); }
+        .controls .heat-btn.on { background: #ef4444; }
+        .controls .reset-btn { background: #334155; color: #cbd5e1; }
+        .controls .reset-btn:hover { background: #475569; }
+        .info-panel {
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 10px;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
             margin-top: 14px;
-            padding: 12px 16px;
+            padding: 16px 20px;
             background: #0f172a;
             border-radius: 12px;
             border: 1px solid #334155;
-            font-size: 0.8rem;
-            color: #94a3b8;
-            text-align: center;
         }
-        .info span { color: #f1f5f9; font-weight: 600; display: block; margin-top: 2px; }
-        .info .hot { color: #f97316; }
-        .info .cold { color: #3b82f6; }
-        .legend {
-            display: flex;
-            justify-content: center;
-            gap: 16px;
-            margin-top: 12px;
-            font-size: 0.7rem;
-            color: #94a3b8;
-        }
-        .legend .dot { display: inline-block; width: 12px; height: 12px; border-radius: 4px; vertical-align: middle; margin-right: 4px; }
-        .legend .dot.hot { background: #f97316; }
-        .legend .dot.cold { background: #3b82f6; }
-        .legend .dot.mid { background: #8b5cf6; }
-        @media (max-width: 480px) {
+        .info-panel .item { text-align: center; }
+        .info-panel .item .label { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.5px; color: #64748b; }
+        .info-panel .item .value { font-size: 1.1rem; font-weight: 600; color: #f1f5f9; margin-top: 2px; }
+        .info-panel .item .value .unit { font-size: 0.65rem; font-weight: 400; color: #94a3b8; margin-left: 2px; }
+        @media (max-width: 600px) {
             .container { padding: 20px 16px; }
-            .controls { grid-template-columns: 1fr; }
-            .info { grid-template-columns: 1fr; }
+            .info-panel { grid-template-columns: 1fr 1fr; }
+            .controls button { flex: 1; justify-content: center; }
         }
     </style>
 </head>
@@ -98,27 +107,41 @@
         <a href="/" class="back-link"><i class="fas fa-arrow-left"></i> 返回首页</a>
         <div class="header">
             <h1><i class="fas fa-fire"></i>热传导模拟</h1>
+            <span class="header-badge"><i class="fas fa-thermometer-half"></i> 2D 扩散</span>
         </div>
 
         <div class="canvas-wrapper">
             <canvas id="canvas"></canvas>
         </div>
 
+        <div class="colorbar">
+            <span class="label">冷</span>
+            <div class="gradient"></div>
+            <span class="label">热</span>
+        </div>
+
         <div class="controls">
-            <button class="heat" id="heatBtn"><i class="fas fa-fire"></i> 加热</button>
-            <button class="reset" id="resetBtn"><i class="fas fa-undo"></i> 重置</button>
+            <button class="heat-btn" id="heatBtn"><i class="fas fa-fire"></i> 加热</button>
+            <button class="reset-btn" id="resetBtn"><i class="fas fa-undo"></i> 重置</button>
         </div>
 
-        <div class="info">
-            <div>最高温度 <span id="maxTemp">25.0 °C</span></div>
-            <div>平均温度 <span id="avgTemp">25.0 °C</span></div>
-            <div>热源 <span id="sourceStatus">⏸️ 关闭</span></div>
-        </div>
-
-        <div class="legend">
-            <span><span class="dot hot"></span> 热</span>
-            <span><span class="dot mid"></span> 中</span>
-            <span><span class="dot cold"></span> 冷</span>
+        <div class="info-panel">
+            <div class="item">
+                <div class="label">最高温度</div>
+                <div class="value" id="maxTemp">25.0 <span class="unit">°C</span></div>
+            </div>
+            <div class="item">
+                <div class="label">平均温度</div>
+                <div class="value" id="avgTemp">25.0 <span class="unit">°C</span></div>
+            </div>
+            <div class="item">
+                <div class="label">热源状态</div>
+                <div class="value" id="sourceStatus" style="color:#64748b;">⏸️ 关闭</div>
+            </div>
+            <div class="item">
+                <div class="label">扩散时间</div>
+                <div class="value" id="timeDisplay">0.0 <span class="unit">s</span></div>
+            </div>
         </div>
     </div>
 
@@ -132,32 +155,33 @@
             var maxTemp = document.getElementById('maxTemp');
             var avgTemp = document.getElementById('avgTemp');
             var sourceStatus = document.getElementById('sourceStatus');
+            var timeDisplay = document.getElementById('timeDisplay');
 
             var W, H;
-            var GRID = 20;
+            var GRID = 25;
             var cols, rows;
             var grid = [];
             var isHeating = false;
-            var heatSourceX = 0;
-            var heatSourceY = 0;
+            var heatX, heatY;
+            var simTime = 0;
             var animId = null;
 
             // 物理参数
-            var DIFFUSION_RATE = 0.15;
-            var HEAT_POWER = 0.8;
-            var COOLING_RATE = 0.005;
-            var AMBIENT_TEMP = 25;
+            var DIFFUSION = 0.12;
+            var HEAT_POWER = 1.2;
+            var COOLING = 0.003;
+            var AMBIENT = 25;
 
             function resizeCanvas() {
                 var rect = canvas.getBoundingClientRect();
                 canvas.width = rect.width || 400;
-                canvas.height = canvas.width / 1.3;
+                canvas.height = canvas.width / 1.6;
                 W = canvas.width;
                 H = canvas.height;
                 cols = Math.floor(W / GRID);
                 rows = Math.floor(H / GRID);
-                heatSourceX = Math.floor(cols * 0.3);
-                heatSourceY = Math.floor(rows * 0.5);
+                heatX = Math.floor(cols * 0.25);
+                heatY = Math.floor(rows * 0.5);
                 initGrid();
                 draw();
             }
@@ -167,15 +191,16 @@
                 for (var i = 0; i < rows; i++) {
                     grid[i] = [];
                     for (var j = 0; j < cols; j++) {
-                        grid[i][j] = AMBIENT_TEMP;
+                        grid[i][j] = AMBIENT;
                     }
                 }
+                simTime = 0;
+                timeDisplay.innerHTML = '0.0 <span class="unit">s</span>';
             }
 
             function getColor(temp) {
                 var t = (temp - 20) / 60;
                 t = Math.max(0, Math.min(1, t));
-                // 蓝 → 紫 → 橙 → 红
                 var r, g, b;
                 if (t < 0.5) {
                     var u = t / 0.5;
@@ -192,20 +217,42 @@
             }
 
             function draw() {
-                ctx.clearRect(0, 0, W, H);
-
-                // 绘制网格
                 var cellW = W / cols;
                 var cellH = H / rows;
+
+                // 批量绘制（性能优化）
+                var imageData = ctx.createImageData(W, H);
+                var data = imageData.data;
+
                 for (var i = 0; i < rows; i++) {
                     for (var j = 0; j < cols; j++) {
                         var temp = grid[i][j];
-                        ctx.fillStyle = getColor(temp);
-                        ctx.fillRect(j * cellW, i * cellH, cellW + 0.5, cellH + 0.5);
+                        var color = getColor(temp);
+                        var rgb = color.match(/\d+/g);
+                        var r = parseInt(rgb[0]);
+                        var g = parseInt(rgb[1]);
+                        var b = parseInt(rgb[2]);
+
+                        var startX = Math.floor(j * cellW);
+                        var startY = Math.floor(i * cellH);
+                        var endX = Math.floor((j + 1) * cellW);
+                        var endY = Math.floor((i + 1) * cellH);
+
+                        for (var py = startY; py < endY && py < H; py++) {
+                            for (var px = startX; px < endX && px < W; px++) {
+                                var idx = (py * W + px) * 4;
+                                data[idx] = r;
+                                data[idx + 1] = g;
+                                data[idx + 2] = b;
+                                data[idx + 3] = 255;
+                            }
+                        }
                     }
                 }
 
-                // 网格线（细线）
+                ctx.putImageData(imageData, 0, 0);
+
+                // 网格线
                 ctx.strokeStyle = 'rgba(255,255,255,0.04)';
                 ctx.lineWidth = 0.5;
                 for (var i = 0; i <= rows; i++) {
@@ -223,19 +270,23 @@
 
                 // 热源标记
                 if (isHeating) {
-                    var sx = heatSourceX * cellW + cellW / 2;
-                    var sy = heatSourceY * cellH + cellH / 2;
-                    ctx.shadowColor = 'rgba(249, 115, 22, 0.5)';
-                    ctx.shadowBlur = 25;
-                    ctx.fillStyle = 'rgba(249, 115, 22, 0.15)';
+                    var sx = heatX * cellW + cellW / 2;
+                    var sy = heatY * cellH + cellH / 2;
+                    ctx.shadowColor = 'rgba(249, 115, 22, 0.4)';
+                    ctx.shadowBlur = 30;
+                    var grad = ctx.createRadialGradient(sx, sy, 0, sx, sy, 35);
+                    grad.addColorStop(0, 'rgba(239, 68, 68, 0.2)');
+                    grad.addColorStop(1, 'rgba(249, 115, 22, 0)');
+                    ctx.fillStyle = grad;
                     ctx.beginPath();
-                    ctx.arc(sx, sy, 30, 0, Math.PI * 2);
+                    ctx.arc(sx, sy, 35, 0, Math.PI * 2);
                     ctx.fill();
                     ctx.shadowBlur = 0;
-                    ctx.fillStyle = 'rgba(249, 115, 22, 0.8)';
-                    ctx.font = '16px Inter, system-ui, sans-serif';
+                    ctx.font = '18px Inter, system-ui, sans-serif';
                     ctx.textAlign = 'center';
-                    ctx.fillText('🔥', sx, sy + 6);
+                    ctx.textBaseline = 'middle';
+                    ctx.fillStyle = 'rgba(249, 115, 22, 0.9)';
+                    ctx.fillText('🔥', sx, sy + 2);
                 }
             }
 
@@ -250,45 +301,38 @@
 
                 for (var i = 0; i < rows; i++) {
                     for (var j = 0; j < cols; j++) {
-                        var temp = grid[i][j];
                         var neighbors = 0;
                         var sum = 0;
 
-                        // 上
                         if (i > 0) { sum += grid[i-1][j]; neighbors++; }
-                        // 下
                         if (i < rows - 1) { sum += grid[i+1][j]; neighbors++; }
-                        // 左
                         if (j > 0) { sum += grid[i][j-1]; neighbors++; }
-                        // 右
                         if (j < cols - 1) { sum += grid[i][j+1]; neighbors++; }
 
                         if (neighbors > 0) {
                             var avg = sum / neighbors;
-                            newGrid[i][j] += (avg - temp) * DIFFUSION_RATE;
+                            newGrid[i][j] += (avg - grid[i][j]) * DIFFUSION;
                         }
 
-                        // 冷却（向环境散热）
-                        newGrid[i][j] -= (newGrid[i][j] - AMBIENT_TEMP) * COOLING_RATE;
+                        newGrid[i][j] -= (newGrid[i][j] - AMBIENT) * COOLING;
 
-                        // 热源加热
-                        if (isHeating && i === heatSourceY && j === heatSourceX) {
+                        if (isHeating && i === heatY && j === heatX) {
                             newGrid[i][j] += HEAT_POWER;
                         }
 
-                        // 边界限制
-                        newGrid[i][j] = Math.max(AMBIENT_TEMP, Math.min(AMBIENT_TEMP + 70, newGrid[i][j]));
+                        newGrid[i][j] = Math.max(AMBIENT, Math.min(AMBIENT + 70, newGrid[i][j]));
                     }
                 }
 
                 grid = newGrid;
+                simTime += 0.016;
                 updateStats();
                 draw();
                 animId = requestAnimationFrame(physicsStep);
             }
 
             function updateStats() {
-                var max = AMBIENT_TEMP;
+                var max = AMBIENT;
                 var sum = 0;
                 var count = 0;
                 for (var i = 0; i < rows; i++) {
@@ -299,30 +343,25 @@
                         count++;
                     }
                 }
-                maxTemp.textContent = max.toFixed(1) + ' °C';
-                avgTemp.textContent = (sum / count).toFixed(1) + ' °C';
+                maxTemp.innerHTML = max.toFixed(1) + ' <span class="unit">°C</span>';
+                avgTemp.innerHTML = (sum / count).toFixed(1) + ' <span class="unit">°C</span>';
+                timeDisplay.innerHTML = simTime.toFixed(1) + ' <span class="unit">s</span>';
             }
 
             function toggleHeat() {
                 isHeating = !isHeating;
+                heatBtn.classList.toggle('on');
                 heatBtn.textContent = isHeating ? '🔥 加热中...' : ' 加热';
-                heatBtn.classList.toggle('heat');
                 sourceStatus.textContent = isHeating ? '🔥 开启' : '⏸️ 关闭';
-                if (isHeating) {
-                    heatBtn.style.background = '#f97316';
-                    heatBtn.style.color = '#0f172a';
-                } else {
-                    heatBtn.style.background = '#334155';
-                    heatBtn.style.color = '#cbd5e1';
-                }
+                sourceStatus.style.color = isHeating ? '#f97316' : '#64748b';
             }
 
             function resetGrid() {
                 isHeating = false;
+                heatBtn.classList.remove('on');
                 heatBtn.textContent = ' 加热';
-                heatBtn.style.background = '#334155';
-                heatBtn.style.color = '#cbd5e1';
                 sourceStatus.textContent = '⏸️ 关闭';
+                sourceStatus.style.color = '#64748b';
                 initGrid();
                 updateStats();
                 draw();
@@ -334,9 +373,10 @@
             resizeCanvas();
             window.addEventListener('resize', function() {
                 resizeCanvas();
+                draw();
             });
 
-            // 启动物理循环
+            updateStats();
             physicsStep();
         })();
     </script>
