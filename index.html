@@ -1373,21 +1373,22 @@
                 });
             }
 
-            document.querySelectorAll('.favorite-btn').forEach(function(btn) {
-                btn.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    var id = this.dataset.id;
-                    var idx = favorites.indexOf(id);
-                    if (idx > -1) {
-                        favorites.splice(idx, 1);
-                    } else {
-                        favorites.push(id);
-                        this.style.transform = 'scale(1.4)';
-                        setTimeout(function() { this.style.transform = ''; }.bind(this), 300);
-                    }
-                    localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
-                    updateFavoritesUI();
-                });
+            // 绑定收藏按钮事件（使用事件委托，避免重新绑定）
+            document.addEventListener('click', function(e) {
+                var btn = e.target.closest('.favorite-btn');
+                if (!btn) return;
+                e.stopPropagation();
+                var id = btn.dataset.id;
+                var idx = favorites.indexOf(id);
+                if (idx > -1) {
+                    favorites.splice(idx, 1);
+                } else {
+                    favorites.push(id);
+                    btn.style.transform = 'scale(1.4)';
+                    setTimeout(function() { btn.style.transform = ''; }, 300);
+                }
+                localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
+                updateFavoritesUI();
             });
 
             // =============================================
@@ -1404,7 +1405,6 @@
                 localStorage.setItem(ORDER_KEY, JSON.stringify(ids));
             }
 
-            // 恢复上次保存的顺序
             function restoreOrder() {
                 var savedOrder = JSON.parse(localStorage.getItem(ORDER_KEY) || 'null');
                 if (!savedOrder) return;
@@ -1415,7 +1415,6 @@
                 });
                 var parent = allItems[0] ? allItems[0].parentNode : null;
                 if (!parent) return;
-                // 按保存的顺序重新排列
                 var sorted = [];
                 savedOrder.forEach(function(id) {
                     if (itemMap[id]) {
@@ -1423,7 +1422,6 @@
                         delete itemMap[id];
                     }
                 });
-                // 补充遗漏的
                 for (var key in itemMap) {
                     sorted.push(itemMap[key]);
                 }
@@ -1432,70 +1430,85 @@
                 });
             }
 
-            document.querySelectorAll('.project-item').forEach(function(el) {
-                el.addEventListener('dragstart', function(e) {
-                    dragItem = this;
-                    this.classList.add('dragging');
-                    e.dataTransfer.effectAllowed = 'move';
-                    e.dataTransfer.setData('text/plain', this.dataset.id);
-                    setTimeout(function() {
-                        this.classList.add('dragging');
-                    }.bind(this), 0);
-                });
+            // 绑定拖拽事件（使用事件委托）
+            document.addEventListener('dragstart', function(e) {
+                var item = e.target.closest('.project-item');
+                if (!item) return;
+                dragItem = item;
+                item.classList.add('dragging');
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/plain', item.dataset.id);
+            });
 
-                el.addEventListener('dragend', function(e) {
-                    this.classList.remove('dragging');
-                    document.querySelectorAll('.project-item').forEach(function(item) {
-                        item.classList.remove('drag-over');
-                    });
-                    if (dragItem) {
-                        saveOrder();
-                        dragItem = null;
-                    }
+            document.addEventListener('dragend', function(e) {
+                var item = e.target.closest('.project-item');
+                if (!item) return;
+                item.classList.remove('dragging');
+                document.querySelectorAll('.project-item').forEach(function(el) {
+                    el.classList.remove('drag-over');
                 });
-
-                el.addEventListener('dragover', function(e) {
-                    e.preventDefault();
-                    e.dataTransfer.dropEffect = 'move';
-                    if (dragItem && dragItem !== this) {
-                        document.querySelectorAll('.project-item').forEach(function(item) {
-                            item.classList.remove('drag-over');
-                        });
-                        this.classList.add('drag-over');
-                    }
-                });
-
-                el.addEventListener('dragleave', function(e) {
-                    this.classList.remove('drag-over');
-                });
-
-                el.addEventListener('drop', function(e) {
-                    e.preventDefault();
-                    this.classList.remove('drag-over');
-                    if (!dragItem || dragItem === this) return;
-                    var parent = this.parentNode;
-                    var items = Array.from(parent.querySelectorAll('.project-item'));
-                    var fromIdx = items.indexOf(dragItem);
-                    var toIdx = items.indexOf(this);
-                    if (fromIdx < toIdx) {
-                        parent.insertBefore(dragItem, this.nextSibling);
-                    } else {
-                        parent.insertBefore(dragItem, this);
-                    }
+                if (dragItem) {
                     saveOrder();
-                });
+                    dragItem = null;
+                }
+            });
+
+            document.addEventListener('dragover', function(e) {
+                var target = e.target.closest('.project-item');
+                if (!target) return;
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+                if (dragItem && dragItem !== target) {
+                    document.querySelectorAll('.project-item').forEach(function(el) {
+                        el.classList.remove('drag-over');
+                    });
+                    target.classList.add('drag-over');
+                }
+            });
+
+            document.addEventListener('dragleave', function(e) {
+                var target = e.target.closest('.project-item');
+                if (target) target.classList.remove('drag-over');
+            });
+
+            document.addEventListener('drop', function(e) {
+                var target = e.target.closest('.project-item');
+                if (!target) return;
+                e.preventDefault();
+                target.classList.remove('drag-over');
+                if (!dragItem || dragItem === target) return;
+                var parent = target.parentNode;
+                var items = Array.from(parent.querySelectorAll('.project-item'));
+                var fromIdx = items.indexOf(dragItem);
+                var toIdx = items.indexOf(target);
+                if (fromIdx < toIdx) {
+                    parent.insertBefore(dragItem, target.nextSibling);
+                } else {
+                    parent.insertBefore(dragItem, target);
+                }
+                saveOrder();
             });
 
             // =============================================
-            // 卡片点击跳转
+            // 卡片点击跳转（修复打开两次的问题）
             // =============================================
-            document.querySelectorAll('.project-item').forEach(function(card) {
-                card.addEventListener('click', function(e) {
-                    if (e.target.closest('.favorite-btn')) return;
-                    if (e.target.closest('.drag-handle')) return;
-                    var url = this.dataset.url;
+            document.addEventListener('click', function(e) {
+                // 只处理 .project-item 内部的点击，但排除收藏按钮和拖拽手柄
+                var card = e.target.closest('.project-item');
+                if (!card) return;
+                if (e.target.closest('.favorite-btn')) return;
+                if (e.target.closest('.drag-handle')) return;
+                // 如果点击的是 a 标签本身，阻止默认行为（因为我们要用自定义跳转）
+                var link = e.target.closest('a');
+                if (link) {
+                    e.preventDefault();
+                    var url = link.getAttribute('href');
                     if (url) window.open(url, '_blank');
-                });
+                    return;
+                }
+                // 点击卡片其他区域，用 data-url 跳转
+                var url = card.dataset.url;
+                if (url) window.open(url, '_blank');
             });
 
             // =============================================
