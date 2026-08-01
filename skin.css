@@ -1,0 +1,236 @@
+/* ============================================================
+   Onyes 小站 · 统一应用页皮肤（与 index.html 同一设计系统）
+   ============================================================ */
+:root {
+    --primary: #3498db;
+    --secondary: #9b59b6;
+    --accent: #e74c3c;
+    --bg-body: #ffffff;
+    --bg-card: #ffffff;
+    --text-color: #222;
+    --text-light: #666;
+    --shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    --border-color: rgba(0, 0, 0, 0.06);
+    --tag-bg: #f5f7fa;
+    --input-bg: #f5f7fa;
+    --input-border: #ddd;
+    --section-bg: #f8f9fb;
+    --item-bg: #ffffff;
+    --hover-shadow: rgba(0, 0, 0, 0.08);
+    --nav-bg: rgba(255, 255, 255, 0.78);
+    --nav-border: rgba(0, 0, 0, 0.06);
+    --nav-text: #222;
+    --gold: #f59e0b;
+    --header-h: 58px;
+}
+
+[data-theme="dark"] {
+    --bg-body: #0d1117;
+    --bg-card: #161b22;
+    --text-color: #e6edf3;
+    --text-light: #8b949e;
+    --shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    --border-color: rgba(255, 255, 255, 0.06);
+    --tag-bg: #21262d;
+    --input-bg: #21262d;
+    --input-border: #30363d;
+    --section-bg: #161b22;
+    --item-bg: #21262d;
+    --hover-shadow: rgba(255, 255, 255, 0.04);
+    --nav-bg: rgba(13, 17, 23, 0.8);
+    --nav-border: rgba(255, 255, 255, 0.06);
+    --nav-text: #e6edf3;
+    --gold: #fbbf24;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+    margin: 0 !important;
+    padding: 0 !important;
+    display: block !important;
+    font-family: system-ui, -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif !important;
+    background: var(--bg-body) !important;
+    color: var(--text-color) !important;
+    line-height: 1.6;
+    min-height: 100vh;
+    transition: background .3s ease, color .3s ease;
+}
+
+/* ---------- 统一顶部导航 ---------- */
+.app-header {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    height: var(--header-h);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 18px;
+    background: var(--nav-bg);
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--nav-border);
+    color: var(--nav-text);
+}
+
+.app-header .back {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 10px;
+    color: var(--nav-text);
+    text-decoration: none;
+    font-size: .9rem;
+    font-weight: 500;
+    white-space: nowrap;
+    transition: background .2s;
+}
+.app-header .back:hover { background: var(--tag-bg); }
+.app-header .back svg { flex-shrink: 0; }
+
+.app-header .app-title {
+    flex: 1;
+    text-align: center;
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.app-header .theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    background: var(--item-bg);
+    color: var(--nav-text);
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background .2s, transform .15s;
+    flex-shrink: 0;
+}
+.app-header .theme-toggle:hover { background: var(--tag-bg); transform: scale(1.05); }
+
+/* ---------- 内容壳 ---------- */
+.app-shell {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 26px 20px 64px;
+    width: 100%;
+}
+
+/* ---------- 统一页脚 ---------- */
+.app-footer {
+    border-top: 1px solid var(--nav-border);
+    color: var(--text-light);
+    font-size: .82rem;
+    text-align: center;
+    padding: 18px 16px 26px;
+}
+.app-footer a { color: var(--primary); text-decoration: none; }
+
+/* ---------- 统一控件 ---------- */
+button {
+    font-family: inherit;
+    cursor: pointer;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 18px;
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+    background: var(--item-bg);
+    color: var(--text-color);
+    font-size: .92rem;
+    font-weight: 500;
+    transition: all .2s;
+    text-decoration: none;
+}
+.btn:hover { box-shadow: 0 2px 10px var(--hover-shadow); transform: translateY(-1px); }
+.btn:disabled { opacity: .55; cursor: not-allowed; transform: none; box-shadow: none; }
+
+.btn-primary { background: var(--primary); border-color: transparent; color: #fff; }
+.btn-primary:hover { filter: brightness(1.08); }
+.btn-secondary { background: var(--secondary); border-color: transparent; color: #fff; }
+.btn-secondary:hover { filter: brightness(1.08); }
+.btn-ghost { background: transparent; }
+.btn-danger { background: var(--accent); border-color: transparent; color: #fff; }
+.btn-sm { padding: 6px 12px; font-size: .82rem; border-radius: 8px; }
+
+input[type="text"],
+input[type="number"],
+input[type="date"],
+input[type="time"],
+input[type="email"],
+input[type="password"],
+input[type="search"],
+textarea,
+select {
+    font-family: inherit;
+    font-size: .92rem;
+    color: var(--text-color);
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    transition: border-color .2s, box-shadow .2s;
+    outline: none;
+    max-width: 100%;
+}
+input:focus, textarea:focus, select:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.15);
+}
+
+input[type="range"] { accent-color: var(--primary); cursor: pointer; }
+input[type="checkbox"], input[type="radio"] { accent-color: var(--primary); cursor: pointer; }
+
+.card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    padding: 24px;
+}
+
+.tag {
+    display: inline-block;
+    background: var(--tag-bg);
+    color: var(--text-light);
+    border-radius: 999px;
+    padding: 3px 12px;
+    font-size: .78rem;
+    margin: 2px;
+}
+
+a { color: var(--primary); }
+
+::selection { background: rgba(52, 152, 219, .25); }
+
+/* 滚动条（与 index 一致） */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: var(--bg-body); }
+::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--secondary); }
+
+/* ---------- 兼容旧页面 ---------- */
+/* 旧模板自带的返回链接统一隐藏（顶部导航已有返回） */
+.back-link { display: none !important; }
+
+/* 旧模板按钮圆角/配色微调（不强改，仅保证可读） */
+.control-btn, .btn-reset, .btn-start {
+    font-family: inherit;
+}
