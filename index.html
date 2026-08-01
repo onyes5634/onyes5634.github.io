@@ -701,23 +701,21 @@
             opacity: 0.8;
         }
 
-        /* ===== 神秘模态框 ===== */
+        /* ===== 神秘模态框（全屏） ===== */
         .mystery-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.92);
+            background: #000;
             z-index: 9999;
             display: none;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
+            padding: 0;
             animation: fadeIn 0.3s ease;
         }
         .mystery-overlay.active {
-            display: flex;
+            display: block;
         }
         @keyframes fadeIn {
             from { opacity: 0; }
@@ -725,48 +723,44 @@
         }
         .mystery-modal {
             width: 100%;
-            max-width: 1200px;
-            height: 90vh;
-            background: #fff;
-            border-radius: 20px;
-            overflow: hidden;
+            height: 100%;
             position: relative;
-            box-shadow: 0 30px 80px rgba(0,0,0,0.6);
-            animation: slideUp 0.35s cubic-bezier(0.18, 0.89, 0.32, 1.28);
-        }
-        [data-theme="dark"] .mystery-modal {
-            background: #161b22;
-        }
-        @keyframes slideUp {
-            from { transform: translateY(40px) scale(0.96); opacity: 0; }
-            to { transform: translateY(0) scale(1); opacity: 1; }
-        }
-        .mystery-modal .close-btn {
-            position: absolute;
-            top: 14px;
-            right: 18px;
-            background: rgba(0,0,0,0.5);
-            border: none;
-            color: #fff;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            font-size: 1.4rem;
-            cursor: pointer;
-            z-index: 10;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .mystery-modal .close-btn:hover {
-            background: rgba(255,255,255,0.2);
-            transform: rotate(90deg);
         }
         .mystery-modal iframe {
             width: 100%;
             height: 100%;
             border: none;
+        }
+        /* 左上角返回按钮 */
+        .mystery-back-btn {
+            position: absolute;
+            top: 20px;
+            left: 24px;
+            z-index: 20;
+            background: rgba(0, 0, 0, 0.65);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.25s ease;
+            font-family: inherit;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+        }
+        .mystery-back-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: scale(1.04);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+        .mystery-back-btn i {
+            font-size: 1.1rem;
         }
         .mystery-modal .loading-tip {
             position: absolute;
@@ -778,10 +772,12 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 12px;
+            gap: 14px;
+            z-index: 1;
+            pointer-events: none;
         }
         .mystery-modal .loading-tip i {
-            font-size: 2.5rem;
+            font-size: 2.8rem;
             color: var(--mystery-glow);
         }
 
@@ -875,9 +871,11 @@
             .debug-version {
                 font-size: 0.6rem;
             }
-            .mystery-modal {
-                height: 85vh;
-                border-radius: 14px;
+            .mystery-back-btn {
+                top: 14px;
+                left: 14px;
+                padding: 8px 16px;
+                font-size: 0.85rem;
             }
         }
 
@@ -984,9 +982,15 @@
                 font-size: 0.5rem;
                 margin-top: 16px;
             }
-            .mystery-modal {
-                height: 80vh;
-                border-radius: 10px;
+            .mystery-back-btn {
+                top: 10px;
+                left: 10px;
+                padding: 6px 12px;
+                font-size: 0.75rem;
+                gap: 6px;
+            }
+            .mystery-back-btn i {
+                font-size: 0.85rem;
             }
         }
     </style>
@@ -1001,16 +1005,16 @@
         <i class="fas fa-arrow-up"></i>
     </button>
 
-    <!-- ===== 神秘模态框 ===== -->
+    <!-- ===== 神秘模态框（全屏） ===== -->
     <div class="mystery-overlay" id="mysteryOverlay">
         <div class="mystery-modal">
+            <button class="mystery-back-btn" id="mysteryBackBtn">
+                <i class="fas fa-arrow-left"></i> 返回 Onyes 的小站
+            </button>
             <div class="loading-tip" id="loadingTip">
                 <i class="fas fa-spinner fa-spin"></i>
                 <span>正在加载神秘世界...</span>
             </div>
-            <button class="close-btn" id="mysteryCloseBtn" title="关闭">
-                <i class="fas fa-times"></i>
-            </button>
             <iframe id="mysteryIframe" src="" allow="fullscreen"></iframe>
         </div>
     </div>
@@ -1067,10 +1071,11 @@
             </div>
 
            <div class="category-nav">
-    <a href="#tools" class="category-link"><i class="fas fa-tools"></i> 实用工具</a>
-    <a href="#simulations" class="category-link"><i class="fas fa-flask"></i> 模拟实验</a>
-    <a href="#games" class="category-link"><i class="fas fa-gamepad"></i> 游戏类</a>
-</div>
+                <a href="#tools" class="category-link"><i class="fas fa-tools"></i> 实用工具</a>
+                <a href="#simulations" class="category-link"><i class="fas fa-flask"></i> 模拟实验</a>
+                <a href="#games" class="category-link"><i class="fas fa-gamepad"></i> 游戏类</a>
+            </div>
+
             <!-- ===== 实用工具类 ===== -->
             <div id="tools" class="projects-section">
                 <h2 class="category-title"><i class="fas fa-tools"></i> 实用工具类</h2>
@@ -1081,10 +1086,10 @@
                         <a href="Website to QR code.html"><i class="fas fa-qrcode"></i> 使用工具</a>
                     </div>
                     <div class="project-item" data-name="二维码解码器" data-url="qrcode-decoder.html">
-    <h3>📷 二维码解码器</h3>
-    <p>上传或粘贴二维码图片，快速解码出其中的内容。</p>
-    <a href="qrcode-decoder.html"><i class="fas fa-qrcode"></i> 使用工具</a>
-</div>
+                        <h3>📷 二维码解码器</h3>
+                        <p>上传或粘贴二维码图片，快速解码出其中的内容。</p>
+                        <a href="qrcode-decoder.html"><i class="fas fa-qrcode"></i> 使用工具</a>
+                    </div>
                     <div class="project-item" data-name="取色器" data-url="Screen Color Picker.html">
                         <h3>屏幕取色器</h3>
                         <p>拾取屏幕任意位置颜色，获取十六进制值。</p>
@@ -1152,7 +1157,7 @@
                         <p>基于物理引擎的流体模拟，展示液体流动效果。</p>
                         <a href="fluid-simulator.html"><i class="fas fa-tint"></i> 查看模拟</a>
                     </div>
-                                        <div class="project-item" data-name="颜色混合" data-url="color-mixer.html">
+                    <div class="project-item" data-name="颜色混合" data-url="color-mixer.html">
                         <h3>🎨 颜色混合</h3>
                         <p>红绿蓝三色滑块，实时混合出你想要的任意颜色。</p>
                         <a href="color-mixer.html"><i class="fas fa-palette"></i> 查看模拟</a>
@@ -1168,18 +1173,19 @@
                         <a href="projectile.html"><i class="fas fa-rocket"></i> 查看模拟</a>
                     </div>
                     <div class="project-item" data-name="电路模拟" data-url="circuit.html">
-    <h3>⚡ 电路模拟</h3>
-    <p>开关控制电路通断，观察灯泡亮灭和电流变化。</p>
-    <a href="circuit.html"><i class="fas fa-bolt"></i> 查看模拟</a>
-</div>
-<div class="project-item" data-name="热传导" data-url="heat-conduction.html">
-    <h3>🌡️ 热传导模拟</h3>
-    <p>加热金属板，观察热量从热源向四周扩散的过程。</p>
-    <a href="heat-conduction.html"><i class="fas fa-fire"></i> 查看模拟</a>
-</div>
+                        <h3>⚡ 电路模拟</h3>
+                        <p>开关控制电路通断，观察灯泡亮灭和电流变化。</p>
+                        <a href="circuit.html"><i class="fas fa-bolt"></i> 查看模拟</a>
+                    </div>
+                    <div class="project-item" data-name="热传导" data-url="heat-conduction.html">
+                        <h3>🌡️ 热传导模拟</h3>
+                        <p>加热金属板，观察热量从热源向四周扩散的过程。</p>
+                        <a href="heat-conduction.html"><i class="fas fa-fire"></i> 查看模拟</a>
+                    </div>
                 </div>
             </div>
- <!-- ===== 游戏类 ===== -->
+
+            <!-- ===== 游戏类 ===== -->
             <div id="games" class="projects-section">
                 <h2 class="category-title"><i class="fas fa-gamepad"></i> 游戏类项目</h2>
                 <div class="project-list">
@@ -1198,11 +1204,7 @@
                         <p>移动挡板接住小球，击碎所有砖块获胜。</p>
                         <a href="breakout-game.html"><i class="fas fa-play"></i> 开始游戏</a>
                     </div>
-                    <div class="project-item" data-name="华容道" data-url="Digital Huarong Road.html">
-                        <h3>数字华容道</h3>
-                        <p>移动数字方块，按顺序排列完成挑战。</p>
-                        <a href="Digital Huarong Road.html"><i class="fas fa-play"></i> 开始游戏</a>
-                    </div>
+                    <!-- 删掉了旧的数字华容道（Digital Huarong Road.html） -->
                     <div class="project-item" data-name="数字华容道" data-url="number-puzzle.html">
                         <h3>🧩 数字华容道</h3>
                         <p>4×4 滑块拼图，按顺序排列数字，考验你的逻辑思维。</p>
@@ -1517,7 +1519,7 @@
             // ============================================================
             var mysteryBtn = document.getElementById('mysteryBtn');
             var mysteryOverlay = document.getElementById('mysteryOverlay');
-            var mysteryCloseBtn = document.getElementById('mysteryCloseBtn');
+            var mysteryBackBtn = document.getElementById('mysteryBackBtn');
             var mysteryIframe = document.getElementById('mysteryIframe');
             var loadingTip = document.getElementById('loadingTip');
             var isMysteryOpen = false;
@@ -1530,11 +1532,9 @@
                 mysteryOverlay.classList.add('active');
                 document.body.style.overflow = 'hidden';
 
-                // iframe 加载完成后隐藏 loading
                 mysteryIframe.onload = function() {
                     loadingTip.style.display = 'none';
                 };
-                // 3秒后无论是否加载完成都隐藏 loading（防止卡死）
                 setTimeout(function() {
                     loadingTip.style.display = 'none';
                 }, 4000);
@@ -1551,14 +1551,7 @@
             }
 
             mysteryBtn.addEventListener('click', openMystery);
-            mysteryCloseBtn.addEventListener('click', closeMystery);
-
-            // 点击遮罩背景关闭（点击模态框本身不关闭）
-            mysteryOverlay.addEventListener('click', function(e) {
-                if (e.target === this) {
-                    closeMystery();
-                }
-            });
+            mysteryBackBtn.addEventListener('click', closeMystery);
 
             // ESC 键关闭
             document.addEventListener('keydown', function(e) {
