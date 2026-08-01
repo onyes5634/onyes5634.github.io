@@ -468,30 +468,7 @@
             grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
             gap: 16px;
             margin-top: 16px;
-            min-height: 200px;
         }
-        
-        /* ===== 加载更多 ===== */
-        .load-more-trigger {
-            text-align: center;
-            padding: 20px 0;
-            color: var(--text-light);
-            font-size: 0.9rem;
-            display: none;
-        }
-        .load-more-trigger.visible { display: block; }
-        .load-more-trigger .spinner {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 2px solid var(--border-color);
-            border-top: 2px solid var(--primary);
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            vertical-align: middle;
-            margin-right: 8px;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
         
         /* ===== 卡片样式 ===== */
         .project-item {
@@ -1174,7 +1151,7 @@
                 </script>
             </div>
 
-            <div class="debug-version" id="debugVersion">v2.3.0</div>
+            <div class="debug-version" id="debugVersion">v2.4.0</div>
 
         </div><!-- .elastic-wrapper -->
     </div><!-- .container -->
@@ -1224,9 +1201,6 @@
             var ORDER_KEY = 'onyes_order';
             var favorites = JSON.parse(localStorage.getItem(FAVORITES_KEY) || '[]');
             var order = JSON.parse(localStorage.getItem(ORDER_KEY) || 'null');
-            var loadedCount = 0;
-            var BATCH_SIZE = 6;
-            var allItems = [];
             var container = document.getElementById('toolsContainer');
 
             // =============================================
@@ -1259,14 +1233,16 @@
             }
 
             function saveOrder() {
-                var ids = allItems.map(function(el) {
-                    return el.dataset.id;
+                var cards = document.querySelectorAll('.project-item');
+                var ids = [];
+                cards.forEach(function(card) {
+                    ids.push(card.dataset.id);
                 });
                 localStorage.setItem(ORDER_KEY, JSON.stringify(ids));
             }
 
             // =============================================
-            // 渲染卡片
+            // 渲染卡片（全部一次性加载）
             // =============================================
             function renderItems() {
                 var ordered = getOrderedItems();
@@ -1303,31 +1279,14 @@
                 });
 
                 container.innerHTML = html;
-                allItems = container.querySelectorAll('.project-item');
 
-                // 应用可见性（滚动加载）
-                var visibleCount = Math.min(BATCH_SIZE, allItems.length);
+                // 所有卡片一次性显示（带淡入动画）
+                var allItems = container.querySelectorAll('.project-item');
                 allItems.forEach(function(el, index) {
-                    if (index < visibleCount) {
+                    setTimeout(function() {
                         el.classList.add('visible');
-                    }
+                    }, 20 + index * 20);
                 });
-
-                // 显示加载更多触发器
-                var trigger = document.getElementById('loadMoreTrigger');
-                if (visibleCount < allItems.length) {
-                    if (!trigger) {
-                        trigger = document.createElement('div');
-                        trigger.id = 'loadMoreTrigger';
-                        trigger.className = 'load-more-trigger visible';
-                        trigger.innerHTML = '<span class="spinner"></span> 滚动加载更多...';
-                        container.appendChild(trigger);
-                    } else {
-                        trigger.classList.add('visible');
-                    }
-                } else {
-                    if (trigger) trigger.classList.remove('visible');
-                }
 
                 // 绑定事件
                 bindEvents();
@@ -1349,12 +1308,11 @@
                         } else {
                             favorites.push(id);
                             this.classList.add('favorited');
-                            // 微反馈
                             this.style.transform = 'scale(1.4)';
                             setTimeout(function() { this.style.transform = ''; }.bind(this), 300);
                         }
                         localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
-                        // 重新排序
+                        // 重新渲染
                         renderItems();
                     });
                 });
@@ -1433,52 +1391,6 @@
             }
 
             // =============================================
-            // 滚动加载更多
-            // =============================================
-            var isLoadingMore = false;
-
-            function loadMore() {
-                if (isLoadingMore) return;
-                var visible = document.querySelectorAll('.project-item.visible');
-                if (visible.length >= allItems.length) {
-                    var trigger = document.getElementById('loadMoreTrigger');
-                    if (trigger) trigger.classList.remove('visible');
-                    return;
-                }
-                isLoadingMore = true;
-                var trigger = document.getElementById('loadMoreTrigger');
-                if (trigger) trigger.innerHTML = '<span class="spinner"></span> 加载中...';
-
-                setTimeout(function() {
-                    var currentVisible = document.querySelectorAll('.project-item.visible').length;
-                    var nextBatch = Math.min(currentVisible + BATCH_SIZE, allItems.length);
-                    for (var i = currentVisible; i < nextBatch; i++) {
-                        if (allItems[i]) allItems[i].classList.add('visible');
-                    }
-                    if (nextBatch >= allItems.length) {
-                        if (trigger) trigger.classList.remove('visible');
-                    } else {
-                        if (trigger) trigger.innerHTML = '<span class="spinner"></span> 滚动加载更多...';
-                    }
-                    isLoadingMore = false;
-                }, 300);
-            }
-
-            // 滚动检测
-            var scrollTimeout;
-            window.addEventListener('scroll', function() {
-                clearTimeout(scrollTimeout);
-                scrollTimeout = setTimeout(function() {
-                    var trigger = document.getElementById('loadMoreTrigger');
-                    if (!trigger || !trigger.classList.contains('visible')) return;
-                    var rect = trigger.getBoundingClientRect();
-                    if (rect.top < window.innerHeight + 100) {
-                        loadMore();
-                    }
-                }, 100);
-            });
-
-            // =============================================
             // 快捷键面板
             // =============================================
             var shortcutsOverlay = document.getElementById('shortcutsOverlay');
@@ -1522,7 +1434,6 @@
                         filterProjects('');
                     }
                 }
-                // 按 / 聚焦搜索
                 if (e.key === '/' && !e.ctrlKey && !e.metaKey && !e.altKey) {
                     var tag = e.target.tagName;
                     if (tag !== 'INPUT' && tag !== 'TEXTAREA' && tag !== 'SELECT') {
@@ -1531,7 +1442,6 @@
                         searchInput.focus();
                     }
                 }
-                // 按 S 收藏
                 if (e.key === 's' && !e.ctrlKey && !e.metaKey && !e.altKey) {
                     var active = document.activeElement;
                     if (active && active.tagName === 'INPUT') return;
@@ -1541,7 +1451,6 @@
                         if (btn) btn.click();
                     }
                 }
-                // 按 D 切换主题
                 if (e.key === 'd' && !e.ctrlKey && !e.metaKey && !e.altKey) {
                     var tag = e.target.tagName;
                     if (tag !== 'INPUT' && tag !== 'TEXTAREA' && tag !== 'SELECT') {
@@ -1549,7 +1458,6 @@
                         navThemeToggle.click();
                     }
                 }
-                // 按 Home 回到顶部
                 if (e.key === 'Home' && !e.ctrlKey && !e.metaKey) {
                     e.preventDefault();
                     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1634,8 +1542,6 @@
             // =============================================
             // 搜索功能
             // =============================================
-            var projectSections = document.querySelectorAll('.projects-section');
-
             function filterProjects(keyword) {
                 var hasVisible = false;
                 document.querySelectorAll('.project-item').forEach(function(item) {
@@ -1657,8 +1563,7 @@
 
             // =============================================
             // 卡片回弹
-            // =============================================
-            document.querySelectorAll('.project-item').forEach(function(card) {
+            // =============================================            document.querySelectorAll('.project-item').forEach(function(card) {
                 var url = card.dataset.url;
                 if (!url) return;
                 var isAnimating = false;
