@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>进制转换</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="skin.css">
+</head>
+<body>
+<header class="app-header">
+<a class="back" href="index.html"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H109.3l105.3-105.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg> 返回主页</a>
+<h1 class="app-title">进制转换</h1>
+<button class="theme-toggle" id="themeToggle" title="切换主题" aria-label="切换主题">🌙</button>
+</header>
+<div class="app-shell">
+<div class="card">
+
+<h2 class="tool-title">进制转换（2-36 进制，支持大整数）</h2>
+<div class="col">
+<div class="row">
+<input type="text" id="num" class="grow" placeholder="输入数字">
+<select id="from">
+<option value="2">二进制 (2)</option><option value="8">八进制 (8)</option>
+<option value="10" selected>十进制 (10)</option><option value="16">十六进制 (16)</option>
+<option value="36">三十六进制 (36)</option>
+</select>
+<select id="to">
+<option value="2">二进制 (2)</option><option value="8">八进制 (8)</option>
+<option value="10">十进制 (10)</option><option value="16" selected>十六进制 (16)</option>
+<option value="36">三十六进制 (36)</option>
+</select>
+<button class="btn btn-primary" id="go">转换</button>
+</div>
+<div id="out" class="result-box">结果</div>
+</div>
+</div>
+</div>
+<script>
+
+const $ = id => document.getElementById(id);
+const DIG = '0123456789abcdefghijklmnopqrstuvwxyz';
+function parseBase(s, b) {
+  let n = 0n, neg = false;
+  let t = s.trim().toLowerCase();
+  if (t.startsWith('-')) { neg = true; t = t.slice(1); }
+  for (const ch of t) {
+    const d = DIG.indexOf(ch);
+    if (d < 0 || d >= b) throw new Error('非法字符: ' + ch);
+    n = n * BigInt(b) + BigInt(d);
+  }
+  return neg ? -n : n;
+}
+function toBase(n, b) {
+  if (n === 0n) return '0';
+  let s = '', neg = false;
+  if (n < 0n) { neg = true; n = -n; }
+  while (n > 0n) { s = DIG[Number(n % BigInt(b))] + s; n = n / BigInt(b); }
+  return (neg ? '-' : '') + s;
+}
+$('go').onclick = function () {
+  const v = $('num').value, f = +$('from').value, t = +$('to').value;
+  try {
+    const n = parseBase(v, f);
+    $('out').textContent = n + '  (十进制)\n\n' + t + ' 进制:  ' + toBase(n, t);
+    $('out').style.whiteSpace = 'pre-wrap';
+  } catch (e) { $('out').textContent = '✗ ' + e.message; }
+};
+
+</script>
+<script defer src="skin.js"></script>
+</body>
+</html>
