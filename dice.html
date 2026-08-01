@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>骰子摇一摇</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="skin.css">
+</head>
+<body>
+<header class="app-header">
+<a class="back" href="index.html"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H109.3l105.3-105.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg> 返回主页</a>
+<h1 class="app-title">骰子摇一摇</h1>
+<button class="theme-toggle" id="themeToggle" title="切换主题" aria-label="切换主题">🌙</button>
+</header>
+<div class="app-shell">
+<div class="card">
+
+<style>
+.dice-row { display:flex; gap:16px; flex-wrap:wrap; margin:18px 0; }
+.die { width:64px; height:64px; border-radius:14px; background:var(--input-bg); border:2px solid var(--input-border); display:flex; align-items:center; justify-content:center; font-size:2.2rem; user-select:none; }
+.die.rolling { animation: shake .5s; }
+@keyframes shake { 0%,100%{transform:rotate(0)} 25%{transform:rotate(-12deg)} 75%{transform:rotate(12deg)} }
+</style>
+<h2 class="tool-title">骰子摇一摇（1-6 颗）</h2>
+<div class="row">
+<select id="cnt">
+<option value="1">1 颗</option><option value="2" selected>2 颗</option>
+<option value="3">3 颗</option><option value="4">4 颗</option>
+<option value="5">5 颗</option><option value="6">6 颗</option>
+</select>
+<button class="btn btn-primary" id="roll">掷骰子</button>
+</div>
+<div class="dice-row" id="dice"></div>
+<div id="sum" class="result-box">—</div>
+</div>
+</div>
+<script>
+
+const $ = id => document.getElementById(id);
+const FACES = ['\u2680','\u2681','\u2682','\u2683','\u2684','\u2685'];
+function rollAll() {
+  const n = +$('cnt').value;
+  const box = $('dice');
+  box.innerHTML = '';
+  const vals = [];
+  for (let i = 0; i < n; i++) {
+    const v = Math.floor(Math.random() * 6) + 1;
+    vals.push(v);
+    const el = document.createElement('div');
+    el.className = 'die rolling';
+    el.textContent = FACES[v - 1];
+    box.appendChild(el);
+    setTimeout(() => el.classList.remove('rolling'), 500);
+  }
+  $('sum').textContent = '点数: ' + vals.join(' + ') + ' = ' + vals.reduce((a, b) => a + b, 0);
+}
+$('roll').onclick = rollAll;
+rollAll();
+
+</script>
+<script defer src="skin.js"></script>
+</body>
+</html>
