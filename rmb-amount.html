@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>金额大写转换</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="skin.css">
+</head>
+<body>
+<header class="app-header">
+<a class="back" href="index.html"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H109.3l105.3-105.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg> 返回主页</a>
+<h1 class="app-title">金额大写转换</h1>
+<button class="theme-toggle" id="themeToggle" title="切换主题" aria-label="切换主题">🌙</button>
+</header>
+<div class="app-shell">
+<div class="card">
+
+<h2 class="tool-title">数字 → 人民币中文大写</h2>
+<div class="col">
+<div class="row">
+<input type="number" id="n" class="grow" placeholder="例如 12345.67" min="0" step="0.01">
+<button class="btn btn-primary" id="go">转换</button>
+</div>
+<div id="out" class="result-box">输入金额后点击转换</div>
+</div>
+</div>
+</div>
+<script>
+
+const $ = id => document.getElementById(id);
+const CN = ['零','壹','贰','叁','肆','伍','陆','柒','捌','玖'];
+const U1 = ['','拾','佰','仟'];
+const U2 = ['','万','亿','万','亿'];
+function intPart(n) {
+  if (n === 0) return '零元';
+  const s = String(n);
+  let res = '', zero = false;
+  let group = 0;
+  for (let i = s.length - 1; i >= 0; i--) {
+    const pos = s.length - 1 - i;
+    const d = +s[i];
+    if (d === 0) { zero = true; }
+    else {
+      if (zero && res) res = '零' + res;
+      zero = false;
+      res = CN[d] + U1[pos % 4] + res;
+    }
+    if (pos % 4 === 3 && i > 0) {
+      if (zero) res = '零' + res;
+      res = U2[Math.floor(pos / 4)] + res;
+      zero = false;
+    }
+  }
+  return res + '元';
+}
+function decPart(frac) {
+  const j = Math.floor(frac), f = Math.round((frac - j) * 100);
+  const s = f < 10 ? '0' + f : String(f);
+  let res = '';
+  if (s[0] !== '0') res += CN[+s[0]] + '角';
+  else if (j > 0 || s[1] !== '0') res += '零';
+  if (s[1] !== '0') res += CN[+s[1]] + '分';
+  return res || '整';
+}
+$('go').onclick = function () {
+  const v = parseFloat($('n').value);
+  if (isNaN(v) || v < 0 || v > 1e11) { $('out').textContent = '✗ 请输入 0 到 1000 亿之间的金额'; return; }
+  $('out').textContent = intPart(Math.floor(v)) + decPart(v);
+};
+
+</script>
+<script defer src="skin.js"></script>
+</body>
+</html>
