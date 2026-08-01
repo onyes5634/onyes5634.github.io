@@ -7,24 +7,20 @@
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: system-ui, sans-serif;
-            background: #f0f2f5;
+                        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background: var(--section-bg);
             min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
         }
         .container {
             max-width: 480px;
             width: 100%;
-            background: #fff;
+            background: var(--bg-card);
             border-radius: 32px;
             padding: 45px 35px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.08);
             text-align: center;
-        }
+         margin: 0 auto; }
         .back-link {
             display: inline-block;
             margin-bottom: 20px;
@@ -41,7 +37,7 @@
         .mode-tabs {
             display: flex;
             gap: 8px;
-            background: #f0f2f5;
+            background: var(--section-bg);
             border-radius: 16px;
             padding: 4px;
             margin-bottom: 30px;
@@ -59,7 +55,7 @@
             color: #888;
         }
         .mode-tab.active {
-            background: #fff;
+            background: var(--bg-card);
             color: #222;
             box-shadow: 0 2px 12px rgba(0,0,0,0.06);
         }
@@ -95,7 +91,7 @@
         .controls .start:hover { background: #d35400; transform: scale(1.03); }
         .controls .start.running { background: #e74c3c; }
         .controls .start.running:hover { background: #c0392b; }
-        .controls .reset { background: #ecf0f1; color: #555; }
+        .controls .reset { background: #ecf0f1; color: var(--text-color); }
         .controls .reset:hover { background: #d5dbdb; }
         .progress-bar {
             width: 100%;
@@ -126,8 +122,14 @@
             .timer { font-size: 4rem; }
         }
     </style>
-</head>
+    <link rel="stylesheet" href="skin.css">
+
 <body>
+    <header class="app-header">
+        <a class="back" href="index.html"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H109.3l105.3-105.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg> 返回主页</a>
+        <h1 class="app-title">番茄时钟</h1>
+        <button class="theme-toggle" id="themeToggle" title="切换主题" aria-label="切换主题">🌙</button>
+    </header>
     <div class="container">
         <a href="/" class="back-link"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H109.3l105.3-105.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg> 返回首页</a>
         <div class="header">
