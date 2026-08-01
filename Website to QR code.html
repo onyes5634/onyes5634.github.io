@@ -1,22 +1,309 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
-    <title>二维码生成器</title>
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>二维码生成器 - Onyes 的小站</title>
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js">
+    </script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background: #f0f2f5;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+        .container {
+            max-width: 520px;
+            width: 100%;
+            background: #fff;
+            border-radius: 24px;
+            padding: 35px 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+            height: fit-content;
+        }
+        .back-link { display: inline-block; margin-bottom: 16px; color: #3498db; text-decoration: none; font-size: 0.95rem; }
+        .back-link:hover { text-decoration: underline; }
+        .header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+        .header h1 { font-size: 1.8rem; font-weight: 700; color: #222; }
+        .header i { font-size: 2rem; color: #3498db; }
+        .input-group {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .input-group input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 14px;
+            font-size: 1rem;
+            outline: none;
+            transition: 0.2s;
+        }
+        .input-group input:focus { border-color: #3498db; }
+        .input-group button {
+            padding: 12px 24px;
+            background: #3498db;
+            color: #fff;
+            border: none;
+            border-radius: 14px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            white-space: nowrap;
+        }
+        .input-group button:hover { background: #2980b9; transform: scale(1.02); }
+        .input-group button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .qr-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 200px;
+            background: #fafbfc;
+            border-radius: 16px;
+            border: 2px dashed #e0e0e0;
+            margin-top: 10px;
+            padding: 20px;
+            transition: 0.2s;
+        }
+        .qr-wrapper.has-qr { border-style: solid; border-color: #3498db; }
+        .qr-wrapper canvas, .qr-wrapper img {
+            max-width: 100%;
+            max-height: 280px;
+            border-radius: 8px;
+        }
+        .qr-placeholder {
+            color: #aaa;
+            font-size: 0.95rem;
+            text-align: center;
+        }
+        .qr-placeholder i { font-size: 3rem; display: block; margin-bottom: 12px; color: #ddd; }
+        .error-msg {
+            color: #ef4444;
+            font-size: 0.9rem;
+            margin-top: 8px;
+            min-height: 24px;
+        }
+        .download-area {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+            flex-wrap: wrap;
+        }
+        .download-area button {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            min-width: 80px;
+        }
+        .download-area .download-png { background: #22c55e; color: #fff; }
+        .download-area .download-png:hover { background: #16a34a; }
+        .download-area .download-svg { background: #8b5cf6; color: #fff; }
+        .download-area .download-svg:hover { background: #7c3aed; }
+        .download-area button:disabled { opacity: 0.4; cursor: not-allowed; }
+        .presets {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+        .presets button {
+            padding: 4px 14px;
+            border: 1px solid #e0e0e0;
+            border-radius: 20px;
+            background: transparent;
+            color: #666;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .presets button:hover { border-color: #3498db; color: #3498db; }
+        @media (max-width: 480px) {
+            .container { padding: 20px 16px; }
+            .input-group { flex-wrap: wrap; }
+            .input-group button { width: 100%; }
+        }
+    </style>
 </head>
 <body>
-    <input type="text" id="text" placeholder="输入内容生成二维码" style="width:80%;padding:8px;margin:10px;">
-    <button onclick="generateQR()">生成二维码</button>
-    <div id="qrcode" style="margin-top:20px;"></div>
+    <div class="container">
+        <a href="/" class="back-link"><i class="fas fa-arrow-left"></i> 返回首页</a>
+
+        <div class="header">
+            <i class="fas fa-qrcode"></i>
+            <h1>二维码生成器</h1>
+        </div>
+
+        <div class="input-group">
+            <input type="text" id="qrInput" placeholder="输入文本或网址..." autofocus>
+            <button id="generateBtn"><i class="fas fa-arrow-right"></i> 生成</button>
+        </div>
+
+        <div class="presets">
+            <button data-text="https://onyes5634.github.io/">🌐 我的网站</button>
+            <button data-text="https://github.com/onyes5634">🐙 GitHub</button>
+            <button data-text="Hello, World!">📝 Hello World</button>
+        </div>
+
+        <div class="qr-wrapper" id="qrWrapper">
+            <div class="qr-placeholder" id="qrPlaceholder">
+                <i class="fas fa-qrcode"></i>
+                输入内容后点击「生成」
+            </div>
+            <div id="qrContainer" style="display:none;"></div>
+        </div>
+
+        <div class="error-msg" id="errorMsg"></div>
+
+        <div class="download-area">
+            <button class="download-png" id="downloadPng" disabled><i class="fas fa-image"></i> 下载 PNG</button>
+            <button class="download-svg" id="downloadSvg" disabled><i class="fas fa-code"></i> 下载 SVG</button>
+        </div>
+    </div>
 
     <script>
-        function generateQR() {
-            const text = document.getElementById('text').value;
-            QRCode.toCanvas(document.getElementById('qrcode'), text, (error) => {
-                if (error) console.error(error)
+        (function() {
+            var input = document.getElementById('qrInput');
+            var generateBtn = document.getElementById('generateBtn');
+            var qrWrapper = document.getElementById('qrWrapper');
+            var qrContainer = document.getElementById('qrContainer');
+            var placeholder = document.getElementById('qrPlaceholder');
+            var errorMsg = document.getElementById('errorMsg');
+            var downloadPng = document.getElementById('downloadPng');
+            var downloadSvg = document.getElementById('downloadSvg');
+            var presetBtns = document.querySelectorAll('.presets button');
+
+            var currentCanvas = null;
+            var currentText = '';
+
+            function generateQR(text) {
+                // 清空旧内容
+                qrContainer.innerHTML = '';
+                qrContainer.style.display = 'none';
+                placeholder.style.display = 'block';
+                errorMsg.textContent = '';
+                downloadPng.disabled = true;
+                downloadSvg.disabled = true;
+                currentCanvas = null;
+
+                text = text.trim();
+                if (!text) {
+                    errorMsg.textContent = '⚠️ 请输入内容';
+                    qrWrapper.classList.remove('has-qr');
+                    return;
+                }
+
+                // 检查 QRCode 库是否加载
+                if (typeof QRCode === 'undefined') {
+                    errorMsg.textContent = '⚠️ 二维码库加载中，请稍后重试';
+                    return;
+                }
+
+                try {
+                    // 创建 canvas 元素
+                    var canvas = document.createElement('canvas');
+                    qrContainer.appendChild(canvas);
+                    qrContainer.style.display = 'block';
+                    placeholder.style.display = 'none';
+                    qrWrapper.classList.add('has-qr');
+
+                    // 生成二维码
+                    QRCode.toCanvas(canvas, text, {
+                        width: 280,
+                        margin: 2,
+                        color: {
+                            dark: '#1e293b',
+                            light: '#ffffff'
+                        }
+                    }, function(error) {
+                        if (error) {
+                            errorMsg.textContent = '⚠️ 生成失败: ' + error.message;
+                            qrContainer.style.display = 'none';
+                            placeholder.style.display = 'block';
+                            qrWrapper.classList.remove('has-qr');
+                            return;
+                        }
+                        currentCanvas = canvas;
+                        currentText = text;
+                        downloadPng.disabled = false;
+                        downloadSvg.disabled = false;
+                        errorMsg.textContent = '✅ 生成成功！点击下方按钮下载';
+                    });
+                } catch (e) {
+                    errorMsg.textContent = '⚠️ 生成失败: ' + e.message;
+                }
+            }
+
+            function downloadPNG() {
+                if (!currentCanvas) return;
+                var link = document.createElement('a');
+                link.download = 'qrcode.png';
+                link.href = currentCanvas.toDataURL('image/png');
+                link.click();
+            }
+
+            function downloadSVG() {
+                if (!currentCanvas) return;
+                // 从 canvas 导出 SVG（利用 QRCode 库的 toDataURL 不支持 SVG，用 canvas 转）
+                try {
+                    var svgData = currentCanvas.toDataURL('image/svg+xml');
+                    // 部分浏览器不支持 SVG 导出，用 PNG 替代
+                    if (!svgData || svgData.indexOf('svg') === -1) {
+                        // 降级：下载 PNG
+                        downloadPNG();
+                        return;
+                    }
+                    var link = document.createElement('a');
+                    link.download = 'qrcode.svg';
+                    link.href = svgData;
+                    link.click();
+                } catch (e) {
+                    // 降级：下载 PNG
+                    downloadPNG();
+                }
+            }
+
+            // ===== 事件绑定 =====
+            generateBtn.addEventListener('click', function() {
+                generateQR(input.value);
             });
-        }
+
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    generateQR(input.value);
+                }
+            });
+
+            // 预设按钮
+            presetBtns.forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    var text = this.dataset.text;
+                    input.value = text;
+                    generateQR(text);
+                });
+            });
+
+            downloadPng.addEventListener('click', downloadPNG);
+            downloadSvg.addEventListener('click', downloadSVG);
+
+            // 自动生成（页面加载后如果有默认值）
+            if (input.value) {
+                setTimeout(function() { generateQR(input.value); }, 500);
+            }
+
+        })();
     </script>
 </body>
 </html>
