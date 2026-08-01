@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>计算器 - Onyes 的小站</title>
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: system-ui, sans-serif;
+            background: #f0f2f5;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+        .container {
+            max-width: 380px;
+            width: 100%;
+            background: #fff;
+            border-radius: 24px;
+            padding: 30px 25px 35px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+            height: fit-content;
+        }
+        .back-link { display: inline-block; margin-bottom: 16px; color: #3498db; text-decoration: none; font-size: 0.95rem; }
+        .back-link:hover { text-decoration: underline; }
+        .header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+        .header h1 { font-size: 1.8rem; font-weight: 700; color: #222; }
+        .header i { font-size: 2rem; color: #2c3e50; }
+        .display {
+            background: #f8f9fb;
+            border-radius: 16px;
+            padding: 20px 24px;
+            margin-bottom: 20px;
+            text-align: right;
+            min-height: 90px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+        }
+        .display .expression {
+            font-size: 1.1rem;
+            color: #888;
+            min-height: 28px;
+            word-break: break-all;
+        }
+        .display .result {
+            font-size: 2.6rem;
+            font-weight: 700;
+            color: #222;
+            font-family: monospace;
+            transition: font-size 0.2s;
+        }
+        .display .result.small { font-size: 2rem; }
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+        .buttons button {
+            padding: 18px 0;
+            border: none;
+            border-radius: 14px;
+            font-size: 1.3rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.15s;
+            background: #f0f2f5;
+            color: #222;
+        }
+        .buttons button:hover { background: #e4e7ec; transform: scale(0.96); }
+        .buttons button:active { transform: scale(0.92); }
+        .buttons .op { background: #e8edf4; color: #3498db; }
+        .buttons .op:hover { background: #d5dde8; }
+        .buttons .eq { background: #3498db; color: #fff; }
+        .buttons .eq:hover { background: #2980b9; }
+        .buttons .clear { background: #fee8e8; color: #e74c3c; }
+        .buttons .clear:hover { background: #fdd5d5; }
+        .buttons .span2 { grid-column: span 2; }
+        @media (max-width: 480px) {
+            .container { padding: 20px 16px 25px; }
+            .buttons button { padding: 16px 0; font-size: 1.2rem; }
+            .display .result { font-size: 2.2rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-link"><i class="fas fa-arrow-left"></i> 返回首页</a>
+        <div class="header">
+            <i class="fas fa-calculator"></i>
+            <h1>计算器</h1>
+        </div>
+
+        <div class="display">
+            <div class="expression" id="expression"></div>
+            <div class="result" id="result">0</div>
+        </div>
+
+        <div class="buttons">
+            <button class="clear" data-action="clear">C</button>
+            <button class="op" data-action="sign">±</button>
+            <button class="op" data-action="percent">%</button>
+            <button class="op" data-action="÷">÷</button>
+            <button data-action="7">7</button>
+            <button data-action="8">8</button>
+            <button data-action="9">9</button>
+            <button class="op" data-action="×">×</button>
+            <button data-action="4">4</button>
+            <button data-action="5">5</button>
+            <button data-action="6">6</button>
+            <button class="op" data-action="−">−</button>
+            <button data-action="1">1</button>
+            <button data-action="2">2</button>
+            <button data-action="3">3</button>
+            <button class="op" data-action="+">+</button>
+            <button class="span2" data-action="0">0</button>
+            <button data-action=".">.</button>
+            <button class="eq" data-action="=">=</button>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            var display = document.getElementById('result');
+            var expression = document.getElementById('expression');
+            var currentInput = '0';
+            var previousInput = '';
+            var operator = null;
+            var shouldReset = false;
+
+            function updateDisplay() {
+                var val = currentInput;
+                if (val.length > 12) {
+                    display.classList.add('small');
+                } else {
+                    display.classList.remove('small');
+                }
+                display.textContent = val;
+            }
+
+            function updateExpression() {
+                if (operator && previousInput) {
+                    expression.textContent = previousInput + ' ' + operator + ' ' + currentInput;
+                } else if (previousInput && !operator) {
+                    expression.textContent = previousInput;
+                } else {
+                    expression.textContent = '';
+                }
+            }
+
+            function inputDigit(digit) {
+                if (shouldReset) {
+                    currentInput = digit;
+                    shouldReset = false;
+                } else {
+                    if (currentInput === '0' && digit !== '.') {
+                        currentInput = digit;
+                    } else {
+                        if (currentInput.replace('-','').length >= 15) return;
+                        currentInput += digit;
+                    }
+                }
+                updateDisplay();
+                updateExpression();
+            }
+
+            function inputDecimal() {
+                if (shouldReset) {
+                    currentInput = '0.';
+                    shouldReset = false;
+                    updateDisplay();
+                    updateExpression();
+                    return;
+                }
+                if (!currentInput.includes('.')) {
+                    currentInput += '.';
+                }
+                updateDisplay();
+                updateExpression();
+            }
+
+            function inputOperator(op) {
+                if (operator && !shouldReset) {
+                    calculate();
+                }
+                previousInput = currentInput;
+                operator = op;
+                shouldReset = true;
+                updateExpression();
+            }
+
+            function calculate() {
+                if (!operator || !previousInput) return;
+                var a = parseFloat(previousInput);
+                var b = parseFloat(currentInput);
+                if (isNaN(a) || isNaN(b)) return;
+                var result;
+                switch(operator) {
+                    case '+': result = a + b; break;
+                    case '−': result = a - b; break;
+                    case '×': result = a * b; break;
+                    case '÷': result = b !== 0 ? a / b : 'Error'; break;
+                    default: return;
+                }
+                if (result === 'Error') {
+                    currentInput = 'Error';
+                } else {
+                    result = Math.round(result * 1000000000000) / 1000000000000;
+                    currentInput = String(result);
+                }
+                previousInput = '';
+                operator = null;
+                shouldReset = true;
+                updateDisplay();
+                expression.textContent = '';
+            }
+
+            function clearAll() {
+                currentInput = '0';
+                previousInput = '';
+                operator = null;
+                shouldReset = false;
+                updateDisplay();
+                expression.textContent = '';
+            }
+
+            function toggleSign() {
+                if (currentInput === '0') return;
+                if (currentInput.startsWith('-')) {
+                    currentInput = currentInput.slice(1);
+                } else {
+                    currentInput = '-' + currentInput;
+                }
+                updateDisplay();
+                updateExpression();
+            }
+
+            function percent() {
+                var val = parseFloat(currentInput);
+                if (isNaN(val)) return;
+                currentInput = String(val / 100);
+                updateDisplay();
+                updateExpression();
+            }
+
+            document.querySelectorAll('.buttons button').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    var action = this.dataset.action;
+                    if (!action) return;
+                    if (action >= '0' && action <= '9') {
+                        inputDigit(action);
+                    } else if (action === '.') {
+                        inputDecimal();
+                    } else if (['+', '−', '×', '÷'].includes(action)) {
+                        inputOperator(action);
+                    } else if (action === '=') {
+                        calculate();
+                    } else if (action === 'clear') {
+                        clearAll();
+                    } else if (action === 'sign') {
+                        toggleSign();
+                    } else if (action === 'percent') {
+                        percent();
+                    }
+                });
+            });
+
+            // 键盘支持
+            document.addEventListener('keydown', function(e) {
+                if (e.key >= '0' && e.key <= '9') { inputDigit(e.key); e.preventDefault(); }
+                else if (e.key === '.') { inputDecimal(); e.preventDefault(); }
+                else if (e.key === '+') { inputOperator('+'); e.preventDefault(); }
+                else if (e.key === '-') { inputOperator('−'); e.preventDefault(); }
+                else if (e.key === '*') { inputOperator('×'); e.preventDefault(); }
+                else if (e.key === '/') { e.preventDefault(); inputOperator('÷'); }
+                else if (e.key === 'Enter' || e.key === '=') { calculate(); e.preventDefault(); }
+                else if (e.key === 'Escape' || e.key === 'c' || e.key === 'C') { clearAll(); e.preventDefault(); }
+                else if (e.key === '%') { percent(); e.preventDefault(); }
+            });
+
+            updateDisplay();
+        })();
+    </script>
+</body>
+</html>

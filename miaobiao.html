@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>秒表 - Onyes 的小站</title>
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: system-ui, sans-serif;
+            background: #f0f2f5;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+        .container {
+            max-width: 480px;
+            width: 100%;
+            background: #fff;
+            border-radius: 24px;
+            padding: 40px 35px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+            height: fit-content;
+        }
+        .back-link { display: inline-block; margin-bottom: 20px; color: #3498db; text-decoration: none; font-size: 0.95rem; }
+        .back-link:hover { text-decoration: underline; }
+        .header { display: flex; align-items: center; gap: 12px; margin-bottom: 25px; }
+        .header h1 { font-size: 1.8rem; font-weight: 700; color: #222; }
+        .header i { font-size: 2rem; color: #2ecc71; }
+        .display {
+            text-align: center;
+            padding: 25px 0 15px;
+        }
+        .display .time {
+            font-size: 4.8rem;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+            color: #222;
+            letter-spacing: 2px;
+            font-family: monospace;
+        }
+        .display .millis {
+            font-size: 2rem;
+            font-weight: 400;
+            color: #888;
+            font-family: monospace;
+        }
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin: 20px 0 25px;
+        }
+        .controls button {
+            padding: 14px 32px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.05rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .controls .start { background: #2ecc71; color: #fff; }
+        .controls .start:hover { background: #27ae60; transform: scale(1.03); }
+        .controls .start.running { background: #e74c3c; }
+        .controls .start.running:hover { background: #c0392b; }
+        .controls .reset { background: #ecf0f1; color: #555; }
+        .controls .reset:hover { background: #d5dbdb; }
+        .controls .reset:disabled { opacity: 0.4; cursor: not-allowed; }
+        .laps {
+            max-height: 200px;
+            overflow-y: auto;
+            border-top: 1px solid #eee;
+            padding-top: 15px;
+        }
+        .laps .lap-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 4px;
+            font-size: 0.95rem;
+            color: #555;
+            border-bottom: 1px solid #f5f5f5;
+        }
+        .laps .lap-item .num { font-weight: 600; color: #888; }
+        .laps .lap-item .time { font-family: monospace; }
+        .laps .empty { text-align: center; color: #bbb; padding: 15px 0; font-size: 0.9rem; }
+        @media (max-width: 480px) {
+            .container { padding: 25px 18px; }
+            .display .time { font-size: 3.6rem; }
+            .display .millis { font-size: 1.6rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-link"><i class="fas fa-arrow-left"></i> 返回首页</a>
+        <div class="header">
+            <i class="fas fa-stopwatch"></i>
+            <h1>秒表</h1>
+        </div>
+
+        <div class="display">
+            <div>
+                <span class="time" id="displayTime">00:00:00</span>
+                <span class="millis" id="displayMillis">.00</span>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="start" id="startBtn"><i class="fas fa-play"></i> 开始</button>
+            <button class="reset" id="lapBtn" disabled><i class="fas fa-flag"></i> 计次</button>
+            <button class="reset" id="resetBtn" disabled><i class="fas fa-rotate-right"></i> 重置</button>
+        </div>
+
+        <div class="laps" id="lapsContainer">
+            <div class="empty">⏱️ 点击「计次」记录每圈时间</div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            var startTime = 0;
+            var elapsed = 0;
+            var timerId = null;
+            var isRunning = false;
+            var lapCount = 0;
+            var laps = [];
+
+            var displayTime = document.getElementById('displayTime');
+            var displayMillis = document.getElementById('displayMillis');
+            var startBtn = document.getElementById('startBtn');
+            var lapBtn = document.getElementById('lapBtn');
+            var resetBtn = document.getElementById('resetBtn');
+            var lapsContainer = document.getElementById('lapsContainer');
+
+            function formatTime(ms) {
+                var totalSec = Math.floor(ms / 1000);
+                var hours = Math.floor(totalSec / 3600);
+                var mins = Math.floor((totalSec % 3600) / 60);
+                var secs = totalSec % 60;
+                var millis = Math.floor((ms % 1000) / 10);
+                return {
+                    h: String(hours).padStart(2,'0'),
+                    m: String(mins).padStart(2,'0'),
+                    s: String(secs).padStart(2,'0'),
+                    ms: String(millis).padStart(2,'0')
+                };
+            }
+
+            function updateDisplay(ms) {
+                var t = formatTime(ms);
+                displayTime.textContent = t.h + ':' + t.m + ':' + t.s;
+                displayMillis.textContent = '.' + t.ms;
+            }
+
+            function updateLaps() {
+                if (laps.length === 0) {
+                    lapsContainer.innerHTML = '<div class="empty">⏱️ 点击「计次」记录每圈时间</div>';
+                    return;
+                }
+                var html = '';
+                laps.forEach(function(lap, i) {
+                    var t = formatTime(lap);
+                    html += '<div class="lap-item">' +
+                        '<span class="num">#' + (i+1) + '</span>' +
+                        '<span class="time">' + t.h + ':' + t.m + ':' + t.s + '.' + t.ms + '</span>' +
+                        '</div>';
+                });
+                lapsContainer.innerHTML = html;
+                lapsContainer.scrollTop = lapsContainer.scrollHeight;
+            }
+
+            function startTimer() {
+                if (isRunning) return;
+                startTime = Date.now() - elapsed;
+                isRunning = true;
+                timerId = setInterval(function() {
+                    var now = Date.now();
+                    elapsed = now - startTime;
+                    updateDisplay(elapsed);
+                }, 20);
+                startBtn.innerHTML = '<i class="fas fa-pause"></i> 暂停';
+                startBtn.classList.add('running');
+                lapBtn.disabled = false;
+                resetBtn.disabled = false;
+            }
+
+            function pauseTimer() {
+                if (!isRunning) return;
+                clearInterval(timerId);
+                timerId = null;
+                isRunning = false;
+                startBtn.innerHTML = '<i class="fas fa-play"></i> 继续';
+                startBtn.classList.remove('running');
+            }
+
+            function resetTimer() {
+                clearInterval(timerId);
+                timerId = null;
+                isRunning = false;
+                elapsed = 0;
+                lapCount = 0;
+                laps = [];
+                updateDisplay(0);
+                startBtn.innerHTML = '<i class="fas fa-play"></i> 开始';
+                startBtn.classList.remove('running');
+                lapBtn.disabled = true;
+                resetBtn.disabled = true;
+                updateLaps();
+            }
+
+            function addLap() {
+                if (!isRunning) return;
+                lapCount++;
+                laps.push(elapsed);
+                updateLaps();
+            }
+
+            startBtn.addEventListener('click', function() {
+                if (isRunning) {
+                    pauseTimer();
+                } else {
+                    startTimer();
+                }
+            });
+
+            lapBtn.addEventListener('click', addLap);
+
+            resetBtn.addEventListener('click', resetTimer);
+
+            updateDisplay(0);
+            updateLaps();
+        })();
+    </script>
+</body>
+</html>
