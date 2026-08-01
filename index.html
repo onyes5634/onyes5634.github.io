@@ -80,6 +80,7 @@
             background: var(--bg-body);
             transition: background 0.3s ease, color 0.3s ease;
             cursor: default;
+            -webkit-text-size-adjust: 100%;
         }
         a, button, .project-item, .category-link, .tag, .social-link, .theme-toggle, .search-toggle {
             cursor: pointer;
@@ -664,28 +665,187 @@
         
         /* ===== 响应式 ===== */
         @media (max-width: 768px) {
-            .container { padding: 24px 16px; }
-            .site-title { font-size: 2.4rem; }
-            .subtitle-item { font-size: 1rem; }
-            .intro { padding: 20px 18px; }
-            .intro p { font-size: 1rem; }
-            .profile-pic { width: 110px; height: 110px; }
-            .project-list { grid-template-columns: 1fr; }
-            .category-nav { gap: 10px; }
-            .category-link { padding: 8px 14px; font-size: 0.85rem; }
-            .top-bar { justify-content: center; }
-            .back-to-top { bottom: 20px; right: 20px; width: 44px; height: 44px; font-size: 1.2rem; }
-            .projects-section, .contact-section { padding: 20px 16px; }
-            .social-link { width: 48px; height: 48px; font-size: 1.5rem; }
-            .search-suggestions .suggestion-item { padding: 8px 16px; font-size: 0.9rem; }
+            .container { 
+                padding: 20px 14px; 
+            }
+            .site-title { 
+                font-size: 2.0rem; 
+            }
+            .subtitle-item { 
+                font-size: 0.9rem; 
+            }
+            .intro { 
+                padding: 16px 14px; 
+            }
+            .intro p { 
+                font-size: 0.95rem; 
+            }
+            .profile-pic { 
+                width: 100px; 
+                height: 100px; 
+            }
+            .project-list { 
+                grid-template-columns: 1fr; 
+                gap: 12px;
+            }
+            .project-item {
+                padding: 16px 18px;
+            }
+            .project-item h3 {
+                font-size: 1.05rem;
+            }
+            .project-item p {
+                font-size: 0.9rem;
+            }
+            .category-nav { 
+                gap: 8px; 
+            }
+            .category-link { 
+                padding: 6px 14px; 
+                font-size: 0.8rem; 
+            }
+            .top-bar { 
+                justify-content: center; 
+                gap: 8px;
+            }
+            .theme-toggle, .search-toggle {
+                padding: 6px 12px;
+                font-size: 0.8rem;
+            }
+            .back-to-top { 
+                bottom: 20px; 
+                right: 20px; 
+                width: 44px; 
+                height: 44px; 
+                font-size: 1.2rem; 
+            }
+            .projects-section, .contact-section { 
+                padding: 16px 14px; 
+                margin: 20px 0;
+            }
+            .social-link { 
+                width: 44px; 
+                height: 44px; 
+                font-size: 1.3rem; 
+            }
+            .social-links {
+                gap: 16px;
+            }
+            .category-title {
+                font-size: 1.2rem;
+            }
+            .search-box input {
+                font-size: 0.95rem;
+                padding: 10px 16px;
+            }
+            .search-suggestions .suggestion-item {
+                padding: 8px 14px;
+                font-size: 0.85rem;
+            }
+            .debug-version {
+                font-size: 0.6rem;
+            }
         }
+
         @media (max-width: 480px) {
-            .container { padding: 16px 12px; }
-            .site-title { font-size: 1.8rem; }
-            .subtitle-wrap { gap: 4px; }
-            .subtitle-item { font-size: 0.85rem; }
-            .intro p { font-size: 0.95rem; }
-            .profile-pic { width: 90px; height: 90px; }
+            .container { 
+                padding: 14px 10px; 
+            }
+            .site-title { 
+                font-size: 1.6rem; 
+            }
+            .subtitle-wrap { 
+                gap: 4px; 
+            }
+            .subtitle-item { 
+                font-size: 0.8rem; 
+            }
+            .subtitle-wrap .line {
+                font-size: 0.6rem;
+            }
+            .intro p { 
+                font-size: 0.9rem; 
+            }
+            .profile-pic { 
+                width: 80px; 
+                height: 80px; 
+                margin-bottom: 16px;
+            }
+            .profile-pic .fallback {
+                font-size: 2.5rem;
+            }
+            .project-item {
+                padding: 14px 14px;
+            }
+            .project-item h3 {
+                font-size: 0.95rem;
+            }
+            .project-item p {
+                font-size: 0.85rem;
+                margin-bottom: 10px;
+            }
+            .project-item a {
+                font-size: 0.85rem;
+            }
+            .category-link { 
+                padding: 5px 10px; 
+                font-size: 0.75rem; 
+            }
+            .theme-toggle, .search-toggle {
+                padding: 4px 10px;
+                font-size: 0.7rem;
+            }
+            .social-link { 
+                width: 38px; 
+                height: 38px; 
+                font-size: 1.1rem; 
+            }
+            .social-links {
+                gap: 12px;
+            }
+            .contact-title {
+                font-size: 1.1rem;
+            }
+            .contact-info {
+                font-size: 0.9rem;
+            }
+            .tag {
+                font-size: 0.75rem;
+                padding: 4px 12px;
+            }
+            .tags {
+                gap: 6px;
+            }
+            .projects-section, .contact-section { 
+                padding: 12px 10px; 
+                margin: 14px 0;
+            }
+            .category-title {
+                font-size: 1.0rem;
+                margin-bottom: 12px;
+            }
+            .back-to-top { 
+                bottom: 14px; 
+                right: 14px; 
+                width: 38px; 
+                height: 38px; 
+                font-size: 1rem; 
+            }
+            footer {
+                font-size: 0.75rem;
+                margin-top: 30px;
+                padding-top: 14px;
+            }
+            .visitor-count {
+                font-size: 0.75rem;
+            }
+            .visitor-count span {
+                padding: 1px 12px;
+            }
+            .debug-version {
+                font-size: 0.5rem;
+                margin-top: 16px;
+            }
         }
     </style>
 </head>
@@ -765,8 +925,17 @@
                         <p>热门数字拼图游戏，方向键移动，相同数字合并。</p>
                         <a href="2048.html"><i class="fas fa-play"></i> 开始游戏</a>
                     </div>
-                  
-                      <div class="project-item" data-name="数字华容道" data-url="number-puzzle.html">
+                    <div class="project-item" data-name="打砖块" data-url="breakout-game.html">
+                        <h3>打砖块游戏</h3>
+                        <p>移动挡板接住小球，击碎所有砖块获胜。</p>
+                        <a href="breakout-game.html"><i class="fas fa-play"></i> 开始游戏</a>
+                    </div>
+                    <div class="project-item" data-name="华容道" data-url="Digital Huarong Road.html">
+                        <h3>数字华容道</h3>
+                        <p>移动数字方块，按顺序排列完成挑战。</p>
+                        <a href="Digital Huarong Road.html"><i class="fas fa-play"></i> 开始游戏</a>
+                    </div>
+                    <div class="project-item" data-name="数字华容道" data-url="number-puzzle.html">
                         <h3>🧩 数字华容道</h3>
                         <p>4×4 滑块拼图，按顺序排列数字，考验你的逻辑思维。</p>
                         <a href="number-puzzle.html"><i class="fas fa-play"></i> 开始游戏</a>
@@ -775,6 +944,11 @@
                         <h3>🔨 打地鼠</h3>
                         <p>30秒限时挑战，看看你的反应速度有多快！</p>
                         <a href="whack-mole.html"><i class="fas fa-play"></i> 开始游戏</a>
+                    </div>
+                    <div class="project-item" data-name="拼图游戏" data-url="jigsaw-puzzle.html">
+                        <h3>🧩 拼图游戏</h3>
+                        <p>3×3 数字拼图，用最少的步数完成挑战。</p>
+                        <a href="jigsaw-puzzle.html"><i class="fas fa-play"></i> 开始游戏</a>
                     </div>
                 </div>
             </div>
@@ -798,6 +972,11 @@
                         <p>实时将Markdown格式文本转换为HTML预览。</p>
                         <a href="Markdown Preview.html"><i class="fas fa-markdown"></i> 使用工具</a>
                     </div>
+                    <div class="project-item" data-name="Base64" data-url="image-to-base64.html">
+                        <h3>图片转Base64</h3>
+                        <p>上传图片文件，转换为Base64编码。</p>
+                        <a href="image-to-base64.html"><i class="fas fa-image"></i> 使用工具</a>
+                    </div>
                     <div class="project-item" data-name="密码" data-url="Random Password Generator.html">
                         <h3>随机密码生成器</h3>
                         <p>生成高强度随机密码，含大小写字母、数字、特殊符号。</p>
@@ -818,7 +997,7 @@
                         <p>长度、重量、温度、体积快速换算。</p>
                         <a href="unit-convert.html"><i class="fas fa-arrows-left-right"></i> 使用工具</a>
                     </div>
-                                        <div class="project-item" data-name="倒计时器" data-url="countdown.html">
+                    <div class="project-item" data-name="倒计时器" data-url="countdown.html">
                         <h3>⏳ 倒计时器</h3>
                         <p>设置目标时间，实时倒计时，支持暂停和预设时长。</p>
                         <a href="countdown.html"><i class="fas fa-hourglass-half"></i> 使用工具</a>
@@ -828,15 +1007,10 @@
                         <p>精确计时，支持计次记录，适合运动训练和测试。</p>
                         <a href="miaobiao.html"><i class="fas fa-stopwatch"></i> 使用工具</a>
                     </div>
-                   <div class="project-item" data-name="计算器" data-url="jisuanqi.html">
-                     <h3>🧮 计算器</h3>
-                    <p>基础四则运算，键盘支持，日常计算好帮手。</p>
-                    <a href="jisuanqi.html"><i class="fas fa-calculator"></i> 使用工具</a>
-                    </div>
-                    <div class="project-item" data-name="拼图游戏" data-url="jigsaw-puzzle.html">
-                        <h3>🖼️ 拼图游戏</h3>
-                        <p>3×3 数字拼图，用最少的步数完成挑战。</p>
-                        <a href="jigsaw-puzzle.html"><i class="fas fa-image"></i> 开始游戏</a>
+                    <div class="project-item" data-name="计算器" data-url="jisuanqi.html">
+                        <h3>🧮 计算器</h3>
+                        <p>基础四则运算，键盘支持，日常计算好帮手。</p>
+                        <a href="jisuanqi.html"><i class="fas fa-calculator"></i> 使用工具</a>
                     </div>
                 </div>
             </div>
@@ -1077,12 +1251,15 @@
                 });
             });
 
-            // ===== 卡片回弹（一次回弹） =====
+            // ===== 卡片回弹（带滑动检测，防止误触） =====
             projectItems.forEach(function(card) {
                 var url = card.getAttribute('data-url');
                 if (!url) return;
 
                 var isAnimating = false;
+                var touchStartX = 0;
+                var touchStartY = 0;
+                var isSwiping = false;
 
                 function handlePress(e) {
                     if (e && e.target.closest('a')) {
@@ -1106,15 +1283,39 @@
                     }, duration + 30);
                 }
 
+                // ===== 鼠标事件 =====
                 card.addEventListener('mousedown', function(e) {
                     if (e.button !== 0) return;
                     handlePress(e);
                 });
 
+                // ===== 触摸事件（带滑动检测） =====
                 card.addEventListener('touchstart', function(e) {
+                    var touch = e.touches[0];
+                    touchStartX = touch.clientX;
+                    touchStartY = touch.clientY;
+                    isSwiping = false;
+                }, { passive: true });
+
+                card.addEventListener('touchmove', function(e) {
+                    var touch = e.touches[0];
+                    var dx = touch.clientX - touchStartX;
+                    var dy = touch.clientY - touchStartY;
+                    if (Math.abs(dx) > 10 || Math.abs(dy) > 10) {
+                        isSwiping = true;
+                    }
+                }, { passive: true });
+
+                card.addEventListener('touchend', function(e) {
+                    if (isSwiping) {
+                        touchStartX = 0;
+                        touchStartY = 0;
+                        return;
+                    }
                     handlePress(e);
                 }, { passive: true });
 
+                // ===== 阻止内部 a 标签默认行为 =====
                 card.querySelectorAll('a').forEach(function(link) {
                     link.addEventListener('click', function(e) {
                         e.preventDefault();
