@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>音波可视化 - Onyes 的小站</title>
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: system-ui, sans-serif;
+            background: #f0f2f5;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+        .container {
+            max-width: 520px;
+            width: 100%;
+            background: #fff;
+            border-radius: 24px;
+            padding: 35px 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+            height: fit-content;
+        }
+        .back-link { display: inline-block; margin-bottom: 16px; color: #3498db; text-decoration: none; font-size: 0.95rem; }
+        .back-link:hover { text-decoration: underline; }
+        .header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+        .header h1 { font-size: 1.8rem; font-weight: 700; color: #222; }
+        .header i { font-size: 2rem; color: #8b5cf6; }
+        canvas {
+            width: 100%;
+            height: 200px;
+            background: #1e293b;
+            border-radius: 16px;
+            display: block;
+        }
+        .controls {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+        }
+        .controls button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .controls .start { background: #22c55e; color: #fff; }
+        .controls .start:hover { background: #16a34a; }
+        .controls .start:disabled { opacity: 0.4; cursor: not-allowed; }
+        .controls .stop { background: #ef4444; color: #fff; }
+        .controls .stop:hover { background: #dc2626; }
+        .controls .stop:disabled { opacity: 0.4; cursor: not-allowed; }
+        .status {
+            text-align: center;
+            margin-top: 12px;
+            font-size: 0.9rem;
+            color: #888;
+            min-height: 24px;
+        }
+        .status.active { color: #22c55e; }
+        @media (max-width: 480px) {
+            .container { padding: 20px 16px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-link"><i class="fas fa-arrow-left"></i> 返回首页</a>
+        <div class="header">
+            <i class="fas fa-wave-square"></i>
+            <h1>音波可视化</h1>
+        </div>
+
+        <canvas id="canvas"></canvas>
+
+        <div class="controls">
+            <button class="start" id="startBtn"><i class="fas fa-microphone"></i> 开始</button>
+            <button class="stop" id="stopBtn" disabled><i class="fas fa-stop"></i> 停止</button>
+        </div>
+
+        <div class="status" id="statusMsg">点击「开始」授权麦克风</div>
+    </div>
+
+    <script>
+        var canvas = document.getElementById('canvas');
+        var ctx = canvas.getContext('2d');
+        var startBtn = document.getElementById('startBtn');
+        var stopBtn = document.getElementById('stopBtn');
+        var statusMsg = document.getElementById('statusMsg');
+
+        var audioContext = null;
+        var analyser = null;
+        var dataArray = null;
+        var animationId = null;
+        var source = null;
+        var stream = null;
+
+        function resizeCanvas() {
+            var rect = canvas.parentElement.getBoundingClientRect();
+            var w = canvas.clientWidth || rect.width - 0;
+            canvas.width = w * 0.9;
+            canvas.height = 200;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        function draw() {
+            if (!analyser) return;
+            analyser.getByteTimeDomainData(dataArray);
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = '#22c55e';
+            ctx.beginPath();
+
+            var sliceWidth = canvas.width / dataArray.length;
+            var x = 0;
+
+            for (var i = 0; i < dataArray.length; i++) {
+                var v = dataArray[i] / 128.0 - 1.0;
+                var y = v * (canvas.height / 2) + canvas.height / 2;
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+                x += sliceWidth;
+            }
+
+            ctx.stroke();
+
+            // 绘制底部发光
+            ctx.shadowColor = 'rgba(34, 197, 94, 0.2)';
+            ctx.shadowBlur = 20;
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+
+            animationId = requestAnimationFrame(draw);
+        }
+
+        function startVisualization() {
+            if (audioContext) return;
+
+            navigator.mediaDevices.getUserMedia({ audio: true, video: false })
+                .then(function(mediaStream) {
+                    stream = mediaStream;
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    analyser = audioContext.createAnalyser();
+                    analyser.fftSize = 256;
+                    source = audioContext.createMediaStreamSource(mediaStream);
+                    source.connect(analyser);
+                    dataArray = new Uint8Array(analyser.fftSize);
+
+                    startBtn.disabled = true;
+                    stopBtn.disabled = false;
+                    statusMsg.textContent = '🎵 正在录音...';
+                    statusMsg.className = 'status active';
+                    draw();
+                })
+                .catch(function(err) {
+                    statusMsg.textContent = '⚠️ 无法访问麦克风: ' + err.message;
+                    statusMsg.className = 'status';
+                });
+        }
+
+        function stopVisualization() {
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+                animationId = null;
+            }
+            if (audioContext) {
+                audioContext.close();
+                audioContext = null;
+            }
+            if (stream) {
+                stream.getTracks().forEach(function(track) { track.stop(); });
+                stream = null;
+            }
+            analyser = null;
+            source = null;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            startBtn.disabled = false;
+            stopBtn.disabled = true;
+            statusMsg.textContent = '⏹️ 已停止';
+            statusMsg.className = 'status';
+        }
+
+        startBtn.addEventListener('click', startVisualization);
+        stopBtn.addEventListener('click', stopVisualization);
+    </script>
+</body>
+</html>

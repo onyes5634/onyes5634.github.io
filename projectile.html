@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>抛体运动 - Onyes 的小站</title>
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: system-ui, sans-serif;
+            background: #f0f2f5;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+        .container {
+            max-width: 520px;
+            width: 100%;
+            background: #fff;
+            border-radius: 24px;
+            padding: 35px 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+            height: fit-content;
+        }
+        .back-link { display: inline-block; margin-bottom: 16px; color: #3498db; text-decoration: none; font-size: 0.95rem; }
+        .back-link:hover { text-decoration: underline; }
+        .header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+        .header h1 { font-size: 1.8rem; font-weight: 700; color: #222; }
+        .header i { font-size: 2rem; color: #8b5cf6; }
+        canvas {
+            width: 100%;
+            aspect-ratio: 1.2 / 1;
+            background: #f8f9fb;
+            border-radius: 16px;
+            border: 2px solid #e0e0e0;
+            display: block;
+            touch-action: none;
+        }
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 16px;
+        }
+        .controls label {
+            font-size: 0.85rem;
+            color: #555;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .controls input[type="range"] {
+            width: 100%;
+            height: 4px;
+            border-radius: 4px;
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+            background: #ddd;
+        }
+        .controls input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #8b5cf6;
+            cursor: pointer;
+        }
+        .controls .val { font-weight: 600; color: #222; }
+        .btn-row {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+        }
+        .btn-row button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-row .fire { background: #8b5cf6; color: #fff; }
+        .btn-row .fire:hover { background: #7c3aed; }
+        .btn-row .fire:disabled { opacity: 0.4; cursor: not-allowed; }
+        .btn-row .reset { background: #e2e8f0; color: #333; }
+        .btn-row .reset:hover { background: #cbd5e1; }
+        .info {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 12px;
+            font-size: 0.85rem;
+            color: #888;
+            padding: 10px 14px;
+            background: #f8f9fb;
+            border-radius: 12px;
+        }
+        .info span { font-weight: 600; color: #222; }
+        @media (max-width: 480px) {
+            .container { padding: 20px 16px; }
+            .controls { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-link"><i class="fas fa-arrow-left"></i> 返回首页</a>
+        <div class="header">
+            <i class="fas fa-rocket"></i>
+            <h1>抛体运动</h1>
+        </div>
+
+        <canvas id="canvas"></canvas>
+
+        <div class="controls">
+            <label>角度 <span class="val" id="angleVal">45°</span>
+                <input type="range" id="angleSlider" min="10" max="80" value="45">
+            </label>
+            <label>初速度 <span class="val" id="speedVal">50</span>
+                <input type="range" id="speedSlider" min="20" max="100" value="50">
+            </label>
+        </div>
+
+        <div class="btn-row">
+            <button class="fire" id="fireBtn"><i class="fas fa-play"></i> 发射</button>
+            <button class="reset" id="resetBtn"><i class="fas fa-undo"></i> 重置</button>
+        </div>
+
+        <div class="info">
+            <div>水平距离 <span id="distDisplay">0</span></div>
+            <div>最高高度 <span id="heightDisplay">0</span></div>
+        </div>
+    </div>
+
+    <script>
+        var canvas = document.getElementById('canvas');
+        var ctx = canvas.getContext('2d');
+
+        var angleSlider = document.getElementById('angleSlider');
+        var speedSlider = document.getElementById('speedSlider');
+        var angleVal = document.getElementById('angleVal');
+        var speedVal = document.getElementById('speedVal');
+        var fireBtn = document.getElementById('fireBtn');
+        var resetBtn = document.getElementById('resetBtn');
+        var distDisplay = document.getElementById('distDisplay');
+        var heightDisplay = document.getElementById('heightDisplay');
+
+        var W, H;
+        var ball = { x: 0, y: 0, vx: 0, vy: 0, radius: 8 };
+        var trail = [];
+        var isFlying = false;
+        var animId = null;
+        var maxHeight = 0;
+        var maxDist = 0;
+        var startX = 0, startY = 0;
+
+        // 物理常量
+        var G = 0.6;
+        var AIR_RESISTANCE = 0.999;
+        var SCALE = 4; // 像素/单位
+
+        function resizeCanvas() {
+            var rect = canvas.parentElement.getBoundingClientRect();
+            var w = canvas.clientWidth || rect.width - 0;
+            canvas.width = w;
+            canvas.height = w * 0.8;
+            W = canvas.width;
+            H = canvas.height;
+            drawGround();
+        }
+
+        function drawGround() {
+            ctx.clearRect(0, 0, W, H);
+            ctx.fillStyle = '#e8ecf1';
+            ctx.fillRect(0, H - 20, W, 20);
+            ctx.fillStyle = '#cbd5e1';
+            ctx.fillRect(0, H - 22, W, 2);
+
+            // 画网格
+            ctx.strokeStyle = 'rgba(0,0,0,0.04)';
+            ctx.lineWidth = 1;
+            for (var x = 0; x < W; x += 40) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, H - 20);
+                ctx.stroke();
+            }
+            for (var y = 0; y < H - 20; y += 40) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(W, y);
+                ctx.stroke();
+            }
+
+            // 画起点标记
+            ctx.fillStyle = '#8b5cf6';
+            ctx.beginPath();
+            ctx.arc(60, H - 20 - 20, 6, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#666';
+            ctx.font = '12px system-ui';
+            ctx.textAlign = 'center';
+            ctx.fillText('起点', 60, H - 20 - 38);
+
+            startX = 60;
+            startY = H - 20 - 20;
+            ball.x = startX;
+            ball.y = startY;
+        }
+
+        function drawTrail() {
+            for (var i = 0; i < trail.length; i++) {
+                var alpha = i / trail.length * 0.6;
+                ctx.fillStyle = 'rgba(139, 92, 246, ' + alpha + ')';
+                ctx.beginPath();
+                ctx.arc(trail[i].x, trail[i].y, 3, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function drawBall() {
+            ctx.shadowColor = 'rgba(139, 92, 246, 0.3)';
+            ctx.shadowBlur = 16;
+            ctx.fillStyle = '#8b5cf6';
+            ctx.beginPath();
+            ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+
+            // 高光
+            ctx.fillStyle = 'rgba(255,255,255,0.25)';
+            ctx.beginPath();
+            ctx.arc(ball.x - 2, ball.y - 3, 3, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function physicsStep() {
+            if (!isFlying) return;
+
+            // 重力
+            ball.vy += G;
+            // 空气阻力
+            ball.vx *= AIR_RESISTANCE;
+            ball.vy *= AIR_RESISTANCE;
+
+            ball.x += ball.vx;
+            ball.y += ball.vy;
+
+            trail.push({ x: ball.x, y: ball.y });
+            if (trail.length > 200) trail.shift();
+
+            // 更新最大高度（相对于起点）
+            var currentHeight = startY - ball.y;
+            if (currentHeight > maxHeight) maxHeight = currentHeight;
+
+            // 更新水平距离
+            var currentDist = ball.x - startX;
+            if (currentDist > maxDist) maxDist = currentDist;
+
+            // 落地检测
+            if (ball.y + ball.radius >= startY) {
+                ball.y = startY;
+                isFlying = false;
+                fireBtn.disabled = false;
+                distDisplay.textContent = (maxDist / SCALE).toFixed(1);
+                heightDisplay.textContent = (maxHeight / SCALE).toFixed(1);
+                draw();
+                return;
+            }
+
+            // 超出边界
+            if (ball.x > W || ball.y > H) {
+                isFlying = false;
+                fireBtn.disabled = false;
+                distDisplay.textContent = (maxDist / SCALE).toFixed(1);
+                heightDisplay.textContent = (maxHeight / SCALE).toFixed(1);
+                draw();
+                return;
+            }
+
+            draw();
+            animId = requestAnimationFrame(physicsStep);
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, W, H);
+            drawGround();
+            drawTrail();
+            drawBall();
+        }
+
+        function fire() {
+            if (isFlying) return;
+            // 重置
+            var angle = parseInt(angleSlider.value);
+            var speed = parseInt(speedSlider.value);
+
+            ball.x = startX;
+            ball.y = startY;
+            var rad = angle * Math.PI / 180;
+            ball.vx = Math.cos(rad) * speed / SCALE * 2;
+            ball.vy = -Math.sin(rad) * speed / SCALE * 2;
+            trail = [];
+            maxHeight = 0;
+            maxDist = 0;
+            isFlying = true;
+            fireBtn.disabled = true;
+            distDisplay.textContent = '...';
+            heightDisplay.textContent = '...';
+
+            if (animId) { cancelAnimationFrame(animId); animId = null; }
+            physicsStep();
+        }
+
+        function resetSim() {
+            if (animId) { cancelAnimationFrame(animId); animId = null; }
+            isFlying = false;
+            fireBtn.disabled = false;
+            ball.x = startX;
+            ball.y = startY;
+            ball.vx = 0;
+            ball.vy = 0;
+            trail = [];
+            maxHeight = 0;
+            maxDist = 0;
+            distDisplay.textContent = '0';
+            heightDisplay.textContent = '0';
+            draw();
+        }
+
+        // 事件绑定
+        angleSlider.addEventListener('input', function() {
+            angleVal.textContent = this.value + '°';
+        });
+
+        speedSlider.addEventListener('input', function() {
+            speedVal.textContent = this.value;
+        });
+
+        fireBtn.addEventListener('click', fire);
+        resetBtn.addEventListener('click', resetSim);
+
+        // 键盘快捷键：空格发射
+        document.addEventListener('keydown', function(e) {
+            if (e.key === ' ' || e.key === 'Space') {
+                e.preventDefault();
+                if (!isFlying) fire();
+            }
+            if (e.key === 'r' || e.key === 'R') {
+                resetSim();
+            }
+        });
+
+        resizeCanvas();
+        window.addEventListener('resize', function() {
+            resizeCanvas();
+            draw();
+        });
+    </script>
+</body>
+</html>
