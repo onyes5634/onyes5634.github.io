@@ -481,14 +481,8 @@
             -webkit-tap-highlight-color: transparent;
             position: relative;
             overflow: hidden;
-            opacity: 0;
-            transform: translateY(20px) scale(0.98);
-            transition: opacity 0.4s ease, transform 0.4s ease, box-shadow 0.3s ease, border-color 0.3s ease;
-            will-change: transform, opacity;
-        }
-        .project-item.visible {
-            opacity: 1;
-            transform: translateY(0) scale(1);
+            transition: box-shadow 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
+            will-change: transform;
         }
         .project-item.dragging {
             opacity: 0.5;
@@ -1101,9 +1095,201 @@
                 <a href="#games" class="category-link"><i class="fas fa-gamepad"></i> 游戏类</a>
             </div>
 
-            <!-- ===== 工具数据（JS 会动态渲染） ===== -->
-            <div id="toolsContainer">
-                <!-- 由 JavaScript 动态生成 -->
+            <!-- ============================================================ -->
+            <!-- ===== 实用工具类 ===== -->
+            <div id="tools" class="projects-section">
+                <h2 class="category-title"><i class="fas fa-tools"></i> 实用工具类</h2>
+                <div class="project-list" id="toolsList">
+                    <div class="project-item" data-id="tool-1" data-url="Website to QR code.html">
+                        <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
+                        <button class="favorite-btn" data-id="tool-1"><i class="fas fa-star"></i></button>
+                        <h3>二维码生成器</h3>
+                        <p>输入文本或网址，快速生成二维码图片。</p>
+                        <a href="Website to QR code.html"><i class="fas fa-qrcode"></i> 使用工具</a>
+                    </div>
+                    <div class="project-item" data-id="tool-2" data-url="qrcode-decoder.html">
+                        <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
+                        <button class="favorite-btn" data-id="tool-2"><i class="fas fa-star"></i></button>
+                        <h3>📷 二维码解码器</h3>
+                        <p>上传或粘贴二维码图片，快速解码出其中的内容。</p>
+                        <a href="qrcode-decoder.html"><i class="fas fa-qrcode"></i> 使用工具</a>
+                    </div>
+                    <div class="project-item" data-id="tool-3" data-url="Screen Color Picker.html">
+                        <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
+                        <button class="favorite-btn" data-id="tool-3"><i class="fas fa-star"></i></button>
+                        <h3>屏幕取色器</h3>
+                        <p>拾取屏幕任意位置颜色，获取十六进制值。</p>
+                        <a href="Screen Color Picker.html"><i class="fas fa-eyedropper"></i> 使用工具</a>
+                    </div>
+                    <div class="project-item" data-id="tool-4" data-url="Markdown Preview.html">
+                        <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
+                        <button class="favorite-btn" data-id="tool-4"><i class="fas fa-star"></i></button>
+                        <h3>Markdown预览器</h3>
+                        <p>实时将Markdown格式文本转换为HTML预览。</p>
+                        <a href="Markdown Preview.html"><i class="fas fa-markdown"></i> 使用工具</a>
+                    </div>
+                    <div class="project-item" data-id="tool-5" data-url="image-to-base64.html">
+                        <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
+                        <button class="favorite-btn" data-id="tool-5"><i class="fas fa-star"></i></button>
+                        <h3>图片转Base64</h3>
+                        <p>上传图片文件，转换为Base64编码。</p>
+                        <a href="image-to-base64.html"><i class="fas fa-image"></i> 使用工具</a>
+                    </div>
+                    <div class="project-item" data-id="tool-6" data-url="Random Password Generator.html">
+                        <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
+                        <button class="favorite-btn" data-id="tool-6"><i class="fas fa-star"></i></button>
+                        <h3>随机密码生成器</h3>
+                        <p>生成高强度随机密码，含大小写字母、数字、特殊符号。</p>
+                        <a href="Random Password Generator.html"><i class="fas fa-key"></i> 使用工具</a>
+                    </div>
+                    <div class="project-item" data-id="tool-7" data-url="todo.html">
+                        <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
+                        <button class="favorite-btn" data-id="tool-7"><i class="fas fa-star"></i></button>
+                        <h3>✅ 待办清单</h3>
+                        <p>增删改任务，自动保存到本地，每天必用。</p>
+                        <a href="todo.html"><i class="fas fa-list-check"></i> 使用工具</a>
+                    </div>
+                    <div class="project-item" data-id="tool-8" data-url="pomodoro.html">
+                        <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
+                        <button class="favorite-btn" data-id="tool-8"><i class="fas fa-star"></i></button>
+                        <h3>🍅 番茄时钟</h3>
+                        <p>25分钟专注 + 5分钟休息，提高工作效率。</p>
+                        <a href="pomodoro.html"><i class="fas fa-clock"></i> 使用工具</a>
+                    </div>
+                    <div class="project-item" data-id="tool-9" data-url="unit-convert.html">
+                        <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
+                        <button class="favorite-btn" data-id="tool-9"><i class="fas fa-star"></i></button>
+                        <h3>📏 单位换算</h3>
+                        <p>长度、重量、温度、体积快速换算。</p>
+                        <a href="unit-convert.html"><i class="fas fa-arrows-left-right"></i> 使用工具</a>
+                    </div>
+                    <div class="project-item" data-id="tool-10" data-url="countdown.html">
+                        <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
+                        <button class="favorite-btn" data-id="tool-10"><i class="fas fa-star"></i></button>
+                        <h3>⏳ 倒计时器</h3>
+                        <p>设置目标时间，实时倒计时，支持暂停和预设时长。</p>
+                        <a href="countdown.html"><i class="fas fa-hourglass-half"></i> 使用工具</a>
+                    </div>
+                    <div class="project-item" data-id="tool-11" data-url="miaobiao.html">
+                        <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
+                        <button class="favorite-btn" data-id="tool-11"><i class="fas fa-star"></i></button>
+                        <h3>⏱️ 秒表</h3>
+                        <p>精确计时，支持计次记录，适合运动训练和测试。</p>
+                        <a href="miaobiao.html"><i class="fas fa-stopwatch"></i> 使用工具</a>
+                    </div>
+                    <div class="project-item" data-id="tool-12" data-url="jisuanqi.html">
+                        <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
+                        <button class="favorite-btn" data-id="tool-12"><i class="fas fa-star"></i></button>
+                        <h3>🧮 计算器</h3>
+                        <p>基础四则运算，键盘支持，日常计算好帮手。</p>
+                        <a href="jisuanqi.html"><i class="fas fa-calculator"></i> 使用工具</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== 模拟实验类 ===== -->
+            <div id="simulations" class="projects-section">
+                <h2 class="category-title"><i class="fas fa-flask"></i> 模拟实验类</h2>
+                <div class="project-list" id="simulationsList">
+                    <div class="project-item" data-id="sim-1" data-url="solar-system-simulation.html">
+                        <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
+                        <button class="favorite-btn" data-id="sim-1"><i class="fas fa-star"></i></button>
+                        <h3>太阳系模拟器</h3>
+                        <p>模拟太阳系行星运行轨迹。</p>
+                        <a href="solar-system-simulation.html"><i class="fas fa-globe"></i> 查看模拟</a>
+                    </div>
+                    <div class="project-item" data-id="sim-2" data-url="fluid-simulator.html">
+                        <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
+                        <button class="favorite-btn" data-id="sim-2"><i class="fas fa-star"></i></button>
+                        <h3>流体物理模拟器</h3>
+                        <p>基于物理引擎的流体模拟，展示液体流动效果。</p>
+                        <a href="fluid-simulator.html"><i class="fas fa-tint"></i> 查看模拟</a>
+                    </div>
+                    <div class="project-item" data-id="sim-3" data-url="color-mixer.html">
+                        <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
+                        <button class="favorite-btn" data-id="sim-3"><i class="fas fa-star"></i></button>
+                        <h3>🎨 颜色混合</h3>
+                        <p>红绿蓝三色滑块，实时混合出你想要的任意颜色。</p>
+                        <a href="color-mixer.html"><i class="fas fa-palette"></i> 查看模拟</a>
+                    </div>
+                    <div class="project-item" data-id="sim-4" data-url="sound-visualizer.html">
+                        <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
+                        <button class="favorite-btn" data-id="sim-4"><i class="fas fa-star"></i></button>
+                        <h3>🎵 音波可视化</h3>
+                        <p>用麦克风捕捉声音，实时显示音频波形。</p>
+                        <a href="sound-visualizer.html"><i class="fas fa-wave-square"></i> 查看模拟</a>
+                    </div>
+                    <div class="project-item" data-id="sim-5" data-url="projectile.html">
+                        <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
+                        <button class="favorite-btn" data-id="sim-5"><i class="fas fa-star"></i></button>
+                        <h3>🚀 抛体运动</h3>
+                        <p>调整角度和初速度，模拟抛物线运动轨迹。</p>
+                        <a href="projectile.html"><i class="fas fa-rocket"></i> 查看模拟</a>
+                    </div>
+                    <div class="project-item" data-id="sim-6" data-url="circuit.html">
+                        <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
+                        <button class="favorite-btn" data-id="sim-6"><i class="fas fa-star"></i></button>
+                        <h3>⚡ 电路模拟</h3>
+                        <p>开关控制电路通断，观察灯泡亮灭和电流变化。</p>
+                        <a href="circuit.html"><i class="fas fa-bolt"></i> 查看模拟</a>
+                    </div>
+                    <div class="project-item" data-id="sim-7" data-url="heat-conduction.html">
+                        <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
+                        <button class="favorite-btn" data-id="sim-7"><i class="fas fa-star"></i></button>
+                        <h3>🌡️ 热传导模拟</h3>
+                        <p>加热金属板，观察热量从热源向四周扩散的过程。</p>
+                        <a href="heat-conduction.html"><i class="fas fa-fire"></i> 查看模拟</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== 游戏类 ===== -->
+            <div id="games" class="projects-section">
+                <h2 class="category-title"><i class="fas fa-gamepad"></i> 游戏类项目</h2>
+                <div class="project-list" id="gamesList">
+                    <div class="project-item" data-id="game-1" data-url="snake-game.html">
+                        <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
+                        <button class="favorite-btn" data-id="game-1"><i class="fas fa-star"></i></button>
+                        <h3>贪吃蛇游戏</h3>
+                        <p>经典的贪吃蛇游戏，键盘方向键控制移动。</p>
+                        <a href="snake-game.html"><i class="fas fa-play"></i> 开始游戏</a>
+                    </div>
+                    <div class="project-item" data-id="game-2" data-url="2048.html">
+                        <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
+                        <button class="favorite-btn" data-id="game-2"><i class="fas fa-star"></i></button>
+                        <h3>2048游戏</h3>
+                        <p>热门数字拼图游戏，方向键移动，相同数字合并。</p>
+                        <a href="2048.html"><i class="fas fa-play"></i> 开始游戏</a>
+                    </div>
+                    <div class="project-item" data-id="game-3" data-url="breakout-game.html">
+                        <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
+                        <button class="favorite-btn" data-id="game-3"><i class="fas fa-star"></i></button>
+                        <h3>打砖块游戏</h3>
+                        <p>移动挡板接住小球，击碎所有砖块获胜。</p>
+                        <a href="breakout-game.html"><i class="fas fa-play"></i> 开始游戏</a>
+                    </div>
+                    <div class="project-item" data-id="game-4" data-url="number-puzzle.html">
+                        <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
+                        <button class="favorite-btn" data-id="game-4"><i class="fas fa-star"></i></button>
+                        <h3>🧩 数字华容道</h3>
+                        <p>4×4 滑块拼图，按顺序排列数字，考验你的逻辑思维。</p>
+                        <a href="number-puzzle.html"><i class="fas fa-play"></i> 开始游戏</a>
+                    </div>
+                    <div class="project-item" data-id="game-5" data-url="whack-mole.html">
+                        <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
+                        <button class="favorite-btn" data-id="game-5"><i class="fas fa-star"></i></button>
+                        <h3>🔨 打地鼠</h3>
+                        <p>30秒限时挑战，看看你的反应速度有多快！</p>
+                        <a href="whack-mole.html"><i class="fas fa-play"></i> 开始游戏</a>
+                    </div>
+                    <div class="project-item" data-id="game-6" data-url="jigsaw-puzzle.html">
+                        <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
+                        <button class="favorite-btn" data-id="game-6"><i class="fas fa-star"></i></button>
+                        <h3>🧩 拼图游戏</h3>
+                        <p>3×3 数字拼图，用最少的步数完成挑战。</p>
+                        <a href="jigsaw-puzzle.html"><i class="fas fa-play"></i> 开始游戏</a>
+                    </div>
+                </div>
             </div>
 
             <!-- ===== 标签 ===== -->
@@ -1161,38 +1347,10 @@
             'use strict';
 
             // =============================================
-            // 数据定义
+            // 版本号
             // =============================================
-            var toolsData = [
-                // ===== 实用工具类 =====
-                { id: 'tool-1', category: 'tools', name: '二维码生成器', desc: '输入文本或网址，快速生成二维码图片。', icon: 'fa-qrcode', url: 'Website to QR code.html' },
-                { id: 'tool-2', category: 'tools', name: '二维码解码器', desc: '上传或粘贴二维码图片，快速解码出其中的内容。', icon: 'fa-qrcode', url: 'qrcode-decoder.html' },
-                { id: 'tool-3', category: 'tools', name: '屏幕取色器', desc: '拾取屏幕任意位置颜色，获取十六进制值。', icon: 'fa-eyedropper', url: 'Screen Color Picker.html' },
-                { id: 'tool-4', category: 'tools', name: 'Markdown预览器', desc: '实时将Markdown格式文本转换为HTML预览。', icon: 'fa-markdown', url: 'Markdown Preview.html' },
-                { id: 'tool-5', category: 'tools', name: '图片转Base64', desc: '上传图片文件，转换为Base64编码。', icon: 'fa-image', url: 'image-to-base64.html' },
-                { id: 'tool-6', category: 'tools', name: '随机密码生成器', desc: '生成高强度随机密码，含大小写字母、数字、特殊符号。', icon: 'fa-key', url: 'Random Password Generator.html' },
-                { id: 'tool-7', category: 'tools', name: '待办清单', desc: '增删改任务，自动保存到本地，每天必用。', icon: 'fa-list-check', url: 'todo.html' },
-                { id: 'tool-8', category: 'tools', name: '番茄时钟', desc: '25分钟专注 + 5分钟休息，提高工作效率。', icon: 'fa-clock', url: 'pomodoro.html' },
-                { id: 'tool-9', category: 'tools', name: '单位换算', desc: '长度、重量、温度、体积快速换算。', icon: 'fa-arrows-left-right', url: 'unit-convert.html' },
-                { id: 'tool-10', category: 'tools', name: '倒计时器', desc: '设置目标时间，实时倒计时，支持暂停和预设时长。', icon: 'fa-hourglass-half', url: 'countdown.html' },
-                { id: 'tool-11', category: 'tools', name: '秒表', desc: '精确计时，支持计次记录，适合运动训练和测试。', icon: 'fa-stopwatch', url: 'miaobiao.html' },
-                { id: 'tool-12', category: 'tools', name: '计算器', desc: '基础四则运算，键盘支持，日常计算好帮手。', icon: 'fa-calculator', url: 'jisuanqi.html' },
-                // ===== 模拟实验类 =====
-                { id: 'sim-1', category: 'simulations', name: '太阳系模拟器', desc: '模拟太阳系行星运行轨迹。', icon: 'fa-globe', url: 'solar-system-simulation.html' },
-                { id: 'sim-2', category: 'simulations', name: '流体物理模拟器', desc: '基于物理引擎的流体模拟，展示液体流动效果。', icon: 'fa-tint', url: 'fluid-simulator.html' },
-                { id: 'sim-3', category: 'simulations', name: '颜色混合', desc: '红绿蓝三色滑块，实时混合出你想要的任意颜色。', icon: 'fa-palette', url: 'color-mixer.html' },
-                { id: 'sim-4', category: 'simulations', name: '音波可视化', desc: '用麦克风捕捉声音，实时显示音频波形。', icon: 'fa-wave-square', url: 'sound-visualizer.html' },
-                { id: 'sim-5', category: 'simulations', name: '抛体运动', desc: '调整角度和初速度，模拟抛物线运动轨迹。', icon: 'fa-rocket', url: 'projectile.html' },
-                { id: 'sim-6', category: 'simulations', name: '电路模拟', desc: '开关控制电路通断，观察灯泡亮灭和电流变化。', icon: 'fa-bolt', url: 'circuit.html' },
-                { id: 'sim-7', category: 'simulations', name: '热传导模拟', desc: '加热金属板，观察热量从热源向四周扩散的过程。', icon: 'fa-fire', url: 'heat-conduction.html' },
-                // ===== 游戏类 =====
-                { id: 'game-1', category: 'games', name: '贪吃蛇游戏', desc: '经典的贪吃蛇游戏，键盘方向键控制移动。', icon: 'fa-play', url: 'snake-game.html' },
-                { id: 'game-2', category: 'games', name: '2048游戏', desc: '热门数字拼图游戏，方向键移动，相同数字合并。', icon: 'fa-play', url: '2048.html' },
-                { id: 'game-3', category: 'games', name: '打砖块游戏', desc: '移动挡板接住小球，击碎所有砖块获胜。', icon: 'fa-play', url: 'breakout-game.html' },
-                { id: 'game-4', category: 'games', name: '数字华容道', desc: '4×4 滑块拼图，按顺序排列数字，考验你的逻辑思维。', icon: 'fa-play', url: 'number-puzzle.html' },
-                { id: 'game-5', category: 'games', name: '打地鼠', desc: '30秒限时挑战，看看你的反应速度有多快！', icon: 'fa-play', url: 'whack-mole.html' },
-                { id: 'game-6', category: 'games', name: '拼图游戏', desc: '3×3 数字拼图，用最少的步数完成挑战。', icon: 'fa-play', url: 'jigsaw-puzzle.html' },
-            ];
+            document.getElementById('debugVersion').textContent = 'v2.4.0 · ' + new Date().toISOString().slice(0, 10);
+            document.getElementById('currentYear').textContent = new Date().getFullYear();
 
             // =============================================
             // 状态管理
@@ -1200,195 +1358,145 @@
             var FAVORITES_KEY = 'onyes_favorites';
             var ORDER_KEY = 'onyes_order';
             var favorites = JSON.parse(localStorage.getItem(FAVORITES_KEY) || '[]');
-            var order = JSON.parse(localStorage.getItem(ORDER_KEY) || 'null');
-            var container = document.getElementById('toolsContainer');
 
             // =============================================
-            // 排序工具
+            // 收藏功能
             // =============================================
-            function getOrderedItems() {
-                var items = toolsData.slice();
-                // 先按收藏排序
-                items.sort(function(a, b) {
-                    var aFav = favorites.includes(a.id) ? 1 : 0;
-                    var bFav = favorites.includes(b.id) ? 1 : 0;
-                    if (aFav !== bFav) return bFav - aFav;
-                    return 0;
+            function updateFavoritesUI() {
+                document.querySelectorAll('.favorite-btn').forEach(function(btn) {
+                    var id = btn.dataset.id;
+                    if (favorites.includes(id)) {
+                        btn.classList.add('favorited');
+                    } else {
+                        btn.classList.remove('favorited');
+                    }
                 });
-                // 如果有自定义顺序，应用它
-                if (order && order.length === items.length) {
-                    var ordered = [];
-                    var orderMap = {};
-                    items.forEach(function(item) { orderMap[item.id] = item; });
-                    order.forEach(function(id) {
-                        if (orderMap[id]) ordered.push(orderMap[id]);
-                    });
-                    // 补充遗漏的
-                    items.forEach(function(item) {
-                        if (!ordered.includes(item)) ordered.push(item);
-                    });
-                    return ordered;
-                }
-                return items;
             }
 
+            document.querySelectorAll('.favorite-btn').forEach(function(btn) {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    var id = this.dataset.id;
+                    var idx = favorites.indexOf(id);
+                    if (idx > -1) {
+                        favorites.splice(idx, 1);
+                    } else {
+                        favorites.push(id);
+                        this.style.transform = 'scale(1.4)';
+                        setTimeout(function() { this.style.transform = ''; }.bind(this), 300);
+                    }
+                    localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
+                    updateFavoritesUI();
+                });
+            });
+
+            // =============================================
+            // 拖拽排序功能
+            // =============================================
+            var dragItem = null;
+
             function saveOrder() {
-                var cards = document.querySelectorAll('.project-item');
+                var allItems = document.querySelectorAll('.project-item');
                 var ids = [];
-                cards.forEach(function(card) {
-                    ids.push(card.dataset.id);
+                allItems.forEach(function(item) {
+                    ids.push(item.dataset.id);
                 });
                 localStorage.setItem(ORDER_KEY, JSON.stringify(ids));
             }
 
-            // =============================================
-            // 渲染卡片（全部一次性加载）
-            // =============================================
-            function renderItems() {
-                var ordered = getOrderedItems();
-                var html = '';
-                var categories = ['tools', 'simulations', 'games'];
-                var categoryNames = {
-                    'tools': '实用工具',
-                    'simulations': '模拟实验',
-                    'games': '游戏'
-                };
-                var categoryIcons = {
-                    'tools': 'fa-tools',
-                    'simulations': 'fa-flask',
-                    'games': 'fa-gamepad'
-                };
-
-                categories.forEach(function(cat) {
-                    var items = ordered.filter(function(item) { return item.category === cat; });
-                    if (items.length === 0) return;
-                    html += '<div id="' + cat + '" class="projects-section" data-category="' + cat + '">';
-                    html += '<h2 class="category-title"><i class="fas ' + categoryIcons[cat] + '"></i> ' + categoryNames[cat] + '</h2>';
-                    html += '<div class="project-list" data-category="' + cat + '">';
-                    items.forEach(function(item) {
-                        var isFav = favorites.includes(item.id);
-                        html += '<div class="project-item" data-id="' + item.id + '" data-category="' + item.category + '" data-url="' + item.url + '" draggable="true">';
-                        html += '<div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>';
-                        html += '<button class="favorite-btn ' + (isFav ? 'favorited' : '') + '" data-id="' + item.id + '" title="收藏"><i class="fas fa-star"></i></button>';
-                        html += '<h3>' + item.name + '</h3>';
-                        html += '<p>' + item.desc + '</p>';
-                        html += '<a href="' + item.url + '"><i class="fas ' + item.icon + '"></i> 使用工具</a>';
-                        html += '</div>';
-                    });
-                    html += '</div></div>';
+            // 恢复上次保存的顺序
+            function restoreOrder() {
+                var savedOrder = JSON.parse(localStorage.getItem(ORDER_KEY) || 'null');
+                if (!savedOrder) return;
+                var allItems = document.querySelectorAll('.project-item');
+                var itemMap = {};
+                allItems.forEach(function(item) {
+                    itemMap[item.dataset.id] = item;
                 });
-
-                container.innerHTML = html;
-
-                // 所有卡片一次性显示（带淡入动画）
-                var allItems = container.querySelectorAll('.project-item');
-                allItems.forEach(function(el, index) {
-                    setTimeout(function() {
-                        el.classList.add('visible');
-                    }, 20 + index * 20);
+                var parent = allItems[0] ? allItems[0].parentNode : null;
+                if (!parent) return;
+                // 按保存的顺序重新排列
+                var sorted = [];
+                savedOrder.forEach(function(id) {
+                    if (itemMap[id]) {
+                        sorted.push(itemMap[id]);
+                        delete itemMap[id];
+                    }
                 });
-
-                // 绑定事件
-                bindEvents();
+                // 补充遗漏的
+                for (var key in itemMap) {
+                    sorted.push(itemMap[key]);
+                }
+                sorted.forEach(function(item) {
+                    parent.appendChild(item);
+                });
             }
 
-            // =============================================
-            // 事件绑定
-            // =============================================
-            function bindEvents() {
-                // 收藏按钮
-                document.querySelectorAll('.favorite-btn').forEach(function(btn) {
-                    btn.addEventListener('click', function(e) {
-                        e.stopPropagation();
-                        var id = this.dataset.id;
-                        var idx = favorites.indexOf(id);
-                        if (idx > -1) {
-                            favorites.splice(idx, 1);
-                            this.classList.remove('favorited');
-                        } else {
-                            favorites.push(id);
-                            this.classList.add('favorited');
-                            this.style.transform = 'scale(1.4)';
-                            setTimeout(function() { this.style.transform = ''; }.bind(this), 300);
-                        }
-                        localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
-                        // 重新渲染
-                        renderItems();
-                    });
+            document.querySelectorAll('.project-item').forEach(function(el) {
+                el.addEventListener('dragstart', function(e) {
+                    dragItem = this;
+                    this.classList.add('dragging');
+                    e.dataTransfer.effectAllowed = 'move';
+                    e.dataTransfer.setData('text/plain', this.dataset.id);
+                    setTimeout(function() {
+                        this.classList.add('dragging');
+                    }.bind(this), 0);
                 });
 
-                // 拖拽
-                var dragItem = null;
-                document.querySelectorAll('.project-item').forEach(function(el) {
-                    el.addEventListener('dragstart', function(e) {
-                        dragItem = this;
-                        this.classList.add('dragging');
-                        e.dataTransfer.effectAllowed = 'move';
-                        e.dataTransfer.setData('text/plain', this.dataset.id);
-                        setTimeout(function() {
-                            this.classList.add('dragging');
-                        }.bind(this), 0);
+                el.addEventListener('dragend', function(e) {
+                    this.classList.remove('dragging');
+                    document.querySelectorAll('.project-item').forEach(function(item) {
+                        item.classList.remove('drag-over');
                     });
+                    if (dragItem) {
+                        saveOrder();
+                        dragItem = null;
+                    }
+                });
 
-                    el.addEventListener('dragend', function(e) {
-                        this.classList.remove('dragging');
+                el.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'move';
+                    if (dragItem && dragItem !== this) {
                         document.querySelectorAll('.project-item').forEach(function(item) {
                             item.classList.remove('drag-over');
                         });
-                        if (dragItem) {
-                            saveOrder();
-                            dragItem = null;
-                        }
-                    });
-
-                    el.addEventListener('dragover', function(e) {
-                        e.preventDefault();
-                        e.dataTransfer.dropEffect = 'move';
-                        if (dragItem && dragItem !== this) {
-                            document.querySelectorAll('.project-item').forEach(function(item) {
-                                item.classList.remove('drag-over');
-                            });
-                            this.classList.add('drag-over');
-                        }
-                    });
-
-                    el.addEventListener('dragleave', function(e) {
-                        this.classList.remove('drag-over');
-                    });
-
-                    el.addEventListener('drop', function(e) {
-                        e.preventDefault();
-                        this.classList.remove('drag-over');
-                        if (!dragItem || dragItem === this) return;
-                        var parent = this.parentNode;
-                        var items = Array.from(parent.querySelectorAll('.project-item'));
-                        var fromIdx = items.indexOf(dragItem);
-                        var toIdx = items.indexOf(this);
-                        if (fromIdx < toIdx) {
-                            parent.insertBefore(dragItem, this.nextSibling);
-                        } else {
-                            parent.insertBefore(dragItem, this);
-                        }
-                        // 重新排序所有卡片
-                        var allCards = document.querySelectorAll('.project-item');
-                        allCards.forEach(function(card, idx) {
-                            card.style.order = idx;
-                        });
-                        saveOrder();
-                        renderItems();
-                    });
+                        this.classList.add('drag-over');
+                    }
                 });
 
-                // 卡片点击跳转
-                document.querySelectorAll('.project-item').forEach(function(card) {
-                    card.addEventListener('click', function(e) {
-                        if (e.target.closest('.favorite-btn')) return;
-                        if (e.target.closest('.drag-handle')) return;
-                        var url = this.dataset.url;
-                        if (url) window.open(url, '_blank');
-                    });
+                el.addEventListener('dragleave', function(e) {
+                    this.classList.remove('drag-over');
                 });
-            }
+
+                el.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    this.classList.remove('drag-over');
+                    if (!dragItem || dragItem === this) return;
+                    var parent = this.parentNode;
+                    var items = Array.from(parent.querySelectorAll('.project-item'));
+                    var fromIdx = items.indexOf(dragItem);
+                    var toIdx = items.indexOf(this);
+                    if (fromIdx < toIdx) {
+                        parent.insertBefore(dragItem, this.nextSibling);
+                    } else {
+                        parent.insertBefore(dragItem, this);
+                    }
+                    saveOrder();
+                });
+            });
+
+            // =============================================
+            // 卡片点击跳转
+            // =============================================
+            document.querySelectorAll('.project-item').forEach(function(card) {
+                card.addEventListener('click', function(e) {
+                    if (e.target.closest('.favorite-btn')) return;
+                    if (e.target.closest('.drag-handle')) return;
+                    var url = this.dataset.url;
+                    if (url) window.open(url, '_blank');
+                });
+            });
 
             // =============================================
             // 快捷键面板
@@ -1546,7 +1654,8 @@
                 var hasVisible = false;
                 document.querySelectorAll('.project-item').forEach(function(item) {
                     var name = item.dataset.id || '';
-                    var match = keyword === '' || name.toLowerCase().includes(keyword) || item.textContent.toLowerCase().includes(keyword);
+                    var text = item.textContent.toLowerCase();
+                    var match = keyword === '' || name.toLowerCase().includes(keyword) || text.includes(keyword);
                     if (match) {
                         item.classList.remove('hidden');
                         hasVisible = true;
@@ -1563,7 +1672,8 @@
 
             // =============================================
             // 卡片回弹
-            // =============================================            document.querySelectorAll('.project-item').forEach(function(card) {
+            // =============================================
+            document.querySelectorAll('.project-item').forEach(function(card) {
                 var url = card.dataset.url;
                 if (!url) return;
                 var isAnimating = false;
@@ -1672,15 +1782,12 @@
             });
 
             // =============================================
-            // 版本号
+            // 初始化恢复顺序
             // =============================================
-            document.getElementById('debugVersion').textContent = 'v2.4.0 · ' + new Date().toISOString().slice(0, 10);
-            document.getElementById('currentYear').textContent = new Date().getFullYear();
-
-            // =============================================
-            // 启动
-            // =============================================
-            renderItems();
+            setTimeout(function() {
+                restoreOrder();
+                updateFavoritesUI();
+            }, 100);
 
         })();
     </script>
