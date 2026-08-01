@@ -31,7 +31,7 @@
         .header i { font-size: 2rem; color: #8b5cf6; }
         canvas {
             width: 100%;
-            aspect-ratio: 1.4 / 1;
+            aspect-ratio: 1.8 / 1;
             background: #f8fafc;
             border-radius: 16px;
             border: 2px solid #e2e8f0;
@@ -101,7 +101,6 @@
             color: #888;
         }
         .info span { font-weight: 600; color: #222; }
-        .info .highlight { color: #8b5cf6; }
         @media (max-width: 480px) {
             .container { padding: 20px 16px; }
             .controls { grid-template-columns: 1fr; }
@@ -123,7 +122,7 @@
                 <input type="range" id="angleSlider" min="5" max="85" value="45">
             </label>
             <label>初速度 <span class="val" id="speedVal">50</span>
-                <input type="range" id="speedSlider" min="20" max="100" value="50">
+                <input type="range" id="speedSlider" min="10" max="100" value="50">
             </label>
         </div>
 
@@ -162,20 +161,19 @@
             var flightTime = 0;
             var maxH = 0;
 
-            // 物理常量
             var G = 9.8;
-            var SCALE = 3.0; // 像素/米
-            var DT = 0.016; // ~60fps
+            var SCALE = 2.0;
+            var DT = 0.016;
 
             function resizeCanvas() {
                 var rect = canvas.getBoundingClientRect();
                 var w = canvas.clientWidth || rect.width || 400;
                 canvas.width = w;
-                canvas.height = w / 1.4;
+                canvas.height = w / 1.8;
                 W = canvas.width;
                 H = canvas.height;
-                groundY = H - 30;
-                startX = 50;
+                groundY = H - 24;
+                startX = 60;
                 startY = groundY - 8;
                 drawScene();
             }
@@ -183,7 +181,6 @@
             function drawScene() {
                 ctx.clearRect(0, 0, W, H);
                 
-                // 网格
                 ctx.strokeStyle = 'rgba(0,0,0,0.04)';
                 ctx.lineWidth = 1;
                 for (var x = 0; x < W; x += 30) {
@@ -199,24 +196,21 @@
                     ctx.stroke();
                 }
 
-                // 地面
                 ctx.fillStyle = '#e2e8f0';
                 ctx.fillRect(0, groundY, W, H - groundY);
                 ctx.fillStyle = '#94a3b8';
                 ctx.fillRect(0, groundY, W, 2);
 
-                // 刻度
                 ctx.fillStyle = '#94a3b8';
                 ctx.font = '10px system-ui';
                 ctx.textAlign = 'center';
-                for (var m = 0; m <= 30; m += 5) {
+                for (var m = 0; m <= 60; m += 10) {
                     var px = startX + m * SCALE;
                     if (px > W - 20) break;
                     ctx.fillRect(px, groundY, 1, 6);
                     ctx.fillText(m + 'm', px, groundY + 20);
                 }
 
-                // 起点
                 ctx.fillStyle = '#8b5cf6';
                 ctx.beginPath();
                 ctx.arc(startX, startY, 6, 0, Math.PI * 2);
@@ -226,35 +220,10 @@
                 ctx.textAlign = 'center';
                 ctx.fillText('起点', startX, startY - 16);
 
-                // 重置球
                 if (!isFlying) {
                     ball.x = startX;
                     ball.y = startY;
                 }
-            }
-
-            function drawBall() {
-                // 光晕
-                var grad = ctx.createRadialGradient(ball.x, ball.y, 0, ball.x, ball.y, 22);
-                grad.addColorStop(0, 'rgba(139, 92, 246, 0.12)');
-                grad.addColorStop(1, 'rgba(139, 92, 246, 0)');
-                ctx.fillStyle = grad;
-                ctx.beginPath();
-                ctx.arc(ball.x, ball.y, 22, 0, Math.PI * 2);
-                ctx.fill();
-
-                ctx.shadowColor = 'rgba(139, 92, 246, 0.2)';
-                ctx.shadowBlur = 12;
-                ctx.fillStyle = '#8b5cf6';
-                ctx.beginPath();
-                ctx.arc(ball.x, ball.y, 8, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.shadowBlur = 0;
-
-                ctx.fillStyle = 'rgba(255,255,255,0.3)';
-                ctx.beginPath();
-                ctx.arc(ball.x - 2.5, ball.y - 3, 2.5, 0, Math.PI * 2);
-                ctx.fill();
             }
 
             function drawTrail() {
@@ -268,6 +237,29 @@
                 }
             }
 
+            function drawBall() {
+                var grad = ctx.createRadialGradient(ball.x, ball.y, 0, ball.x, ball.y, 20);
+                grad.addColorStop(0, 'rgba(139, 92, 246, 0.12)');
+                grad.addColorStop(1, 'rgba(139, 92, 246, 0)');
+                ctx.fillStyle = grad;
+                ctx.beginPath();
+                ctx.arc(ball.x, ball.y, 20, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.shadowColor = 'rgba(139, 92, 246, 0.2)';
+                ctx.shadowBlur = 12;
+                ctx.fillStyle = '#8b5cf6';
+                ctx.beginPath();
+                ctx.arc(ball.x, ball.y, 7, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+
+                ctx.fillStyle = 'rgba(255,255,255,0.3)';
+                ctx.beginPath();
+                ctx.arc(ball.x - 2.5, ball.y - 3, 2.5, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
             function render() {
                 ctx.clearRect(0, 0, W, H);
                 drawScene();
@@ -278,23 +270,17 @@
             function physicsStep() {
                 if (!isFlying) return;
 
-                // 速度更新（重力）
                 ball.vy += G * DT;
-
-                // 位置更新
                 ball.x += ball.vx * DT * SCALE;
                 ball.y += ball.vy * DT * SCALE;
                 flightTime += DT;
 
-                // 记录轨迹
                 trail.push({ x: ball.x, y: ball.y });
                 if (trail.length > 500) trail.shift();
 
-                // 更新最大高度
                 var h = (groundY - ball.y) / SCALE;
                 if (h > maxH) maxH = h;
 
-                // 落地检测
                 if (ball.y >= groundY - 4) {
                     ball.y = groundY - 4;
                     isFlying = false;
@@ -307,7 +293,6 @@
                     return;
                 }
 
-                // 出界检测
                 if (ball.x > W + 50 || ball.y > H + 50 || ball.x < -50) {
                     isFlying = false;
                     fireBtn.disabled = false;
@@ -323,7 +308,7 @@
                 if (isFlying) return;
 
                 var angleDeg = parseInt(angleSlider.value);
-                var speed = parseInt(speedSlider.value) / 5; // 转换为 m/s (20→4, 100→20)
+                var speed = parseInt(speedSlider.value) / 4;
 
                 var rad = angleDeg * Math.PI / 180;
                 ball.x = startX;
@@ -361,7 +346,6 @@
                 render();
             }
 
-            // 事件绑定
             angleSlider.addEventListener('input', function() {
                 angleVal.textContent = this.value + '°';
             });
