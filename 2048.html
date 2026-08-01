@@ -1,70 +1,360 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
-    <title>2048</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2048 - Onyes 的小站</title>
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .grid { display: grid; grid-template-columns: repeat(4, 60px); gap: 5px; margin:10px; }
-        .cell { width: 60px; height: 60px; background: #ccc; text-align: center; line-height: 60px; font-size: 24px; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background: #f0f2f5;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            max-width: 500px;
+            width: 100%;
+            background: #fff;
+            border-radius: 24px;
+            padding: 35px 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+        }
+        .back-link { display: inline-block; margin-bottom: 16px; color: #3498db; text-decoration: none; font-size: 0.95rem; }
+        .back-link:hover { text-decoration: underline; }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .header h1 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: #776e65;
+        }
+        .score-box {
+            background: #bbada0;
+            padding: 8px 20px;
+            border-radius: 8px;
+            color: #fff;
+            text-align: center;
+        }
+        .score-box .label { font-size: 0.7rem; text-transform: uppercase; opacity: 0.7; }
+        .score-box .value { font-size: 1.5rem; font-weight: 700; }
+        .board {
+            background: #bbada0;
+            border-radius: 12px;
+            padding: 10px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            aspect-ratio: 1;
+            margin: 20px 0;
+        }
+        .cell {
+            background: rgba(238, 228, 218, 0.35);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.4rem;
+            font-weight: 700;
+            color: #776e65;
+            transition: all 0.1s ease;
+        }
+        .cell[data-value="2"] { background: #eee4da; }
+        .cell[data-value="4"] { background: #ede0c8; }
+        .cell[data-value="8"] { background: #f2b179; color: #f9f6f2; }
+        .cell[data-value="16"] { background: #f59563; color: #f9f6f2; }
+        .cell[data-value="32"] { background: #f67c5f; color: #f9f6f2; }
+        .cell[data-value="64"] { background: #f65e3b; color: #f9f6f2; }
+        .cell[data-value="128"] { background: #edcf72; color: #f9f6f2; }
+        .cell[data-value="256"] { background: #edcc61; color: #f9f6f2; }
+        .cell[data-value="512"] { background: #edc850; color: #f9f6f2; }
+        .cell[data-value="1024"] { background: #edc53f; color: #f9f6f2; font-size: 1.8rem; }
+        .cell[data-value="2048"] { background: #edc22e; color: #f9f6f2; font-size: 1.8rem; }
+        .controls {
+            display: flex;
+            gap: 12px;
+        }
+        .controls button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            background: #8f7a66;
+            color: #f9f6f2;
+        }
+        .controls button:hover { background: #9f8b76; }
+        .controls .reset { background: #bbada0; }
+        .controls .reset:hover { background: #cdc1b4; }
+        .message {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            min-height: 30px;
+            color: #776e65;
+        }
+        .message .win { color: #2ecc71; }
+        .message .lose { color: #e74c3c; }
+        @media (max-width: 480px) {
+            .container { padding: 20px 16px; }
+            .cell { font-size: 1.8rem; }
+            .header h1 { font-size: 1.8rem; }
+        }
     </style>
 </head>
 <body>
-    <div class="grid" id="grid"></div>
+    <div class="container">
+        <a href="/" class="back-link"><i class="fas fa-arrow-left"></i> 返回首页</a>
+
+        <div class="header">
+            <h1>2048</h1>
+            <div class="score-box">
+                <div class="label">分数</div>
+                <div class="value" id="scoreDisplay">0</div>
+            </div>
+        </div>
+
+        <div class="board" id="board"></div>
+
+        <div class="controls">
+            <button class="reset" id="resetBtn"><i class="fas fa-rotate-right"></i> 新游戏</button>
+        </div>
+
+        <div class="message" id="message"></div>
+    </div>
 
     <script>
-        let board = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]];
-        function render() {
-            const grid = document.getElementById('grid');
-            grid.innerHTML = '';
-            board.forEach(row => {
-                row.forEach(cell => {
-                    const div = document.createElement('div');
-                    div.className = 'cell';
-                    div.innerText = cell || '';
-                    grid.appendChild(div);
-                });
-            });
-        }
+        (function() {
+            var size = 4;
+            var board = [];
+            var score = 0;
+            var gameOver = false;
+            var hasWon = false;
 
-        function addRandomTile() {
-            const emptyCells = [];
-            board.forEach((row, i) => row.forEach((cell, j) => {
-                if (cell === 0) emptyCells.push({i, j});
-            }));
-            if (emptyCells.length) {
-                const {i, j} = emptyCells[Math.floor(Math.random() * emptyCells.length)];
-                board[i][j] = Math.random() < 0.9? 2 : 4;
-            }
-        }
+            var boardEl = document.getElementById('board');
+            var scoreDisplay = document.getElementById('scoreDisplay');
+            var messageEl = document.getElementById('message');
 
-        // 简化的合并逻辑（完整需处理方向、边界，这里示意核心）
-        function merge(row) {
-            return row.filter(x => x).reduce((acc, curr) => {
-                if (acc[acc.length - 1] === curr) {
-                    acc[acc.length - 1] *= 2;
-                } else {
-                    acc.push(curr);
+            function init() {
+                board = [];
+                for (var i = 0; i < size; i++) {
+                    board.push(new Array(size).fill(0));
                 }
-                return acc;
-            }, []).concat(new Array(4 - row.filter(x => x).length).fill(0));
-        }
-
-        document.addEventListener('keydown', (e) => {
-            switch(e.key) {
-                case 'ArrowUp': 
-                    board = board[0].map((_, col) => merge(board.map(row => row[col]))).map((col, row) => col.map((val, col) => board[col][row] = val));
-                    break;
-                // 其他方向（左、右、下）逻辑类似，需补全 merge 处理，这里简化演示
-                case 'ArrowRight': board = board.map(row => merge(row.reverse()).reverse()); break;
+                score = 0;
+                gameOver = false;
+                hasWon = false;
+                messageEl.textContent = '';
+                messageEl.className = 'message';
+                addRandomTile();
+                addRandomTile();
+                render();
+                updateScore();
             }
-            addRandomTile();
-            render();
-        });
 
-        // 初始化
-        addRandomTile();
-        addRandomTile();
-        render();
+            function addRandomTile() {
+                var emptyCells = [];
+                for (var i = 0; i < size; i++) {
+                    for (var j = 0; j < size; j++) {
+                        if (board[i][j] === 0) emptyCells.push({ i: i, j: j });
+                    }
+                }
+                if (emptyCells.length === 0) return;
+                var idx = Math.floor(Math.random() * emptyCells.length);
+                var cell = emptyCells[idx];
+                board[cell.i][cell.j] = Math.random() < 0.9 ? 2 : 4;
+            }
+
+            function render() {
+                boardEl.innerHTML = '';
+                for (var i = 0; i < size; i++) {
+                    for (var j = 0; j < size; j++) {
+                        var div = document.createElement('div');
+                        div.className = 'cell';
+                        var val = board[i][j];
+                        div.setAttribute('data-value', val);
+                        div.textContent = val || '';
+                        boardEl.appendChild(div);
+                    }
+                }
+            }
+
+            function updateScore() {
+                scoreDisplay.textContent = score;
+            }
+
+            function checkWin() {
+                if (hasWon) return true;
+                for (var i = 0; i < size; i++) {
+                    for (var j = 0; j < size; j++) {
+                        if (board[i][j] === 2048) {
+                            hasWon = true;
+                            messageEl.innerHTML = '<span class="win">🎉 你赢了！继续挑战更高分？</span>';
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+
+            function checkGameOver() {
+                for (var i = 0; i < size; i++) {
+                    for (var j = 0; j < size; j++) {
+                        if (board[i][j] === 0) return false;
+                        if (j < size - 1 && board[i][j] === board[i][j + 1]) return false;
+                        if (i < size - 1 && board[i][j] === board[i + 1][j]) return false;
+                    }
+                }
+                return true;
+            }
+
+            function slideRow(row) {
+                var newRow = row.filter(function(v) { return v !== 0; });
+                var merged = [];
+                var i = 0;
+                while (i < newRow.length) {
+                    if (i + 1 < newRow.length && newRow[i] === newRow[i + 1]) {
+                        merged.push(newRow[i] * 2);
+                        score += newRow[i] * 2;
+                        i += 2;
+                    } else {
+                        merged.push(newRow[i]);
+                        i++;
+                    }
+                }
+                while (merged.length < size) {
+                    merged.push(0);
+                }
+                return merged;
+            }
+
+            function transpose(matrix) {
+                var result = [];
+                for (var i = 0; i < size; i++) {
+                    result.push([]);
+                    for (var j = 0; j < size; j++) {
+                        result[i].push(matrix[j][i]);
+                    }
+                }
+                return result;
+            }
+
+            function reverseRows(matrix) {
+                return matrix.map(function(row) {
+                    return row.slice().reverse();
+                });
+            }
+
+            function move(direction) {
+                if (gameOver) return;
+
+                var newBoard = board.map(function(row) { return row.slice(); });
+                var moved = false;
+
+                switch(direction) {
+                    case 'left':
+                        for (var i = 0; i < size; i++) {
+                            var newRow = slideRow(board[i]);
+                            if (newRow.join(',') !== board[i].join(',')) moved = true;
+                            newBoard[i] = newRow;
+                        }
+                        break;
+                    case 'right':
+                        for (var i = 0; i < size; i++) {
+                            var reversed = board[i].slice().reverse();
+                            var newRow = slideRow(reversed);
+                            if (newRow.join(',') !== board[i].join(',')) moved = true;
+                            newBoard[i] = newRow.reverse();
+                        }
+                        break;
+                    case 'up':
+                        var transposed = transpose(board);
+                        for (var i = 0; i < size; i++) {
+                            var newRow = slideRow(transposed[i]);
+                            if (newRow.join(',') !== transposed[i].join(',')) moved = true;
+                            transposed[i] = newRow;
+                        }
+                        newBoard = transpose(transposed);
+                        break;
+                    case 'down':
+                        var transposed = transpose(board);
+                        for (var i = 0; i < size; i++) {
+                            var reversed = transposed[i].slice().reverse();
+                            var newRow = slideRow(reversed);
+                            if (newRow.join(',') !== transposed[i].join(',')) moved = true;
+                            transposed[i] = newRow.reverse();
+                        }
+                        newBoard = transpose(transposed);
+                        break;
+                }
+
+                if (moved) {
+                    board = newBoard;
+                    addRandomTile();
+                    render();
+                    updateScore();
+                    checkWin();
+                    if (checkGameOver()) {
+                        gameOver = true;
+                        messageEl.innerHTML = '<span class="lose">😵 游戏结束！点击「新游戏」再来一局</span>';
+                    }
+                }
+            }
+
+            document.addEventListener('keydown', function(e) {
+                var key = e.key;
+                if (key.startsWith('Arrow')) {
+                    e.preventDefault();
+                    var map = { 'ArrowUp': 'up', 'ArrowDown': 'down', 'ArrowLeft': 'left', 'ArrowRight': 'right' };
+                    move(map[key]);
+                }
+            });
+
+            // 触摸支持
+            var startX, startY;
+            boardEl.addEventListener('touchstart', function(e) {
+                var touch = e.touches[0];
+                startX = touch.clientX;
+                startY = touch.clientY;
+                e.preventDefault();
+            }, { passive: false });
+
+            boardEl.addEventListener('touchmove', function(e) {
+                e.preventDefault();
+            }, { passive: false });
+
+            boardEl.addEventListener('touchend', function(e) {
+                if (startX === undefined) return;
+                var touch = e.changedTouches[0];
+                var dx = touch.clientX - startX;
+                var dy = touch.clientY - startY;
+                var absDx = Math.abs(dx);
+                var absDy = Math.abs(dy);
+                if (Math.max(absDx, absDy) < 20) return;
+                if (absDx > absDy) {
+                    move(dx > 0 ? 'right' : 'left');
+                } else {
+                    move(dy > 0 ? 'down' : 'up');
+                }
+                startX = undefined;
+                startY = undefined;
+            }, { passive: false });
+
+            document.getElementById('resetBtn').addEventListener('click', init);
+
+            init();
+        })();
     </script>
 </body>
 </html>
