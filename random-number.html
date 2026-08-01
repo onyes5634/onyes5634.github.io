@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>随机数生成器</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="skin.css">
+</head>
+<body>
+<header class="app-header">
+<a class="back" href="index.html"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H109.3l105.3-105.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg> 返回主页</a>
+<h1 class="app-title">随机数生成器</h1>
+<button class="theme-toggle" id="themeToggle" title="切换主题" aria-label="切换主题">🌙</button>
+</header>
+<div class="app-shell">
+<div class="card">
+
+<h2 class="tool-title">随机数生成（可批量、可不重复）</h2>
+<div class="col">
+<div class="row">
+<div class="col grow"><label>最小值</label><input type="number" id="min" value="1"></div>
+<div class="col grow"><label>最大值</label><input type="number" id="max" value="100"></div>
+<div class="col grow"><label>生成个数</label><input type="number" id="cnt" value="5" min="1" max="100"></div>
+</div>
+<label class="row"><input type="checkbox" id="uniq"> 不重复</label>
+<div class="row"><button class="btn btn-primary" id="go">生成</button></div>
+<div id="out" class="result-box">结果</div>
+</div>
+</div>
+</div>
+<script>
+
+const $ = id => document.getElementById(id);
+$('go').onclick = function () {
+  const min = +$('min').value, max = +$('max').value, cnt = +$('cnt').value, uniq = $('uniq').checked;
+  if (isNaN(min) || isNaN(max) || min > max) { $('out').textContent = '✗ 范围不合法'; return; }
+  if (cnt < 1 || cnt > 500) { $('out').textContent = '✗ 个数需在 1-500'; return; }
+  if (uniq && cnt > (max - min + 1)) { $('out').textContent = '✗ 范围内数字不够去重'; return; }
+  const res = [], set = new Set();
+  while (res.length < cnt) {
+    const v = Math.floor(Math.random() * (max - min + 1)) + min;
+    if (uniq) { if (!set.has(v)) { set.add(v); res.push(v); } }
+    else res.push(v);
+  }
+  $('out').textContent = res.join('  ');
+};
+
+</script>
+<script defer src="skin.js"></script>
+</body>
+</html>
