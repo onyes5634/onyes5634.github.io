@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BMI 计算器</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="skin.css">
+</head>
+<body>
+<header class="app-header">
+<a class="back" href="index.html"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H109.3l105.3-105.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg> 返回主页</a>
+<h1 class="app-title">BMI 计算器</h1>
+<button class="theme-toggle" id="themeToggle" title="切换主题" aria-label="切换主题">🌙</button>
+</header>
+<div class="app-shell">
+<div class="card">
+
+<h2 class="tool-title">BMI 指数计算（中国标准）</h2>
+<div class="col">
+<div class="row">
+<div class="col grow"><label>身高 (cm)</label><input type="number" id="h" placeholder="170" min="50" max="250"></div>
+<div class="col grow"><label>体重 (kg)</label><input type="number" id="w" placeholder="60" min="10" max="300"></div>
+</div>
+<div class="row"><button class="btn btn-primary" id="go">计算</button></div>
+<div id="out" class="result-box">输入身高体重后点击计算</div>
+</div>
+</div>
+</div>
+<script>
+
+const $ = id => document.getElementById(id);
+$('go').onclick = function () {
+  const h = +$('h').value, w = +$('w').value;
+  if (!h || !w || h < 50 || h > 250 || w < 10 || w > 300) { $('out').textContent = '✗ 请输入有效的身高体重'; return; }
+  const bmi = w / Math.pow(h / 100, 2);
+  let level, color;
+  if (bmi < 18.5) { level = '偏瘦'; color = '#3498db'; }
+  else if (bmi < 24) { level = '正常'; color = '#2ecc71'; }
+  else if (bmi < 28) { level = '超重'; color = '#f39c12'; }
+  else { level = '肥胖'; color = '#e74c3c'; }
+  const ideal = (21 * Math.pow(h / 100, 2)).toFixed(1);
+  $('out').innerHTML = 'BMI: <b>' + bmi.toFixed(1) + '</b> &nbsp; <span style="color:' + color + ';font-weight:700">' + level + '</span><br>参考健康体重（BMI≈21）: <b>' + ideal + '</b> kg';
+};
+
+</script>
+<script defer src="skin.js"></script>
+</body>
+</html>
