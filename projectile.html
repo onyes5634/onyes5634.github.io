@@ -123,7 +123,7 @@
                 <input type="range" id="angleSlider" min="5" max="85" value="45">
             </label>
             <label>初速度 <span class="val" id="speedVal">50</span>
-                <input type="range" id="speedSlider" min="10" max="100" value="50">
+                <input type="range" id="speedSlider" min="20" max="100" value="50">
             </label>
         </div>
 
@@ -135,7 +135,7 @@
         <div class="info">
             <div>📏 射程 <span id="distDisplay">0.0</span> m</div>
             <div>📐 最高点 <span id="heightDisplay">0.0</span> m</div>
-            <div>⏱️ 飞行时间 <span id="timeDisplay">0.0</span> s</div>
+            <div>⏱️ 时间 <span id="timeDisplay">0.0</span> s</div>
         </div>
     </div>
 
@@ -154,20 +154,18 @@
             var heightDisplay = document.getElementById('heightDisplay');
             var timeDisplay = document.getElementById('timeDisplay');
 
-            var W, H;
-            var groundY;
-            var startX, startY;
-
+            var W, H, groundY, startX, startY;
             var ball = { x: 0, y: 0, vx: 0, vy: 0 };
             var trail = [];
             var isFlying = false;
             var animId = null;
             var flightTime = 0;
+            var maxH = 0;
 
-            // 物理常量（模拟比例）
+            // 物理常量
             var G = 9.8;
-            var PIXEL_PER_METER = 2.5;
-            var TIME_STEP = 1 / 60;
+            var SCALE = 3.0; // 像素/米
+            var DT = 0.016; // ~60fps
 
             function resizeCanvas() {
                 var rect = canvas.getBoundingClientRect();
@@ -179,13 +177,13 @@
                 groundY = H - 30;
                 startX = 50;
                 startY = groundY - 8;
-                drawGround();
+                drawScene();
             }
 
-            function drawGround() {
+            function drawScene() {
                 ctx.clearRect(0, 0, W, H);
                 
-                // 背景网格
+                // 网格
                 ctx.strokeStyle = 'rgba(0,0,0,0.04)';
                 ctx.lineWidth = 1;
                 for (var x = 0; x < W; x += 30) {
@@ -207,18 +205,18 @@
                 ctx.fillStyle = '#94a3b8';
                 ctx.fillRect(0, groundY, W, 2);
 
-                // 刻度标记（每10米）
+                // 刻度
                 ctx.fillStyle = '#94a3b8';
                 ctx.font = '10px system-ui';
                 ctx.textAlign = 'center';
-                for (var m = 0; m <= 50; m += 5) {
-                    var px = startX + m * PIXEL_PER_METER;
+                for (var m = 0; m <= 30; m += 5) {
+                    var px = startX + m * SCALE;
                     if (px > W - 20) break;
                     ctx.fillRect(px, groundY, 1, 6);
                     ctx.fillText(m + 'm', px, groundY + 20);
                 }
 
-                // 起点标记
+                // 起点
                 ctx.fillStyle = '#8b5cf6';
                 ctx.beginPath();
                 ctx.arc(startX, startY, 6, 0, Math.PI * 2);
@@ -228,33 +226,24 @@
                 ctx.textAlign = 'center';
                 ctx.fillText('起点', startX, startY - 16);
 
-                // 重置球的位置
-                ball.x = startX;
-                ball.y = startY;
-            }
-
-            function drawTrail() {
-                for (var i = 0; i < trail.length; i++) {
-                    var alpha = 0.1 + (i / trail.length) * 0.5;
-                    ctx.fillStyle = 'rgba(139, 92, 246, ' + alpha + ')';
-                    ctx.beginPath();
-                    ctx.arc(trail[i].x, trail[i].y, 2.5, 0, Math.PI * 2);
-                    ctx.fill();
+                // 重置球
+                if (!isFlying) {
+                    ball.x = startX;
+                    ball.y = startY;
                 }
             }
 
             function drawBall() {
                 // 光晕
-                var grad = ctx.createRadialGradient(ball.x, ball.y, 0, ball.x, ball.y, 20);
-                grad.addColorStop(0, 'rgba(139, 92, 246, 0.15)');
+                var grad = ctx.createRadialGradient(ball.x, ball.y, 0, ball.x, ball.y, 22);
+                grad.addColorStop(0, 'rgba(139, 92, 246, 0.12)');
                 grad.addColorStop(1, 'rgba(139, 92, 246, 0)');
                 ctx.fillStyle = grad;
                 ctx.beginPath();
-                ctx.arc(ball.x, ball.y, 20, 0, Math.PI * 2);
+                ctx.arc(ball.x, ball.y, 22, 0, Math.PI * 2);
                 ctx.fill();
 
-                // 球体
-                ctx.shadowColor = 'rgba(139, 92, 246, 0.25)';
+                ctx.shadowColor = 'rgba(139, 92, 246, 0.2)';
                 ctx.shadowBlur = 12;
                 ctx.fillStyle = '#8b5cf6';
                 ctx.beginPath();
@@ -262,16 +251,26 @@
                 ctx.fill();
                 ctx.shadowBlur = 0;
 
-                // 高光
                 ctx.fillStyle = 'rgba(255,255,255,0.3)';
                 ctx.beginPath();
                 ctx.arc(ball.x - 2.5, ball.y - 3, 2.5, 0, Math.PI * 2);
                 ctx.fill();
             }
 
+            function drawTrail() {
+                var len = trail.length;
+                for (var i = 0; i < len; i++) {
+                    var alpha = 0.05 + (i / len) * 0.55;
+                    ctx.fillStyle = 'rgba(139, 92, 246, ' + alpha + ')';
+                    ctx.beginPath();
+                    ctx.arc(trail[i].x, trail[i].y, 2.5, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+
             function render() {
                 ctx.clearRect(0, 0, W, H);
-                drawGround();
+                drawScene();
                 drawTrail();
                 drawBall();
             }
@@ -279,35 +278,37 @@
             function physicsStep() {
                 if (!isFlying) return;
 
-                // 物理更新（使用更精确的欧拉积分）
-                ball.vx = ball.vx;
-                ball.vy += G * TIME_STEP;
+                // 速度更新（重力）
+                ball.vy += G * DT;
 
-                ball.x += ball.vx * TIME_STEP * PIXEL_PER_METER;
-                ball.y += ball.vy * TIME_STEP * PIXEL_PER_METER;
+                // 位置更新
+                ball.x += ball.vx * DT * SCALE;
+                ball.y += ball.vy * DT * SCALE;
+                flightTime += DT;
 
-                flightTime += TIME_STEP;
-
+                // 记录轨迹
                 trail.push({ x: ball.x, y: ball.y });
-                if (trail.length > 300) trail.shift();
+                if (trail.length > 500) trail.shift();
+
+                // 更新最大高度
+                var h = (groundY - ball.y) / SCALE;
+                if (h > maxH) maxH = h;
 
                 // 落地检测
                 if (ball.y >= groundY - 4) {
                     ball.y = groundY - 4;
                     isFlying = false;
                     fireBtn.disabled = false;
-                    // 计算实际物理值
-                    var distM = (ball.x - startX) / PIXEL_PER_METER;
-                    var heightM = (groundY - 4 - trail.reduce(function(min, p) { return Math.min(min, p.y); }, groundY)) / PIXEL_PER_METER;
-                    distDisplay.textContent = Math.max(0, distM).toFixed(1);
-                    heightDisplay.textContent = Math.max(0, heightM).toFixed(1);
+                    var dist = (ball.x - startX) / SCALE;
+                    distDisplay.textContent = Math.max(0, dist).toFixed(1);
+                    heightDisplay.textContent = Math.max(0, maxH).toFixed(1);
                     timeDisplay.textContent = flightTime.toFixed(2);
                     render();
                     return;
                 }
 
-                // 超出边界
-                if (ball.x > W + 20 || ball.y > H + 20) {
+                // 出界检测
+                if (ball.x > W + 50 || ball.y > H + 50 || ball.x < -50) {
                     isFlying = false;
                     fireBtn.disabled = false;
                     render();
@@ -322,7 +323,7 @@
                 if (isFlying) return;
 
                 var angleDeg = parseInt(angleSlider.value);
-                var speed = parseInt(speedSlider.value) / 10; // 0-10 m/s
+                var speed = parseInt(speedSlider.value) / 5; // 转换为 m/s (20→4, 100→20)
 
                 var rad = angleDeg * Math.PI / 180;
                 ball.x = startX;
@@ -332,6 +333,7 @@
 
                 trail = [];
                 flightTime = 0;
+                maxH = 0;
                 isFlying = true;
                 fireBtn.disabled = true;
                 distDisplay.textContent = '...';
@@ -352,6 +354,7 @@
                 ball.vy = 0;
                 trail = [];
                 flightTime = 0;
+                maxH = 0;
                 distDisplay.textContent = '0.0';
                 heightDisplay.textContent = '0.0';
                 timeDisplay.textContent = '0.0';
@@ -370,7 +373,6 @@
             fireBtn.addEventListener('click', fire);
             resetBtn.addEventListener('click', resetSim);
 
-            // 键盘快捷键
             document.addEventListener('keydown', function(e) {
                 if (e.key === ' ' || e.key === 'Space') {
                     e.preventDefault();
@@ -381,7 +383,6 @@
                 }
             });
 
-            // 窗口自适应
             resizeCanvas();
             window.addEventListener('resize', function() {
                 resizeCanvas();
