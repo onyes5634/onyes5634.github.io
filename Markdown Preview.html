@@ -11,8 +11,18 @@
         textarea { width: 48%; height: 300px; float: left; }
         #preview { width: 48%; float: right; border: 1px solid #ccc; padding: 10px; min-height: 300px; }
     </style>
-</head>
+    <link rel="stylesheet" href="skin.css">
+
 <body>
+    <header class="app-header">
+        <a class="back" href="index.html"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H109.3l105.3-105.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg> 返回主页</a>
+        <h1 class="app-title">Markdown 预览</h1>
+        <button class="theme-toggle" id="themeToggle" title="切换主题" aria-label="切换主题">🌙</button>
+    </header>
+    <div class="app-shell"><div class="card">
+
+    <div class="app-shell"><div class="card">
+
     <textarea id="mdInput"># 试试写 Markdown</textarea>
     <div id="preview"></div>
 
@@ -24,5 +34,9 @@
             preview.innerHTML = window.DOMPurify ? DOMPurify.sanitize(rawHtml) : rawHtml;
         });
     </script>
+
+    </div></div>
+
+    </div></div>
 </body>
 </html>
