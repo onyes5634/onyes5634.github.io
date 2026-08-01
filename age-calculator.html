@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>年龄计算器</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="skin.css">
+</head>
+<body>
+<header class="app-header">
+<a class="back" href="index.html"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H109.3l105.3-105.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg> 返回主页</a>
+<h1 class="app-title">年龄计算器</h1>
+<button class="theme-toggle" id="themeToggle" title="切换主题" aria-label="切换主题">🌙</button>
+</header>
+<div class="app-shell">
+<div class="card">
+
+<h2 class="tool-title">年龄 / 生肖 / 星座 / 生日倒计时</h2>
+<div class="col">
+<div class="row">
+<input type="date" id="bd" class="grow">
+<button class="btn btn-primary" id="go">计算</button>
+</div>
+<div id="out" class="result-box">输入出生日期后点击计算</div>
+</div>
+</div>
+</div>
+<script>
+
+const $ = id => document.getElementById(id);
+const ZODIAC = ['猴','鸡','狗','猪','鼠','牛','虎','兔','龙','蛇','马','羊'];
+const STARS = [
+  [120, '摩羯座'],[219,'水瓶座'],[320,'双鱼座'],[419,'白羊座'],[520,'金牛座'],
+  [621,'双子座'],[722,'巨蟹座'],[822,'狮子座'],[923,'处女座'],[1023,'天秤座'],
+  [1122,'天蝎座'],[1221,'射手座'],[1231,'摩羯座']
+];
+$('go').onclick = function () {
+  const v = $('bd').value;
+  if (!v) return;
+  const bd = new Date(v), now = new Date();
+  let years = now.getFullYear() - bd.getFullYear();
+  let months = now.getMonth() - bd.getMonth();
+  let days = now.getDate() - bd.getDate();
+  if (days < 0) { months--; days += new Date(now.getFullYear(), now.getMonth(), 0).getDate(); }
+  if (months < 0) { years--; months += 12; }
+  const totalDays = Math.floor((now - bd) / 86400000);
+  const zodiac = ZODIAC[bd.getFullYear() % 12];
+  const md = bd.getMonth() * 100 + bd.getDate();
+  let star = '摩羯座';
+  for (const [end, name] of STARS) { if (md <= end) { star = name; break; } }
+  const nextBd = new Date(now.getFullYear(), bd.getMonth(), bd.getDate());
+  if (nextBd < now) nextBd.setFullYear(now.getFullYear() + 1);
+  const toBirthday = Math.ceil((nextBd - now) / 86400000);
+  $('out').innerHTML =
+    '年龄: <b>' + years + '</b> 岁 ' + months + ' 个月 ' + days + ' 天<br>' +
+    '总天数: <b>' + totalDays + '</b> 天<br>' +
+    '生肖: <b>' + zodiac + '</b> &nbsp; 星座: <b>' + star + '</b><br>' +
+    '距下次生日: <b>' + toBirthday + '</b> 天';
+};
+
+</script>
+<script defer src="skin.js"></script>
+</body>
+</html>
