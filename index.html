@@ -53,6 +53,7 @@
             --nav-bg: rgba(255, 255, 255, 0.75);
             --nav-border: rgba(0, 0, 0, 0.06);
             --nav-text: #222;
+            --gold: #f59e0b;
         }
 
         [data-theme="dark"] {
@@ -73,6 +74,7 @@
             --nav-bg: rgba(22, 27, 34, 0.85);
             --nav-border: rgba(255, 255, 255, 0.06);
             --nav-text: #e6edf3;
+            --gold: #fbbf24;
         }
         
         /* ===== 基础样式 ===== */
@@ -554,7 +556,7 @@
             margin-top: 16px;
         }
         
-        /* ===== 卡片样式 ===== */
+        /* ===== 卡片样式（含收藏按钮） ===== */
         .project-item {
             background: var(--item-bg);
             padding: 18px 20px;
@@ -658,6 +660,38 @@
             pointer-events: none;
         }
         .project-item a:hover { gap: 10px; color: var(--accent); }
+
+        /* ===== 收藏按钮 ===== */
+        .project-item .favorite-btn {
+            position: absolute;
+            top: 10px;
+            right: 12px;
+            background: transparent;
+            border: none;
+            color: var(--text-light);
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            z-index: 2;
+            opacity: 0.3;
+            padding: 4px;
+        }
+        .project-item:hover .favorite-btn {
+            opacity: 1;
+        }
+        .project-item .favorite-btn:hover {
+            transform: scale(1.2);
+        }
+        .project-item .favorite-btn.favorited {
+            color: var(--gold);
+            opacity: 1;
+            animation: starPop 0.3s ease;
+        }
+        @keyframes starPop {
+            0% { transform: scale(0.5); }
+            70% { transform: scale(1.3); }
+            100% { transform: scale(1); }
+        }
         
         /* ===== 滚动进度条 ===== */
         .scroll-progress {
@@ -824,6 +858,85 @@
         }
         .debug-version:hover {
             opacity: 0.8;
+        }
+
+        /* ===== 快捷键面板 ===== */
+        .shortcuts-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            z-index: 9998;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .shortcuts-overlay.active {
+            display: flex;
+        }
+        .shortcuts-panel {
+            background: var(--bg-card);
+            border-radius: 24px;
+            padding: 40px 48px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.4);
+            border: 1px solid var(--border-color);
+            animation: slideUp 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+        }
+        @keyframes slideUp {
+            from { transform: translateY(30px) scale(0.96); opacity: 0; }
+            to { transform: translateY(0) scale(1); opacity: 1; }
+        }
+        .shortcuts-panel h2 {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .shortcuts-panel h2 i {
+            color: var(--primary);
+        }
+        .shortcuts-panel .close-shortcuts {
+            margin-left: auto;
+            background: transparent;
+            border: none;
+            color: var(--text-light);
+            font-size: 1.4rem;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 8px;
+            transition: 0.2s;
+        }
+        .shortcuts-panel .close-shortcuts:hover {
+            background: var(--section-bg);
+            color: var(--text-color);
+        }
+        .shortcuts-panel .shortcut-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.95rem;
+            color: var(--text-color);
+        }
+        .shortcuts-panel .shortcut-row:last-child {
+            border-bottom: none;
+        }
+        .shortcuts-panel .shortcut-row kbd {
+            background: var(--tag-bg);
+            padding: 2px 12px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 0.85rem;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
         }
 
         /* ===== 神秘模态框（全屏） ===== */
@@ -1010,6 +1123,9 @@
             .nav-compact .mini-title {
                 font-size: 0.85rem;
             }
+            .shortcuts-panel {
+                padding: 28px 20px;
+            }
         }
 
         @media (max-width: 480px) {
@@ -1153,6 +1269,12 @@
                 width: 24px;
                 height: 24px;
             }
+            .shortcuts-panel {
+                padding: 20px 16px;
+            }
+            .shortcuts-panel h2 {
+                font-size: 1.2rem;
+            }
         }
     </style>
 </head>
@@ -1182,8 +1304,27 @@
             <button id="navThemeToggle" title="切换深色/浅色模式">
                 <i class="fas fa-moon"></i>
             </button>
+            <button id="shortcutsToggle" title="快捷键">
+                <i class="fas fa-keyboard"></i>
+            </button>
         </div>
     </nav>
+
+    <!-- ===== 快捷键面板 ===== -->
+    <div class="shortcuts-overlay" id="shortcutsOverlay">
+        <div class="shortcuts-panel">
+            <h2>
+                <i class="fas fa-keyboard"></i> 快捷键
+                <button class="close-shortcuts" id="closeShortcuts"><i class="fas fa-times"></i></button>
+            </h2>
+            <div class="shortcut-row"><span>🔍 聚焦搜索</span> <kbd>/</kbd></div>
+            <div class="shortcut-row"><span>❌ 关闭搜索 / 弹窗</span> <kbd>Esc</kbd></div>
+            <div class="shortcut-row"><span>⌨️ 打开快捷键面板</span> <kbd>?</kbd></div>
+            <div class="shortcut-row"><span>⭐ 收藏/取消收藏</span> <kbd>S</kbd></div>
+            <div class="shortcut-row"><span>⬆️ 回到顶部</span> <kbd>Home</kbd></div>
+            <div class="shortcut-row"><span>🌓 切换主题</span> <kbd>D</kbd></div>
+        </div>
+    </div>
 
     <!-- ===== 滚动进度条 ===== -->
     <div class="scroll-progress" id="scrollProgress"></div>
@@ -1265,61 +1406,73 @@
                     <h2 class="category-title"><i class="fas fa-tools"></i> 实用工具类</h2>
                     <div class="project-list">
                         <div class="project-item" data-name="二维码" data-url="Website to QR code.html">
+                            <button class="favorite-btn" data-id="tool-1"><i class="fas fa-star"></i></button>
                             <h3>二维码生成器</h3>
                             <p>输入文本或网址，快速生成二维码图片。</p>
                             <a href="Website to QR code.html"><i class="fas fa-qrcode"></i> 使用工具</a>
                         </div>
                         <div class="project-item" data-name="二维码解码器" data-url="qrcode-decoder.html">
+                            <button class="favorite-btn" data-id="tool-2"><i class="fas fa-star"></i></button>
                             <h3>📷 二维码解码器</h3>
                             <p>上传或粘贴二维码图片，快速解码出其中的内容。</p>
                             <a href="qrcode-decoder.html"><i class="fas fa-qrcode"></i> 使用工具</a>
                         </div>
                         <div class="project-item" data-name="取色器" data-url="Screen Color Picker.html">
+                            <button class="favorite-btn" data-id="tool-3"><i class="fas fa-star"></i></button>
                             <h3>屏幕取色器</h3>
                             <p>拾取屏幕任意位置颜色，获取十六进制值。</p>
                             <a href="Screen Color Picker.html"><i class="fas fa-eyedropper"></i> 使用工具</a>
                         </div>
                         <div class="project-item" data-name="Markdown" data-url="Markdown Preview.html">
+                            <button class="favorite-btn" data-id="tool-4"><i class="fas fa-star"></i></button>
                             <h3>Markdown预览器</h3>
                             <p>实时将Markdown格式文本转换为HTML预览。</p>
                             <a href="Markdown Preview.html"><i class="fas fa-markdown"></i> 使用工具</a>
                         </div>
                         <div class="project-item" data-name="Base64" data-url="image-to-base64.html">
+                            <button class="favorite-btn" data-id="tool-5"><i class="fas fa-star"></i></button>
                             <h3>图片转Base64</h3>
                             <p>上传图片文件，转换为Base64编码。</p>
                             <a href="image-to-base64.html"><i class="fas fa-image"></i> 使用工具</a>
                         </div>
                         <div class="project-item" data-name="密码" data-url="Random Password Generator.html">
+                            <button class="favorite-btn" data-id="tool-6"><i class="fas fa-star"></i></button>
                             <h3>随机密码生成器</h3>
                             <p>生成高强度随机密码，含大小写字母、数字、特殊符号。</p>
                             <a href="Random Password Generator.html"><i class="fas fa-key"></i> 使用工具</a>
                         </div>
                         <div class="project-item" data-name="待办清单" data-url="todo.html">
+                            <button class="favorite-btn" data-id="tool-7"><i class="fas fa-star"></i></button>
                             <h3>✅ 待办清单</h3>
                             <p>增删改任务，自动保存到本地，每天必用。</p>
                             <a href="todo.html"><i class="fas fa-list-check"></i> 使用工具</a>
                         </div>
                         <div class="project-item" data-name="番茄时钟" data-url="pomodoro.html">
+                            <button class="favorite-btn" data-id="tool-8"><i class="fas fa-star"></i></button>
                             <h3>🍅 番茄时钟</h3>
                             <p>25分钟专注 + 5分钟休息，提高工作效率。</p>
                             <a href="pomodoro.html"><i class="fas fa-clock"></i> 使用工具</a>
                         </div>
                         <div class="project-item" data-name="单位换算" data-url="unit-convert.html">
+                            <button class="favorite-btn" data-id="tool-9"><i class="fas fa-star"></i></button>
                             <h3>📏 单位换算</h3>
                             <p>长度、重量、温度、体积快速换算。</p>
                             <a href="unit-convert.html"><i class="fas fa-arrows-left-right"></i> 使用工具</a>
                         </div>
                         <div class="project-item" data-name="倒计时器" data-url="countdown.html">
+                            <button class="favorite-btn" data-id="tool-10"><i class="fas fa-star"></i></button>
                             <h3>⏳ 倒计时器</h3>
                             <p>设置目标时间，实时倒计时，支持暂停和预设时长。</p>
                             <a href="countdown.html"><i class="fas fa-hourglass-half"></i> 使用工具</a>
                         </div>
                         <div class="project-item" data-name="秒表" data-url="miaobiao.html">
+                            <button class="favorite-btn" data-id="tool-11"><i class="fas fa-star"></i></button>
                             <h3>⏱️ 秒表</h3>
                             <p>精确计时，支持计次记录，适合运动训练和测试。</p>
                             <a href="miaobiao.html"><i class="fas fa-stopwatch"></i> 使用工具</a>
                         </div>
                         <div class="project-item" data-name="计算器" data-url="jisuanqi.html">
+                            <button class="favorite-btn" data-id="tool-12"><i class="fas fa-star"></i></button>
                             <h3>🧮 计算器</h3>
                             <p>基础四则运算，键盘支持，日常计算好帮手。</p>
                             <a href="jisuanqi.html"><i class="fas fa-calculator"></i> 使用工具</a>
@@ -1332,36 +1485,43 @@
                     <h2 class="category-title"><i class="fas fa-flask"></i> 模拟实验类</h2>
                     <div class="project-list">
                         <div class="project-item" data-name="太阳系" data-url="solar-system-simulation.html">
+                            <button class="favorite-btn" data-id="sim-1"><i class="fas fa-star"></i></button>
                             <h3>太阳系模拟器</h3>
                             <p>模拟太阳系行星运行轨迹。</p>
                             <a href="solar-system-simulation.html"><i class="fas fa-globe"></i> 查看模拟</a>
                         </div>
                         <div class="project-item" data-name="流体" data-url="fluid-simulator.html">
+                            <button class="favorite-btn" data-id="sim-2"><i class="fas fa-star"></i></button>
                             <h3>流体物理模拟器</h3>
                             <p>基于物理引擎的流体模拟，展示液体流动效果。</p>
                             <a href="fluid-simulator.html"><i class="fas fa-tint"></i> 查看模拟</a>
                         </div>
                         <div class="project-item" data-name="颜色混合" data-url="color-mixer.html">
+                            <button class="favorite-btn" data-id="sim-3"><i class="fas fa-star"></i></button>
                             <h3>🎨 颜色混合</h3>
                             <p>红绿蓝三色滑块，实时混合出你想要的任意颜色。</p>
                             <a href="color-mixer.html"><i class="fas fa-palette"></i> 查看模拟</a>
                         </div>
                         <div class="project-item" data-name="音波可视化" data-url="sound-visualizer.html">
+                            <button class="favorite-btn" data-id="sim-4"><i class="fas fa-star"></i></button>
                             <h3>🎵 音波可视化</h3>
                             <p>用麦克风捕捉声音，实时显示音频波形。</p>
                             <a href="sound-visualizer.html"><i class="fas fa-wave-square"></i> 查看模拟</a>
                         </div>
                         <div class="project-item" data-name="抛体运动" data-url="projectile.html">
+                            <button class="favorite-btn" data-id="sim-5"><i class="fas fa-star"></i></button>
                             <h3>🚀 抛体运动</h3>
                             <p>调整角度和初速度，模拟抛物线运动轨迹。</p>
                             <a href="projectile.html"><i class="fas fa-rocket"></i> 查看模拟</a>
                         </div>
                         <div class="project-item" data-name="电路模拟" data-url="circuit.html">
+                            <button class="favorite-btn" data-id="sim-6"><i class="fas fa-star"></i></button>
                             <h3>⚡ 电路模拟</h3>
                             <p>开关控制电路通断，观察灯泡亮灭和电流变化。</p>
                             <a href="circuit.html"><i class="fas fa-bolt"></i> 查看模拟</a>
                         </div>
                         <div class="project-item" data-name="热传导" data-url="heat-conduction.html">
+                            <button class="favorite-btn" data-id="sim-7"><i class="fas fa-star"></i></button>
                             <h3>🌡️ 热传导模拟</h3>
                             <p>加热金属板，观察热量从热源向四周扩散的过程。</p>
                             <a href="heat-conduction.html"><i class="fas fa-fire"></i> 查看模拟</a>
@@ -1374,31 +1534,37 @@
                     <h2 class="category-title"><i class="fas fa-gamepad"></i> 游戏类项目</h2>
                     <div class="project-list">
                         <div class="project-item" data-name="贪吃蛇" data-url="snake-game.html">
+                            <button class="favorite-btn" data-id="game-1"><i class="fas fa-star"></i></button>
                             <h3>贪吃蛇游戏</h3>
                             <p>经典的贪吃蛇游戏，键盘方向键控制移动。</p>
                             <a href="snake-game.html"><i class="fas fa-play"></i> 开始游戏</a>
                         </div>
                         <div class="project-item" data-name="2048" data-url="2048.html">
+                            <button class="favorite-btn" data-id="game-2"><i class="fas fa-star"></i></button>
                             <h3>2048游戏</h3>
                             <p>热门数字拼图游戏，方向键移动，相同数字合并。</p>
                             <a href="2048.html"><i class="fas fa-play"></i> 开始游戏</a>
                         </div>
                         <div class="project-item" data-name="打砖块" data-url="breakout-game.html">
+                            <button class="favorite-btn" data-id="game-3"><i class="fas fa-star"></i></button>
                             <h3>打砖块游戏</h3>
                             <p>移动挡板接住小球，击碎所有砖块获胜。</p>
                             <a href="breakout-game.html"><i class="fas fa-play"></i> 开始游戏</a>
                         </div>
                         <div class="project-item" data-name="数字华容道" data-url="number-puzzle.html">
+                            <button class="favorite-btn" data-id="game-4"><i class="fas fa-star"></i></button>
                             <h3>🧩 数字华容道</h3>
                             <p>4×4 滑块拼图，按顺序排列数字，考验你的逻辑思维。</p>
                             <a href="number-puzzle.html"><i class="fas fa-play"></i> 开始游戏</a>
                         </div>
                         <div class="project-item" data-name="打地鼠" data-url="whack-mole.html">
+                            <button class="favorite-btn" data-id="game-5"><i class="fas fa-star"></i></button>
                             <h3>🔨 打地鼠</h3>
                             <p>30秒限时挑战，看看你的反应速度有多快！</p>
                             <a href="whack-mole.html"><i class="fas fa-play"></i> 开始游戏</a>
                         </div>
                         <div class="project-item" data-name="拼图游戏" data-url="jigsaw-puzzle.html">
+                            <button class="favorite-btn" data-id="game-6"><i class="fas fa-star"></i></button>
                             <h3>🧩 拼图游戏</h3>
                             <p>3×3 数字拼图，用最少的步数完成挑战。</p>
                             <a href="jigsaw-puzzle.html"><i class="fas fa-play"></i> 开始游戏</a>
@@ -1439,24 +1605,25 @@
             <footer>
                 <p>© <span id="currentYear"></span> Onyes 的实验室 | 托管于 GitHub Pages</p>
             </footer>
- <!-- ===== Giscus 评论区 ===== -->
-        <div class="giscus-wrapper" style="max-width:1200px;margin:40px auto 0;padding:0 20px;">
-            <script src="https://giscus.app/client.js"
-                data-repo="onyes5634/onyes5634.github.io"
-                data-repo-id="R_kgDOPYccPg"
-                data-category="Announcements"
-                data-category-id="DIC_kwDOPYccPs4DCcQJ"
-                data-mapping="pathname"
-                data-strict="0"
-                data-reactions-enabled="1"
-                data-emit-metadata="0"
-                data-input-position="bottom"
-                data-theme="preferred_color_scheme"
-                data-lang="zh-CN"
-                crossorigin="anonymous"
-                async>
-            </script>
-        </div>
+
+            <!-- ===== Giscus 评论区 ===== -->
+            <div class="giscus-wrapper" style="max-width:1200px;margin:40px auto 0;padding:0 20px;">
+                <script src="https://giscus.app/client.js"
+                    data-repo="onyes5634/onyes5634.github.io"
+                    data-repo-id="R_kgDOPYccPg"
+                    data-category="Announcements"
+                    data-category-id="DIC_kwDOPYccPs4DCcQJ"
+                    data-mapping="pathname"
+                    data-strict="0"
+                    data-reactions-enabled="1"
+                    data-emit-metadata="0"
+                    data-input-position="bottom"
+                    data-theme="preferred_color_scheme"
+                    data-lang="zh-CN"
+                    crossorigin="anonymous"
+                    async>
+                </script>
+            </div>
             <div class="debug-version" id="debugVersion">v2.3.0 · 2026-07-31 18:42</div>
 
         </div><!-- .elastic-wrapper -->
@@ -1507,6 +1674,89 @@
             };
 
             // =============================================
+            // 快捷键面板
+            // =============================================
+            var shortcutsToggle = document.getElementById('shortcutsToggle');
+            var shortcutsOverlay = document.getElementById('shortcutsOverlay');
+            var closeShortcuts = document.getElementById('closeShortcuts');
+
+            function toggleShortcuts(show) {
+                if (show === undefined) {
+                    shortcutsOverlay.classList.toggle('active');
+                } else if (show) {
+                    shortcutsOverlay.classList.add('active');
+                } else {
+                    shortcutsOverlay.classList.remove('active');
+                }
+            }
+
+            shortcutsToggle.addEventListener('click', function() {
+                toggleShortcuts();
+            });
+
+            closeShortcuts.addEventListener('click', function() {
+                toggleShortcuts(false);
+            });
+
+            shortcutsOverlay.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    toggleShortcuts(false);
+                }
+            });
+
+            document.addEventListener('keydown', function(e) {
+                // ? 打开快捷键面板
+                if (e.key === '?' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+                    e.preventDefault();
+                    toggleShortcuts();
+                }
+                // Esc 关闭面板 / 关闭搜索
+                if (e.key === 'Escape') {
+                    if (shortcutsOverlay.classList.contains('active')) {
+                        toggleShortcuts(false);
+                    }
+                    if (searchBox.classList.contains('active')) {
+                        searchBox.classList.remove('active');
+                        searchInput.value = '';
+                        suggestions.classList.remove('show');
+                        filterProjects('');
+                    }
+                }
+                // / 聚焦搜索
+                if (e.key === '/' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+                    var tag = e.target.tagName;
+                    if (tag !== 'INPUT' && tag !== 'TEXTAREA' && tag !== 'SELECT') {
+                        e.preventDefault();
+                        searchBox.classList.add('active');
+                        searchInput.focus();
+                    }
+                }
+                // S 收藏/取消收藏（鼠标悬停在卡片上时）
+                if (e.key === 's' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+                    var active = document.activeElement;
+                    if (active && active.tagName === 'INPUT') return;
+                    var hovered = document.querySelector('.project-item:hover');
+                    if (hovered) {
+                        var btn = hovered.querySelector('.favorite-btn');
+                        if (btn) btn.click();
+                    }
+                }
+                // D 切换主题
+                if (e.key === 'd' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+                    var tag = e.target.tagName;
+                    if (tag !== 'INPUT' && tag !== 'TEXTAREA' && tag !== 'SELECT') {
+                        e.preventDefault();
+                        navThemeToggle.click();
+                    }
+                }
+                // Home 回到顶部
+                if (e.key === 'Home' && !e.ctrlKey && !e.metaKey) {
+                    e.preventDefault();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            });
+
+            // =============================================
             // 导航栏搜索按钮
             // =============================================
             var navSearchToggle = document.getElementById('navSearchToggle');
@@ -1546,6 +1796,42 @@
                     localStorage.setItem('theme', 'dark');
                     navThemeToggle.innerHTML = '<i class="fas fa-sun"></i>';
                 }
+            });
+
+            // =============================================
+            // 收藏功能
+            // =============================================
+            var FAVORITES_KEY = 'onyes_favorites';
+            var favorites = JSON.parse(localStorage.getItem(FAVORITES_KEY) || '[]');
+
+            function updateFavoritesUI() {
+                document.querySelectorAll('.favorite-btn').forEach(function(btn) {
+                    var id = btn.dataset.id;
+                    if (favorites.includes(id)) {
+                        btn.classList.add('favorited');
+                    } else {
+                        btn.classList.remove('favorited');
+                    }
+                });
+            }
+
+            document.querySelectorAll('.favorite-btn').forEach(function(btn) {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    var id = this.dataset.id;
+                    var idx = favorites.indexOf(id);
+                    if (idx > -1) {
+                        favorites.splice(idx, 1);
+                    } else {
+                        favorites.push(id);
+                        this.style.transform = 'scale(1.4)';
+                        setTimeout(function() {
+                            this.style.transform = '';
+                        }.bind(this), 300);
+                    }
+                    localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
+                    updateFavoritesUI();
+                });
             });
 
             // =============================================
@@ -1909,6 +2195,11 @@
                 // 头部底部边框渐隐
                 header.style.borderBottomColor = 'rgba(0, 0, 0, ' + (0.06 * (1 - progress * 0.9)) + ')';
             });
+
+            // =============================================
+            // 初始化收藏状态
+            // =============================================
+            updateFavoritesUI();
 
         })();
     </script>
