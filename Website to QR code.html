@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>二维码生成器 - Onyes 的小站</title>
     <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.bootcdn.net/ajax/libs/qrcodejs/1.0.0/qrcode.min.js?v=20260802">
+    <script defer src="https://cdn.bootcdn.net/ajax/libs/qrcodejs/1.0.0/qrcode.min.js?v=20260802">
     </script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -218,20 +218,17 @@
                 toast.textContent = msg;
                 toast.classList.add('show');
                 clearTimeout(toast._timer);
-                toast._timer = setTimeout(function() {
+                toast._toastTimer = setTimeout(function() {
                     toast.classList.remove('show');
                 }, 2000);
             }
 
             function getFileName(text) {
-                // 从文本中提取文件名
                 var name = text.trim();
-                // 如果是 URL，提取域名
                 try {
                     var url = new URL(name);
                     name = url.hostname.replace(/^www\./, '');
                 } catch (e) { /* 不是 URL，用原文本 */ }
-                // 限制长度，替换特殊字符
                 name = name.replace(/[^a-zA-Z0-9\-_\.]/g, '-').substring(0, 40);
                 if (!name) name = 'qrcode';
                 return name;
@@ -260,14 +257,12 @@
                 }
 
                 try {
-                    // 用 div 包裹 canvas，让 qrcodejs 生成带白色背景的二维码
                     var wrapper = document.createElement('div');
                     qrContainer.appendChild(wrapper);
                     qrContainer.style.display = 'block';
                     placeholder.style.display = 'none';
                     qrWrapper.classList.add('has-qr');
 
-                    // 生成二维码
                     new QRCode(wrapper, {
                         text: text,
                         width: 280,
@@ -277,21 +272,16 @@
                         correctLevel: QRCode.CorrectLevel.H
                     });
 
-                    // 获取生成的 canvas
                     var canvas = wrapper.querySelector('canvas');
                     if (!canvas) {
                         throw new Error('生成失败');
                     }
 
-                    // 确保背景是白色（有些版本默认透明，我们手动处理）
-                    // 如果 canvas 背景透明，画一个白色背景
                     var ctx = canvas.getContext('2d');
                     var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                    // 检查第一个像素是否透明
                     var data = imageData.data;
                     var isTransparent = data[3] === 0;
                     if (isTransparent) {
-                        // 重新绘制：先填充白色背景，再绘制原图
                         var tempCanvas = document.createElement('canvas');
                         tempCanvas.width = canvas.width;
                         tempCanvas.height = canvas.height;
@@ -299,7 +289,6 @@
                         tempCtx.fillStyle = '#ffffff';
                         tempCtx.fillRect(0, 0, canvas.width, canvas.height);
                         tempCtx.drawImage(canvas, 0, 0);
-                        // 替换 canvas
                         canvas = tempCanvas;
                         wrapper.innerHTML = '';
                         wrapper.appendChild(canvas);
@@ -333,7 +322,6 @@
                 try {
                     var svgData = currentCanvas.toDataURL('image/svg+xml');
                     if (!svgData || svgData.indexOf('svg') === -1) {
-                        // 降级到 PNG
                         downloadPNG();
                         return;
                     }
@@ -350,17 +338,13 @@
 
             function copyImage() {
                 if (!currentCanvas) return;
-                // 使用 Clipboard API 复制图片
                 currentCanvas.toBlob(function(blob) {
                     try {
                         navigator.clipboard.write([
-                            new ClipboardItem({
-                                'image/png': blob
-                            })
+                            new ClipboardItem({ 'image/png': blob })
                         ]).then(function() {
                             showToast('✅ 已复制到剪贴板');
                         }).catch(function() {
-                            // 降级方案：复制图片的 data URL（文本形式）
                             var dataUrl = currentCanvas.toDataURL('image/png');
                             navigator.clipboard.writeText(dataUrl).then(function() {
                                 showToast('✅ 已复制图片数据（可粘贴到支持的地方）');
@@ -369,7 +353,6 @@
                             });
                         });
                     } catch (e) {
-                        // 降级方案
                         var dataUrl = currentCanvas.toDataURL('image/png');
                         navigator.clipboard.writeText(dataUrl).then(function() {
                             showToast('✅ 已复制图片数据');
@@ -380,7 +363,6 @@
                 });
             }
 
-            // ===== 事件绑定 =====
             generateBtn.addEventListener('click', function() {
                 generateQR(input.value);
             });
