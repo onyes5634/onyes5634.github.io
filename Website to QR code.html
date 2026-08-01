@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>二维码生成器 - Onyes 的小站</title>
     <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.bootcdn.net/ajax/libs/qrcodejs/1.0.0/qrcode.min.js?v=20260801">
+    <script src="https://cdn.bootcdn.net/ajax/libs/qrcodejs/1.0.0/qrcode.min.js?v=20260802">
     </script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -73,10 +73,11 @@
             transition: 0.2s;
         }
         .qr-wrapper.has-qr { border-style: solid; border-color: #3498db; }
-        .qr-wrapper canvas, .qr-wrapper img {
+        .qr-wrapper canvas {
             max-width: 100%;
             max-height: 280px;
             border-radius: 8px;
+            background: #fff;
         }
         .qr-placeholder {
             color: #aaa;
@@ -106,12 +107,14 @@
             font-weight: 600;
             cursor: pointer;
             transition: 0.2s;
-            min-width: 80px;
+            min-width: 70px;
         }
         .download-area .download-png { background: #22c55e; color: #fff; }
         .download-area .download-png:hover { background: #16a34a; }
         .download-area .download-svg { background: #8b5cf6; color: #fff; }
         .download-area .download-svg:hover { background: #7c3aed; }
+        .download-area .copy-btn { background: #f59e0b; color: #fff; }
+        .download-area .copy-btn:hover { background: #d97706; }
         .download-area button:disabled { opacity: 0.4; cursor: not-allowed; }
         .presets {
             display: flex;
@@ -130,10 +133,27 @@
             transition: 0.2s;
         }
         .presets button:hover { border-color: #3498db; color: #3498db; }
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1e293b;
+            color: #fff;
+            padding: 12px 28px;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+            z-index: 999;
+        }
+        .toast.show { opacity: 1; }
         @media (max-width: 480px) {
             .container { padding: 20px 16px; }
             .input-group { flex-wrap: wrap; }
             .input-group button { width: 100%; }
+            .download-area button { min-width: 60px; font-size: 0.8rem; padding: 8px; }
         }
     </style>
 </head>
@@ -168,10 +188,14 @@
         <div class="error-msg" id="errorMsg"></div>
 
         <div class="download-area">
-            <button class="download-png" id="downloadPng" disabled><i class="fas fa-image"></i> 下载 PNG</button>
-            <button class="download-svg" id="downloadSvg" disabled><i class="fas fa-code"></i> 下载 SVG</button>
+            <button class="download-png" id="downloadPng" disabled><i class="fas fa-image"></i> PNG</button>
+            <button class="download-svg" id="downloadSvg" disabled><i class="fas fa-code"></i> SVG</button>
+            <button class="copy-btn" id="copyBtn" disabled><i class="fas fa-copy"></i> 复制</button>
         </div>
     </div>
+
+    <!-- Toast 提示 -->
+    <div class="toast" id="toast"></div>
 
     <script>
         (function() {
@@ -183,13 +207,37 @@
             var errorMsg = document.getElementById('errorMsg');
             var downloadPng = document.getElementById('downloadPng');
             var downloadSvg = document.getElementById('downloadSvg');
+            var copyBtn = document.getElementById('copyBtn');
             var presetBtns = document.querySelectorAll('.presets button');
+            var toast = document.getElementById('toast');
 
             var currentCanvas = null;
             var currentText = '';
 
+            function showToast(msg) {
+                toast.textContent = msg;
+                toast.classList.add('show');
+                clearTimeout(toast._timer);
+                toast._timer = setTimeout(function() {
+                    toast.classList.remove('show');
+                }, 2000);
+            }
+
+            function getFileName(text) {
+                // 从文本中提取文件名
+                var name = text.trim();
+                // 如果是 URL，提取域名
+                try {
+                    var url = new URL(name);
+                    name = url.hostname.replace(/^www\./, '');
+                } catch (e) { /* 不是 URL，用原文本 */ }
+                // 限制长度，替换特殊字符
+                name = name.replace(/[^a-zA-Z0-9\-_\.]/g, '-').substring(0, 40);
+                if (!name) name = 'qrcode';
+                return name;
+            }
+
             function generateQR(text) {
-                // 清空旧内容
                 qrContainer.innerHTML = '';
                 qrContainer.style.display = 'none';
                 placeholder.style.display = 'block';
@@ -197,6 +245,7 @@
                 errorMsg.className = 'error-msg';
                 downloadPng.disabled = true;
                 downloadSvg.disabled = true;
+                copyBtn.disabled = true;
                 currentCanvas = null;
 
                 text = text.trim();
@@ -205,22 +254,21 @@
                     return;
                 }
 
-                // 检查 QRCode 库是否加载
                 if (typeof QRCode === 'undefined') {
                     errorMsg.textContent = '⚠️ 二维码库加载中，请稍后重试';
                     return;
                 }
 
                 try {
-                    // 创建 canvas 元素
-                    var canvas = document.createElement('canvas');
-                    qrContainer.appendChild(canvas);
+                    // 用 div 包裹 canvas，让 qrcodejs 生成带白色背景的二维码
+                    var wrapper = document.createElement('div');
+                    qrContainer.appendChild(wrapper);
                     qrContainer.style.display = 'block';
                     placeholder.style.display = 'none';
                     qrWrapper.classList.add('has-qr');
 
-                    // qrcodejs 的用法
-                    new QRCode(canvas, {
+                    // 生成二维码
+                    new QRCode(wrapper, {
                         text: text,
                         width: 280,
                         height: 280,
@@ -229,11 +277,40 @@
                         correctLevel: QRCode.CorrectLevel.H
                     });
 
+                    // 获取生成的 canvas
+                    var canvas = wrapper.querySelector('canvas');
+                    if (!canvas) {
+                        throw new Error('生成失败');
+                    }
+
+                    // 确保背景是白色（有些版本默认透明，我们手动处理）
+                    // 如果 canvas 背景透明，画一个白色背景
+                    var ctx = canvas.getContext('2d');
+                    var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    // 检查第一个像素是否透明
+                    var data = imageData.data;
+                    var isTransparent = data[3] === 0;
+                    if (isTransparent) {
+                        // 重新绘制：先填充白色背景，再绘制原图
+                        var tempCanvas = document.createElement('canvas');
+                        tempCanvas.width = canvas.width;
+                        tempCanvas.height = canvas.height;
+                        var tempCtx = tempCanvas.getContext('2d');
+                        tempCtx.fillStyle = '#ffffff';
+                        tempCtx.fillRect(0, 0, canvas.width, canvas.height);
+                        tempCtx.drawImage(canvas, 0, 0);
+                        // 替换 canvas
+                        canvas = tempCanvas;
+                        wrapper.innerHTML = '';
+                        wrapper.appendChild(canvas);
+                    }
+
                     currentCanvas = canvas;
                     currentText = text;
                     downloadPng.disabled = false;
                     downloadSvg.disabled = false;
-                    errorMsg.textContent = '✅ 生成成功！点击下方按钮下载';
+                    copyBtn.disabled = false;
+                    errorMsg.textContent = '✅ 生成成功！可下载或复制二维码';
                     errorMsg.className = 'error-msg success';
                 } catch (e) {
                     errorMsg.textContent = '⚠️ 生成失败: ' + e.message;
@@ -244,9 +321,11 @@
             function downloadPNG() {
                 if (!currentCanvas) return;
                 var link = document.createElement('a');
-                link.download = 'qrcode.png';
+                var name = getFileName(currentText);
+                link.download = 'qrcode-' + name + '.png';
                 link.href = currentCanvas.toDataURL('image/png');
                 link.click();
+                showToast('✅ 已下载 PNG');
             }
 
             function downloadSVG() {
@@ -254,16 +333,51 @@
                 try {
                     var svgData = currentCanvas.toDataURL('image/svg+xml');
                     if (!svgData || svgData.indexOf('svg') === -1) {
+                        // 降级到 PNG
                         downloadPNG();
                         return;
                     }
                     var link = document.createElement('a');
-                    link.download = 'qrcode.svg';
+                    var name = getFileName(currentText);
+                    link.download = 'qrcode-' + name + '.svg';
                     link.href = svgData;
                     link.click();
+                    showToast('✅ 已下载 SVG');
                 } catch (e) {
                     downloadPNG();
                 }
+            }
+
+            function copyImage() {
+                if (!currentCanvas) return;
+                // 使用 Clipboard API 复制图片
+                currentCanvas.toBlob(function(blob) {
+                    try {
+                        navigator.clipboard.write([
+                            new ClipboardItem({
+                                'image/png': blob
+                            })
+                        ]).then(function() {
+                            showToast('✅ 已复制到剪贴板');
+                        }).catch(function() {
+                            // 降级方案：复制图片的 data URL（文本形式）
+                            var dataUrl = currentCanvas.toDataURL('image/png');
+                            navigator.clipboard.writeText(dataUrl).then(function() {
+                                showToast('✅ 已复制图片数据（可粘贴到支持的地方）');
+                            }).catch(function() {
+                                showToast('⚠️ 复制失败，请手动保存图片');
+                            });
+                        });
+                    } catch (e) {
+                        // 降级方案
+                        var dataUrl = currentCanvas.toDataURL('image/png');
+                        navigator.clipboard.writeText(dataUrl).then(function() {
+                            showToast('✅ 已复制图片数据');
+                        }).catch(function() {
+                            showToast('⚠️ 复制失败，请手动保存图片');
+                        });
+                    }
+                });
             }
 
             // ===== 事件绑定 =====
@@ -288,8 +402,8 @@
 
             downloadPng.addEventListener('click', downloadPNG);
             downloadSvg.addEventListener('click', downloadSVG);
+            copyBtn.addEventListener('click', copyImage);
 
-            // 自动生成（页面加载后如果有默认值）
             if (input.value) {
                 setTimeout(function() { generateQR(input.value); }, 500);
             }
