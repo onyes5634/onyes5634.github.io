@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>电路模拟 - Onyes 的小站</title>
+    <title>电路模拟器 - Onyes 的小站</title>
     <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -17,7 +17,7 @@
             padding: 30px 20px;
         }
         .container {
-            max-width: 600px;
+            max-width: 720px;
             width: 100%;
             background: #1e293b;
             border-radius: 24px;
@@ -27,56 +27,61 @@
         }
         .back-link { display: inline-flex; align-items: center; gap: 8px; color: #94a3b8; text-decoration: none; font-size: 0.85rem; margin-bottom: 16px; }
         .back-link:hover { color: #a78bfa; }
-        .header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+        .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
         .header h1 { font-size: 1.5rem; font-weight: 700; color: #f1f5f9; }
-        .header i { color: #fbbf24; margin-right: 8px; }
+        .header h1 i { color: #fbbf24; margin-right: 8px; }
+        .header-badge { font-size: 0.7rem; color: #94a3b8; background: #334155; padding: 4px 14px; border-radius: 20px; border: 1px solid #475569; }
         .canvas-wrapper {
             background: #0f172a;
             border-radius: 16px;
             border: 1px solid #334155;
             overflow: hidden;
         }
-        canvas { width: 100%; aspect-ratio: 1.3/1; display: block; }
+        canvas { width: 100%; aspect-ratio: 1.6/1; display: block; }
         .controls {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 10px;
-            margin-top: 14px;
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+            flex-wrap: wrap;
         }
         .controls button {
-            padding: 10px;
+            padding: 10px 20px;
             border: none;
             border-radius: 10px;
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             font-weight: 600;
             cursor: pointer;
             transition: 0.2s;
             font-family: inherit;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
-        .controls .switch { background: #334155; color: #cbd5e1; }
-        .controls .switch.on { background: #fbbf24; color: #0f172a; }
-        .controls .switch:hover { transform: scale(1.02); }
-        .controls .reset { background: #334155; color: #cbd5e1; }
-        .controls .reset:hover { background: #475569; }
-        .info {
+        .controls .switch-btn { background: #334155; color: #cbd5e1; }
+        .controls .switch-btn.on { background: #fbbf24; color: #0f172a; }
+        .controls .switch-btn:hover { transform: scale(1.03); }
+        .controls .reset-btn { background: #334155; color: #cbd5e1; }
+        .controls .reset-btn:hover { background: #475569; }
+        .info-panel {
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 10px;
-            margin-top: 14px;
-            padding: 12px 16px;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-top: 16px;
+            padding: 16px 20px;
             background: #0f172a;
             border-radius: 12px;
             border: 1px solid #334155;
-            font-size: 0.8rem;
-            color: #94a3b8;
-            text-align: center;
         }
-        .info span { color: #f1f5f9; font-weight: 600; display: block; margin-top: 2px; }
-        .info .highlight { color: #fbbf24; }
-        @media (max-width: 480px) {
+        .info-panel .item { text-align: center; }
+        .info-panel .item .label { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.5px; color: #64748b; }
+        .info-panel .item .value { font-size: 1.1rem; font-weight: 600; color: #f1f5f9; margin-top: 2px; }
+        .info-panel .item .value .unit { font-size: 0.65rem; font-weight: 400; color: #94a3b8; margin-left: 2px; }
+        .info-panel .item .value.highlight { color: #fbbf24; }
+        @media (max-width: 600px) {
             .container { padding: 20px 16px; }
-            .controls { grid-template-columns: 1fr; }
-            .info { grid-template-columns: 1fr; }
+            .info-panel { grid-template-columns: 1fr 1fr; }
+            .controls { flex-wrap: wrap; }
+            .controls button { flex: 1; min-width: 100px; justify-content: center; }
         }
     </style>
 </head>
@@ -84,7 +89,8 @@
     <div class="container">
         <a href="/" class="back-link"><i class="fas fa-arrow-left"></i> 返回首页</a>
         <div class="header">
-            <h1><i class="fas fa-bolt"></i>电路模拟</h1>
+            <h1><i class="fas fa-bolt"></i>电路模拟器</h1>
+            <span class="header-badge"><i class="fas fa-flask"></i> 串联电路</span>
         </div>
 
         <div class="canvas-wrapper">
@@ -92,14 +98,27 @@
         </div>
 
         <div class="controls">
-            <button class="switch on" id="switchBtn"><i class="fas fa-power-off"></i> 开关</button>
-            <button class="reset" id="resetBtn"><i class="fas fa-undo"></i> 重置</button>
+            <button class="switch-btn on" id="switchBtn"><i class="fas fa-power-off"></i> 开关</button>
+            <button class="reset-btn" id="resetBtn"><i class="fas fa-undo"></i> 重置</button>
         </div>
 
-        <div class="info">
-            <div>开关 <span id="statusDisplay">闭合</span></div>
-            <div>电流 <span id="currentDisplay">0.0 A</span></div>
-            <div>灯泡 <span id="bulbDisplay">💡 亮</span></div>
+        <div class="info-panel">
+            <div class="item">
+                <div class="label">开关状态</div>
+                <div class="value" id="statusDisplay">闭合</div>
+            </div>
+            <div class="item">
+                <div class="label">电流</div>
+                <div class="value highlight" id="currentDisplay">0.00 <span class="unit">A</span></div>
+            </div>
+            <div class="item">
+                <div class="label">电压</div>
+                <div class="value" id="voltageDisplay">0.0 <span class="unit">V</span></div>
+            </div>
+            <div class="item">
+                <div class="label">功率</div>
+                <div class="value" id="powerDisplay">0.0 <span class="unit">W</span></div>
+            </div>
         </div>
     </div>
 
@@ -112,237 +131,350 @@
             var resetBtn = document.getElementById('resetBtn');
             var statusDisplay = document.getElementById('statusDisplay');
             var currentDisplay = document.getElementById('currentDisplay');
-            var bulbDisplay = document.getElementById('bulbDisplay');
+            var voltageDisplay = document.getElementById('voltageDisplay');
+            var powerDisplay = document.getElementById('powerDisplay');
 
             var W, H;
             var isOn = true;
-            var brightness = 0;
-            var animId = null;
+            var brightness = 1;
 
-            // 电路元件位置
-            var battery = { x: 0, y: 0 };
-            var switchPos = { x: 0, y: 0 };
-            var bulbPos = { x: 0, y: 0 };
-            var resistorPos = { x: 0, y: 0 };
+            // 电路参数
+            var VOLTAGE = 12;
+            var RESISTANCE = 10;
+            var current = 0;
 
             function resizeCanvas() {
                 var rect = canvas.getBoundingClientRect();
                 canvas.width = rect.width || 400;
-                canvas.height = canvas.width / 1.3;
+                canvas.height = canvas.width / 1.6;
                 W = canvas.width;
                 H = canvas.height;
-
-                // 元件位置
-                battery = { x: W * 0.15, y: H * 0.5 };
-                switchPos = { x: W * 0.35, y: H * 0.25 };
-                bulbPos = { x: W * 0.65, y: H * 0.25 };
-                resistorPos = { x: W * 0.85, y: H * 0.5 };
-
                 draw();
             }
 
             function draw() {
                 ctx.clearRect(0, 0, W, H);
 
-                // 背景网格
-                ctx.strokeStyle = 'rgba(255,255,255,0.02)';
-                ctx.lineWidth = 1;
-                for (var x = 0; x < W; x += 40) {
-                    ctx.beginPath();
-                    ctx.moveTo(x, 0);
-                    ctx.lineTo(x, H);
-                    ctx.stroke();
-                }
-                for (var y = 0; y < H; y += 40) {
-                    ctx.beginPath();
-                    ctx.moveTo(0, y);
-                    ctx.lineTo(W, y);
-                    ctx.stroke();
-                }
+                var cy = H / 2;
+                var margin = 60;
+                var width = W - margin * 2;
+
+                // 元件位置
+                var batteryX = margin;
+                var switchX = margin + width * 0.28;
+                var bulbX = margin + width * 0.55;
+                var resistorX = margin + width * 0.82;
 
                 // ===== 导线 =====
-                ctx.strokeStyle = isOn ? '#94a3b8' : '#334155';
-                ctx.lineWidth = 2.5;
+                var isLive = isOn && brightness > 0.1;
+                ctx.lineWidth = 3;
+                ctx.strokeStyle = isLive ? '#94a3b8' : '#334155';
+                ctx.shadowColor = isLive ? 'rgba(251, 191, 36, 0.1)' : 'transparent';
+                ctx.shadowBlur = isLive ? 15 : 0;
 
-                // 电池 → 开关
+                // 顶部导线：电池正 → 开关
                 ctx.beginPath();
-                ctx.moveTo(battery.x + 30, battery.y);
-                ctx.lineTo(switchPos.x - 30, switchPos.y);
+                ctx.moveTo(batteryX + 40, cy - 40);
+                ctx.lineTo(switchX - 20, cy - 40);
                 ctx.stroke();
 
                 // 开关 → 灯泡
                 ctx.beginPath();
-                ctx.moveTo(switchPos.x + 30, switchPos.y);
-                ctx.lineTo(bulbPos.x - 30, bulbPos.y);
+                ctx.moveTo(switchX + 20, cy - 40);
+                ctx.lineTo(bulbX - 20, cy - 40);
                 ctx.stroke();
 
                 // 灯泡 → 电阻
                 ctx.beginPath();
-                ctx.moveTo(bulbPos.x + 30, bulbPos.y);
-                ctx.lineTo(resistorPos.x - 30, resistorPos.y);
+                ctx.moveTo(bulbX + 20, cy - 40);
+                ctx.lineTo(resistorX - 20, cy - 40);
                 ctx.stroke();
 
-                // 电阻 → 电池
+                // 电阻 → 电池负
                 ctx.beginPath();
-                ctx.moveTo(resistorPos.x + 30, resistorPos.y);
-                ctx.lineTo(battery.x + 30, battery.y + 60);
+                ctx.moveTo(resistorX + 20, cy - 40);
+                ctx.lineTo(batteryX + 40, cy + 40);
                 ctx.stroke();
 
                 // 电池内部连线
                 ctx.beginPath();
-                ctx.moveTo(battery.x + 30, battery.y);
-                ctx.lineTo(battery.x + 30, battery.y + 60);
+                ctx.moveTo(batteryX + 40, cy - 40);
+                ctx.lineTo(batteryX + 40, cy + 40);
                 ctx.stroke();
 
+                ctx.shadowBlur = 0;
+
                 // ===== 电池 =====
-                ctx.fillStyle = '#334155';
-                ctx.fillRect(battery.x, battery.y - 20, 30, 40);
-                ctx.fillStyle = '#475569';
-                ctx.fillRect(battery.x + 2, battery.y - 16, 26, 32);
-                // 正负极
+                // 电池主体
+                var grad = ctx.createLinearGradient(batteryX, 0, batteryX + 40, 0);
+                grad.addColorStop(0, '#334155');
+                grad.addColorStop(0.3, '#475569');
+                grad.addColorStop(0.7, '#475569');
+                grad.addColorStop(1, '#1e293b');
+                ctx.fillStyle = grad;
+                ctx.shadowColor = 'rgba(0,0,0,0.3)';
+                ctx.shadowBlur = 10;
+                ctx.shadowOffsetY = 2;
+                ctx.beginPath();
+                ctx.roundRect(batteryX, cy - 28, 40, 56, 6);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+                ctx.shadowOffsetY = 0;
+
+                ctx.strokeStyle = '#475569';
+                ctx.lineWidth = 1;
+                ctx.strokeRect(batteryX, cy - 28, 40, 56);
+
+                // 正负极标记
                 ctx.fillStyle = '#ef4444';
-                ctx.fillRect(battery.x + 12, battery.y - 24, 6, 6);
-                ctx.fillStyle = '#22c55e';
-                ctx.fillRect(battery.x + 12, battery.y + 18, 6, 6);
-                ctx.fillStyle = '#94a3b8';
-                ctx.font = '11px Inter, system-ui, sans-serif';
+                ctx.font = 'bold 12px Inter, system-ui, sans-serif';
                 ctx.textAlign = 'center';
-                ctx.fillText('9V', battery.x + 15, battery.y + 5);
+                ctx.textBaseline = 'bottom';
+                ctx.fillText('+', batteryX + 12, cy - 32);
+                ctx.fillStyle = '#22c55e';
+                ctx.textBaseline = 'top';
+                ctx.fillText('−', batteryX + 28, cy + 32);
+
+                // 电压标签
+                ctx.fillStyle = '#94a3b8';
+                ctx.font = '10px Inter, system-ui, sans-serif';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('12V', batteryX + 20, cy);
 
                 // ===== 开关 =====
+                // 开关底座
                 ctx.fillStyle = '#334155';
-                ctx.fillRect(switchPos.x - 14, switchPos.y - 14, 28, 28);
-                ctx.fillStyle = '#475569';
-                ctx.fillRect(switchPos.x - 10, switchPos.y - 10, 20, 20);
+                ctx.shadowColor = 'rgba(0,0,0,0.2)';
+                ctx.shadowBlur = 8;
+                ctx.shadowOffsetY = 2;
+                ctx.beginPath();
+                ctx.roundRect(switchX - 16, cy - 44, 32, 18, 4);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+                ctx.shadowOffsetY = 0;
+
                 // 开关拨杆
                 if (isOn) {
                     ctx.fillStyle = '#fbbf24';
-                    ctx.fillRect(switchPos.x - 4, switchPos.y - 14, 8, 8);
-                    ctx.fillRect(switchPos.x - 2, switchPos.y - 6, 4, 8);
+                    ctx.shadowColor = 'rgba(251, 191, 36, 0.3)';
+                    ctx.shadowBlur = 12;
+                    ctx.beginPath();
+                    ctx.roundRect(switchX - 4, cy - 52, 8, 12, 3);
+                    ctx.fill();
+                    // 触点
+                    ctx.fillStyle = '#fbbf24';
+                    ctx.shadowBlur = 0;
+                    ctx.fillRect(switchX - 6, cy - 46, 12, 4);
                 } else {
                     ctx.fillStyle = '#64748b';
-                    ctx.fillRect(switchPos.x - 8, switchPos.y + 6, 8, 8);
-                    ctx.fillRect(switchPos.x - 2, switchPos.y - 6, 4, 14);
+                    ctx.shadowBlur = 0;
+                    ctx.beginPath();
+                    ctx.roundRect(switchX - 4, cy - 38, 8, 8, 3);
+                    ctx.fill();
+                    // 断开标记
+                    ctx.fillStyle = '#64748b';
+                    ctx.font = '14px Inter, system-ui, sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText('╳', switchX, cy - 34);
                 }
-                ctx.fillStyle = '#94a3b8';
+
+                // 开关标签
+                ctx.fillStyle = '#64748b';
                 ctx.font = '9px Inter, system-ui, sans-serif';
-                ctx.fillText('S', switchPos.x, switchPos.y + 22);
+                ctx.textBaseline = 'top';
+                ctx.textAlign = 'center';
+                ctx.fillText('S', switchX, cy - 56);
 
                 // ===== 灯泡 =====
-                var glow = isOn ? brightness : 0;
-                if (isOn && glow > 0.05) {
-                    var grad = ctx.createRadialGradient(bulbPos.x, bulbPos.y, 0, bulbPos.x, bulbPos.y, 50);
-                    grad.addColorStop(0, 'rgba(251, 191, 36, ' + (glow * 0.3) + ')');
-                    grad.addColorStop(1, 'rgba(251, 191, 36, 0)');
-                    ctx.fillStyle = grad;
+                var glow = isLive ? brightness : 0;
+                // 光晕
+                if (glow > 0.05) {
+                    var grad2 = ctx.createRadialGradient(bulbX, cy - 40, 0, bulbX, cy - 40, 55);
+                    grad2.addColorStop(0, 'rgba(251, 191, 36, ' + (glow * 0.25) + ')');
+                    grad2.addColorStop(1, 'rgba(251, 191, 36, 0)');
+                    ctx.fillStyle = grad2;
                     ctx.beginPath();
-                    ctx.arc(bulbPos.x, bulbPos.y, 50, 0, Math.PI * 2);
+                    ctx.arc(bulbX, cy - 40, 55, 0, Math.PI * 2);
                     ctx.fill();
                 }
-                ctx.fillStyle = isOn ? '#fbbf24' : '#334155';
-                ctx.shadowColor = isOn ? 'rgba(251, 191, 36, ' + (glow * 0.3) + ')' : 'transparent';
-                ctx.shadowBlur = isOn ? 20 : 0;
+
+                // 灯泡外壳
+                ctx.shadowColor = isLive ? 'rgba(251, 191, 36, ' + (glow * 0.2) + ')' : 'transparent';
+                ctx.shadowBlur = isLive ? 20 : 0;
+                var grad3 = ctx.createRadialGradient(bulbX - 8, cy - 48, 0, bulbX, cy - 40, 22);
+                if (isLive) {
+                    grad3.addColorStop(0, '#fde68a');
+                    grad3.addColorStop(0.5, '#fbbf24');
+                    grad3.addColorStop(1, '#d97706');
+                } else {
+                    grad3.addColorStop(0, '#64748b');
+                    grad3.addColorStop(0.5, '#475569');
+                    grad3.addColorStop(1, '#334155');
+                }
+                ctx.fillStyle = grad3;
                 ctx.beginPath();
-                ctx.arc(bulbPos.x, bulbPos.y, 18, 0, Math.PI * 2);
+                ctx.arc(bulbX, cy - 40, 20, 0, Math.PI * 2);
                 ctx.fill();
                 ctx.shadowBlur = 0;
 
-                // 灯泡底部
+                // 灯泡座
                 ctx.fillStyle = '#475569';
-                ctx.fillRect(bulbPos.x - 6, bulbPos.y + 14, 12, 6);
-                ctx.fillStyle = '#94a3b8';
-                ctx.font = '9px Inter, system-ui, sans-serif';
-                ctx.fillText('💡', bulbPos.x, bulbPos.y + 38);
+                ctx.shadowColor = 'rgba(0,0,0,0.2)';
+                ctx.shadowBlur = 6;
+                ctx.shadowOffsetY = 2;
+                ctx.fillRect(bulbX - 8, cy - 20, 16, 8);
+                ctx.shadowBlur = 0;
+                ctx.shadowOffsetY = 0;
+
+                // 灯丝
+                if (isLive) {
+                    ctx.strokeStyle = 'rgba(251, 191, 36, ' + (0.3 + 0.5 * glow) + ')';
+                    ctx.lineWidth = 1.5;
+                    ctx.beginPath();
+                    ctx.moveTo(bulbX - 8, cy - 30);
+                    for (var i = 0; i < 6; i++) {
+                        var x = bulbX - 8 + i * 3.2;
+                        var y = cy - 30 + (i % 2 === 0 ? 0 : 8);
+                        ctx.lineTo(x, y);
+                    }
+                    ctx.stroke();
+                }
 
                 // ===== 电阻 =====
+                // 电阻主体
+                ctx.shadowColor = 'rgba(0,0,0,0.2)';
+                ctx.shadowBlur = 8;
+                ctx.shadowOffsetY = 2;
                 ctx.fillStyle = '#334155';
-                ctx.fillRect(resistorPos.x - 10, resistorPos.y - 18, 20, 36);
-                // 色环
-                var colors = ['#ef4444', '#fbbf24', '#22c55e'];
-                for (var i = 0; i < 3; i++) {
-                    ctx.fillStyle = colors[i];
-                    ctx.fillRect(resistorPos.x - 8, resistorPos.y - 12 + i * 10, 16, 4);
-                }
-                ctx.fillStyle = '#94a3b8';
-                ctx.font = '9px Inter, system-ui, sans-serif';
-                ctx.fillText('R', resistorPos.x, resistorPos.y + 24);
+                ctx.beginPath();
+                ctx.roundRect(resistorX - 14, cy - 48, 28, 36, 4);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+                ctx.shadowOffsetY = 0;
 
-                // ===== 电流动画（闪烁的点） =====
-                if (isOn && glow > 0.1) {
-                    var dotCount = 6;
-                    var time = Date.now() / 800;
-                    for (var i = 0; i < dotCount; i++) {
-                        var t = ((i / dotCount) + time) % 1;
+                // 色环
+                var ringColors = ['#ef4444', '#fbbf24', '#22c55e', '#fbbf24'];
+                for (var i = 0; i < 4; i++) {
+                    ctx.fillStyle = ringColors[i];
+                    ctx.fillRect(resistorX - 10 + i * 6, cy - 44, 4, 28);
+                }
+
+                // 电阻值标签
+                ctx.fillStyle = '#64748b';
+                ctx.font = '9px Inter, system-ui, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'bottom';
+                ctx.fillText('10Ω', resistorX, cy - 52);
+
+                // ===== 电流动画 =====
+                if (isLive && glow > 0.1) {
+                    var numDots = 8;
+                    var time = Date.now() / 600;
+                    for (var i = 0; i < numDots; i++) {
+                        var t = ((i / numDots) + time) % 1;
+                        // 路径点
                         var path = [
-                            { x: battery.x + 30, y: battery.y },
-                            { x: switchPos.x - 30, y: switchPos.y },
-                            { x: switchPos.x + 30, y: switchPos.y },
-                            { x: bulbPos.x - 30, y: bulbPos.y },
-                            { x: bulbPos.x + 30, y: bulbPos.y },
-                            { x: resistorPos.x - 30, y: resistorPos.y },
-                            { x: resistorPos.x + 30, y: resistorPos.y },
-                            { x: battery.x + 30, y: battery.y + 60 }
+                            { x: batteryX + 40, y: cy - 40 },
+                            { x: switchX - 20, y: cy - 40 },
+                            { x: switchX + 20, y: cy - 40 },
+                            { x: bulbX - 20, y: cy - 40 },
+                            { x: bulbX + 20, y: cy - 40 },
+                            { x: resistorX - 20, y: cy - 40 },
+                            { x: resistorX + 20, y: cy - 40 },
+                            { x: batteryX + 40, y: cy + 40 }
                         ];
-                        var idx = Math.floor(t * (path.length - 1));
-                        var idx2 = Math.min(idx + 1, path.length - 1);
-                        var frac = (t * (path.length - 1)) % 1;
-                        var px = path[idx].x + (path[idx2].x - path[idx].x) * frac;
-                        var py = path[idx].y + (path[idx2].y - path[idx].y) * frac;
-                        ctx.fillStyle = 'rgba(251, 191, 36, ' + (0.3 + 0.7 * (1 - Math.abs(t - 0.5) * 2)) + ')';
-                        ctx.beginPath();
-                        ctx.arc(px, py, 3, 0, Math.PI * 2);
-                        ctx.fill();
+                        var totalLen = 0;
+                        var segLens = [];
+                        for (var k = 0; k < path.length - 1; k++) {
+                            var dx = path[k+1].x - path[k].x;
+                            var dy = path[k+1].y - path[k].y;
+                            var len = Math.sqrt(dx*dx + dy*dy);
+                            segLens.push(len);
+                            totalLen += len;
+                        }
+                        var target = t * totalLen;
+                        var accum = 0;
+                        var px, py;
+                        for (var k = 0; k < segLens.length; k++) {
+                            if (target <= accum + segLens[k]) {
+                                var ratio = (target - accum) / segLens[k];
+                                px = path[k].x + (path[k+1].x - path[k].x) * ratio;
+                                py = path[k].y + (path[k+1].y - path[k].y) * ratio;
+                                break;
+                            }
+                            accum += segLens[k];
+                        }
+                        if (px !== undefined) {
+                            var alpha = 0.2 + 0.8 * (1 - Math.abs(t - 0.5) * 2);
+                            ctx.fillStyle = 'rgba(251, 191, 36, ' + alpha + ')';
+                            ctx.shadowColor = 'rgba(251, 191, 36, 0.2)';
+                            ctx.shadowBlur = 8;
+                            ctx.beginPath();
+                            ctx.arc(px, py, 3.5, 0, Math.PI * 2);
+                            ctx.fill();
+                            ctx.shadowBlur = 0;
+                        }
                     }
                 }
 
-                // 电流方向箭头
-                if (isOn && glow > 0.1) {
-                    ctx.fillStyle = 'rgba(251, 191, 36, 0.3)';
-                    ctx.font = '14px Inter, system-ui, sans-serif';
-                    ctx.textAlign = 'center';
-                    var arrowPos = 0.25;
-                    var paths = [
-                        { x: battery.x + 30, y: battery.y },
-                        { x: switchPos.x - 30, y: switchPos.y }
-                    ];
-                    var midX = (paths[0].x + paths[1].x) / 2;
-                    var midY = (paths[0].y + paths[1].y) / 2;
-                    ctx.fillText('→', midX, midY - 6);
+                // ===== 电路标注 =====
+                ctx.fillStyle = 'rgba(251, 191, 36, 0.15)';
+                ctx.font = '12px Inter, system-ui, sans-serif';
+                ctx.textAlign = 'left';
+                ctx.textBaseline = 'bottom';
+                if (isLive) {
+                    ctx.fillStyle = 'rgba(251, 191, 36, 0.2)';
+                    ctx.fillText('⚡ 电流方向', 20, 25);
                 }
+            }
+
+            function updatePhysics() {
+                if (isOn) {
+                    current = VOLTAGE / RESISTANCE;
+                    brightness = 0.7 + 0.3 * Math.sin(Date.now() / 1000);
+                } else {
+                    current = 0;
+                    brightness = 0;
+                }
+                var power = current * VOLTAGE;
+
+                currentDisplay.innerHTML = current.toFixed(2) + ' <span class="unit">A</span>';
+                voltageDisplay.innerHTML = (isOn ? VOLTAGE : 0).toFixed(1) + ' <span class="unit">V</span>';
+                powerDisplay.innerHTML = power.toFixed(1) + ' <span class="unit">W</span>';
+                statusDisplay.textContent = isOn ? '闭合' : '断开';
+                statusDisplay.style.color = isOn ? '#fbbf24' : '#64748b';
+                draw();
             }
 
             function toggleSwitch() {
                 isOn = !isOn;
                 switchBtn.classList.toggle('on');
-                statusDisplay.textContent = isOn ? '闭合' : '断开';
-                bulbDisplay.textContent = isOn ? '💡 亮' : '💡 灭';
-                if (isOn) {
-                    brightness = 1;
-                    currentDisplay.textContent = '0.8 A';
-                } else {
-                    brightness = 0;
-                    currentDisplay.textContent = '0.0 A';
-                }
-                draw();
+                updatePhysics();
             }
 
             function resetCircuit() {
                 isOn = true;
-                brightness = 1;
                 switchBtn.classList.add('on');
-                statusDisplay.textContent = '闭合';
-                bulbDisplay.textContent = '💡 亮';
-                currentDisplay.textContent = '0.8 A';
-                draw();
+                updatePhysics();
             }
 
-            // ===== 灯泡呼吸效果 =====
-            function animateBrightness() {
-                if (isOn) {
-                    brightness = 0.7 + 0.3 * Math.sin(Date.now() / 1200);
-                }
-                draw();
-                animId = requestAnimationFrame(animateBrightness);
+            // ===== 兼容 roundRect =====
+            if (!CanvasRenderingContext2D.prototype.roundRect) {
+                CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
+                    if (r > w/2) r = w/2;
+                    if (r > h/2) r = h/2;
+                    this.moveTo(x + r, y);
+                    this.lineTo(x + w - r, y);
+                    this.quadraticCurveTo(x + w, y, x + w, y + r);
+                    this.lineTo(x + w, y + h - r);
+                    this.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+                    this.lineTo(x + r, y + h);
+                    this.quadraticCurveTo(x, y + h, x, y + h - r);
+                    this.lineTo(x, y + r);
+                    this.quadraticCurveTo(x, y, x + r, y);
+                    return this;
+                };
             }
 
             switchBtn.addEventListener('click', toggleSwitch);
@@ -353,7 +485,12 @@
                 resizeCanvas();
             });
 
-            animateBrightness();
+            // 动画循环
+            function animate() {
+                updatePhysics();
+                requestAnimationFrame(animate);
+            }
+            animate();
         })();
     </script>
 </body>
