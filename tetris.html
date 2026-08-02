@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>俄罗斯方块</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="skin.css">
+<style>
+
+.game-wrap { display:flex; gap:20px; flex-wrap:wrap; justify-content:center; }
+canvas { background:var(--input-bg); border:2px solid var(--input-border); border-radius:10px; }
+.side { display:flex; flex-direction:column; gap:12px; min-width:150px; }
+.stat { display:flex; justify-content:space-between; }
+.stat b { color:var(--primary); }
+.hint { color:var(--text-light); font-size:.82rem; line-height:1.8; }
+
+</style>
+</head>
+<body>
+<header class="app-header">
+<a class="back" href="index.html"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H109.3l105.3-105.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg> 返回主页</a>
+<h1 class="app-title">俄罗斯方块</h1>
+<button class="theme-toggle" id="themeToggle" title="切换主题" aria-label="切换主题">🌙</button>
+</header>
+<div class="app-shell">
+
+<div class="game-wrap">
+<canvas id="cv" width="300" height="600"></canvas>
+<div class="side">
+<div class="stat"><span>得分</span><b id="score">0</b></div>
+<div class="stat"><span>等级</span><b id="level">1</b></div>
+<div class="stat"><span>消除行</span><b id="lines">0</b></div>
+<div class="row">
+<button class="btn btn-primary" id="new">新游戏</button>
+<button class="btn" id="pause">暂停</button>
+</div>
+<p class="hint">← → 移动 &nbsp; ↑ 旋转 &nbsp; ↓ 加速 &nbsp; 空格 硬降</p>
+</div>
+</div>
+
+</div>
+<script>
+
+const $ = id => document.getElementById(id);
+const cv = $('cv'), ctx = cv.getContext('2d');
+const COLS = 10, ROWS = 20, BS = 30;
+const SHAPES = [
+  [[1,1,1,1]], [[1,1],[1,1]],
+  [[0,1,0],[1,1,1]], [[1,0,0],[1,1,1]], [[0,0,1],[1,1,1]],
+  [[1,1,0],[0,1,1]], [[0,1,1],[1,1,0]]
+];
+const COLORS = ['#00bcd4','#ffeb3b','#9b59b6','#3498db','#f39c12','#2ecc71','#e74c3c'];
+let board, cur, score, lines, level, paused, over, timer;
+function newBoard(){ board = Array.from({length:ROWS}, () => Array(COLS).fill(0)); }
+function newPiece(){
+  const i = Math.floor(Math.random()*SHAPES.length);
+  const shape = SHAPES[i].map(r => [...r]);
+  return { shape, x: Math.floor((COLS-shape[0].length)/2), y: 0, c: i };
+}
+function collide(p, dx, dy){
+  for (let r=0;r<p.shape.length;r++) for (let c=0;c<p.shape[r].length;c++){
+    if(!p.shape[r][c]) continue;
+    const nx=p.x+c+dx, ny=p.y+r+dy;
+    if(nx<0||nx>=COLS||ny>=ROWS||(ny>=0&&board[ny][nx])) return true;
+  }
+  return false;
+}
+function lock(){
+  for (let r=0;r<cur.shape.length;r++) for (let c=0;c<cur.shape[r].length;c++)
+    if(cur.shape[r][c] && cur.y+r>=0) board[cur.y+r][cur.x+c]=cur.c+1;
+  let clear=0;
+  for (let r=ROWS-1;r>=0;r--){
+    if(board[r].every(v=>v)){ board.splice(r,1); board.unshift(Array(COLS).fill(0)); clear++; r++; }
+  }
+  if(clear){ lines+=clear; score += [0,100,300,500,800][clear] * level; level = Math.floor(lines/10)+1; upd(); }
+  cur = newPiece();
+  if(collide(cur,0,0)) gameOver();
+}
+function step(){ if(paused||over) return; if(collide(cur,0,1)){ lock(); } else cur.y++; draw(); }
+function hardDrop(){ while(!collide(cur,0,1)) cur.y++; lock(); draw(); }
+function rotate(){
+  const p=cur.shape, rows=p.length, cols=p[0].length;
+  const r=Array.from({length:cols},(_,i)=>Array.from({length:rows},(_,j)=>p[rows-1-j][i]));
+  const old=cur.shape; cur.shape=r;
+  if(collide(cur,0,0)) cur.shape=old;
+  draw();
+}
+function upd(){ $('score').textContent=score; $('level').textContent=level; $('lines').textContent=lines; }
+function gameOver(){ over=true; clearInterval(timer); ctx.fillStyle='rgba(0,0,0,.55)'; ctx.fillRect(0,0,cv.width,cv.height); ctx.fillStyle='#fff'; ctx.font='bold 28px sans-serif'; ctx.textAlign='center'; ctx.fillText('游戏结束',cv.width/2,cv.height/2-10); ctx.font='16px sans-serif'; ctx.fillText('得分 '+score, cv.width/2, cv.height/2+26); }
+function draw(){
+  ctx.clearRect(0,0,cv.width,cv.height);
+  for(let r=0;r<ROWS;r++) for(let c=0;c<COLS;c++){ if(board[r][c]){ ctx.fillStyle=COLORS[board[r][c]-1]; ctx.fillRect(c*BS,r*BS,BS-1,BS-1); } }
+  for(let r=0;r<cur.shape.length;r++) for(let c=0;c<cur.shape[r].length;c++) if(cur.shape[r][c]){
+    ctx.fillStyle=COLORS[cur.c]; ctx.fillRect((cur.x+c)*BS,(cur.y+r)*BS,BS-1,BS-1);
+  }
+}
+function start(){ newBoard(); score=0; lines=0; level=1; paused=false; over=false; cur=newPiece(); upd(); clearInterval(timer); timer=setInterval(step, 480-Math.min(380,(level-1)*40)); draw(); }
+document.addEventListener('keydown', e=>{
+  if(over) return;
+  if(e.key==='ArrowLeft'){ if(!collide(cur,-1,0)) cur.x--; draw(); }
+  else if(e.key==='ArrowRight'){ if(!collide(cur,1,0)) cur.x++; draw(); }
+  else if(e.key==='ArrowDown') step();
+  else if(e.key==='ArrowUp') rotate();
+  else if(e.key===' '){ e.preventDefault(); hardDrop(); }
+  else if(e.key==='p'||e.key==='P'){ paused=!paused; $('pause').textContent=paused?'继续':'暂停'; }
+});
+$('new').onclick=start;
+$('pause').onclick=()=>{ if(over) return; paused=!paused; $('pause').textContent=paused?'继续':'暂停'; };
+start();
+
+</script>
+<script defer src="skin.js"></script>
+</body>
+</html>
