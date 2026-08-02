@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>三体问题</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="skin.css">
+<style>
+
+.wrap { display:flex; gap:20px; flex-wrap:wrap; justify-content:center; }
+canvas { background:#0d1117; border-radius:10px; }
+.side { display:flex; flex-direction:column; gap:12px; min-width:190px; }
+.stat { display:flex; justify-content:space-between; }
+.stat b { color:var(--primary); }
+.hint { color:var(--text-light); font-size:.82rem; }
+
+</style>
+</head>
+<body>
+<header class="app-header">
+<a class="back" href="index.html"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H109.3l105.3-105.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg> 返回主页</a>
+<h1 class="app-title">三体问题</h1>
+<button class="theme-toggle" id="themeToggle" title="切换主题" aria-label="切换主题">🌙</button>
+</header>
+<div class="app-shell">
+
+<div class="wrap">
+<canvas id="cv" width="560" height="480"></canvas>
+<div class="side">
+<div class="row"><button class="btn btn-primary" id="reset">随机初值</button><button class="btn" id="figure8">八字形</button></div>
+<div class="stat"><span>步数</span><b id="steps">0</b></div>
+<p class="hint">三体没有通用解析解：初值的微小变化会导致完全不同的演化。</p>
+</div>
+</div>
+
+</div>
+<script>
+
+const $ = id => document.getElementById(id);
+const cv=$('cv'), ctx=cv.getContext('2d');
+const W=cv.width, H=cv.height;
+let bodies=[], steps=0;
+function init(seed){
+  const S=seed||[
+    {x:W/2-140,y:H/2,vx:0.4,vy:0.9,m:1,c:'#3498db'},
+    {x:W/2+140,y:H/2,vx:-0.4,vy:-0.9,m:1,c:'#e74c3c'},
+    {x:W/2,y:H/2-150,vx:0,vy:0,m:1,c:'#2ecc71'}
+  ];
+  bodies=S.map(b=>({...b,trail:[]}));
+  steps=0; $('steps').textContent=0;
+  ctx.fillStyle='#0d1117'; ctx.fillRect(0,0,W,H);
+}
+function randomInit(){
+  const arr=[];
+  const names=['#3498db','#e74c3c','#2ecc71'];
+  for(let i=0;i<3;i++){
+    arr.push({x:W/2+(Math.random()-0.5)*300,y:H/2+(Math.random()-0.5)*240,
+      vx:(Math.random()-0.5)*1.5,vy:(Math.random()-0.5)*1.5,m:1,c:names[i]});
+  }
+  // 质心归零
+  const cx=(arr[0].x+arr[1].x+arr[2].x)/3, cy=(arr[0].y+arr[1].y+arr[2].y)/3;
+  arr.forEach(b=>{ b.x-=cx; b.y-=cy; });
+  init(arr);
+}
+function step(){
+  const G=900, dt=0.004;
+  for(let i=0;i<3;i++) for(let j=i+1;j<3;j++){
+    const a=bodies[i], b=bodies[j];
+    let dx=b.x-a.x, dy=b.y-a.y;
+    let d=Math.hypot(dx,dy);
+    if(d<10) d=10;
+    const f=G*a.m*b.m/(d*d);
+    const fx=f*dx/d, fy=f*dy/d;
+    a.vx+=fx/a.m*dt; a.vy+=fy/a.m*dt;
+    b.vx-=fx/b.m*dt; b.vy-=fy/b.m*dt;
+  }
+  for(const b of bodies){
+    b.x+=b.vx*dt; b.y+=b.vy*dt;
+    b.trail.push({x:b.x,y:b.y});
+    if(b.trail.length>500) b.trail.shift();
+  }
+  ctx.fillStyle='rgba(13,17,23,.1)'; ctx.fillRect(0,0,W,H);
+  for(const b of bodies){
+    ctx.strokeStyle=b.c; ctx.lineWidth=1;
+    ctx.beginPath();
+    b.trail.forEach((p,i)=>{ i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y); });
+    ctx.stroke();
+    ctx.fillStyle=b.c;
+    ctx.beginPath(); ctx.arc(b.x,b.y,7,0,Math.PI*2); ctx.fill();
+  }
+  steps++; $('steps').textContent=steps;
+  requestAnimationFrame(step);
+}
+$('reset').onclick=randomInit;
+$('figure8').onclick=()=>init([
+  {x:W/2-150,y:H/2+80,vx:0.3,vy:-0.3,m:1,c:'#3498db'},
+  {x:W/2+150,y:H/2+80,vx:-0.3,vy:-0.3,m:1,c:'#e74c3c'},
+  {x:W/2,y:H/2-60,vx:0,vy:0.55,m:1,c:'#2ecc71'}
+]);
+init();
+step();
+
+</script>
+<script defer src="skin.js"></script>
+</body>
+</html>
