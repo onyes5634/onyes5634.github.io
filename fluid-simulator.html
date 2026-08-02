@@ -116,9 +116,20 @@
       }
             /* 隐藏重复标题块（统一导航已显示） */
         header.container { display: none; }
-
-    <link rel="stylesheet" href="skin.css">
-
+
+        </style>
+<link rel="stylesheet" href="skin.css">
+
+    
+    <style>
+        /* 模拟器深色设计保护：无论主题状态如何，强制深底浅字，保证内容可读 */
+        html, html[data-theme] { --bg-body: #0F172A; --text-color: #F8FAFC; --text-light: #94a3b8; }
+        body { background: #0F172A !important; color: #F8FAFC !important; }
+        .info-card, .card, .panel { background: rgba(30, 41, 59, 0.85) !important; color: #e6edf3 !important; }
+    </style>
+
+
+    </head>
 <body class="bg-gradient-to-br from-dark to-slate-900 text-light min-h-screen overflow-x-hidden">
     <header class="app-header">
         <a class="back" href="index.html"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H109.3l105.3-105.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg> 返回主页</a>
@@ -265,7 +276,9 @@
         document.addEventListener('DOMContentLoaded', function() {
             // 获取Canvas元素和上下文
             const canvas = document.getElementById('fluidCanvas');
+            if (!canvas) return;
             const ctx = canvas.getContext('2d');
+            if (!ctx) return;
             
             // 设置Canvas尺寸（处理 devicePixelRatio，避免高分屏发虚与过度绘制）
             function resizeCanvas() {
@@ -710,5 +723,6 @@ document.documentElement.setAttribute('data-theme', 'dark');
 })();
 </script>
 
-
+
+    </body>
 </html>
