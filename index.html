@@ -1300,32 +1300,84 @@
             inset: 0;
             z-index: 9999;
             background: rgba(0, 0, 0, 0.62);
+            backdrop-filter: blur(3px);
             align-items: center;
             justify-content: center;
-            padding: 20px;
+            padding: 18px;
         }
         .disc-modal.show { display: flex; }
         .disc-modal-box {
             background: var(--bg-card, #fff);
             color: var(--text-color, #222);
-            max-width: 480px;
+            max-width: 520px;
             width: 100%;
-            border-radius: 16px;
-            padding: 26px 24px 22px;
-            box-shadow: 0 12px 48px rgba(0, 0, 0, 0.35);
-            max-height: 86vh;
-            overflow-y: auto;
+            border-radius: 18px;
+            padding: 26px 26px 20px;
+            box-shadow: 0 18px 60px rgba(0, 0, 0, 0.4);
+            max-height: 88vh;
+            display: flex;
+            flex-direction: column;
         }
-        .disc-modal-box h2 { font-size: 1.2rem; margin: 0 0 10px; }
-        .disc-modal-sum { font-size: .88rem; color: var(--text-light, #666); margin: 0 0 10px; }
-        .disc-modal-box ul { margin: 0 0 12px; padding-left: 18px; font-size: .86rem; line-height: 1.9; }
-        .disc-modal-more { font-size: .8rem; margin: 0 0 14px; }
-        .disc-modal-more a { color: var(--primary, #2563eb); }
-        .disc-agree { display: flex; align-items: center; gap: 8px; font-size: .88rem; margin: 0 0 14px; cursor: pointer; }
-        .disc-agree input { width: 16px; height: 16px; }
-        .disc-modal-box .btn { width: 100%; }
-        .disc-exit { display: block; text-align: center; margin-top: 10px; font-size: .8rem; color: var(--text-light, #888); cursor: pointer; }
-        .disc-exit:hover { opacity: .8; }
+        .disc-head { display: flex; align-items: center; gap: 10px; }
+        .disc-head .disc-icon {
+            width: 38px; height: 38px; border-radius: 11px;
+            background: linear-gradient(135deg, #2563eb, #4f46e5);
+            color: #fff; display: flex; align-items: center; justify-content: center;
+            font-size: 1.15rem; flex: none;
+        }
+        .disc-head h2 { font-size: 1.25rem; margin: 0; }
+        .disc-sum { font-size: .86rem; color: var(--text-light, #666); margin: 10px 0 8px; }
+        .disc-body { overflow-y: auto; flex: 1; min-height: 0; margin-bottom: 12px; padding-right: 4px; }
+        .disc-sec { margin-bottom: 10px; }
+        .disc-sec h3 { font-size: .9rem; margin: 0 0 3px; color: var(--primary, #2563eb); }
+        .disc-sec p { font-size: .84rem; margin: 0; line-height: 1.75; color: var(--text-color, #222); }
+        .disc-sec p b { color: #e74c3c; }
+        /* 自定义勾选框 */
+        .disc-agree { display: flex; align-items: center; gap: 9px; font-size: .9rem; margin: 2px 0 14px; cursor: pointer; user-select: none; }
+        .disc-agree input { position: absolute; opacity: 0; width: 0; height: 0; }
+        .chk-box {
+            width: 20px; height: 20px; border-radius: 6px; flex: none;
+            border: 2px solid var(--input-border, #bbb);
+            background: var(--input-bg, #fff);
+            display: inline-flex; align-items: center; justify-content: center;
+            transition: all .18s;
+        }
+        .chk-box::after {
+            content: '\2713'; color: #fff; font-size: 13px; font-weight: 700;
+            opacity: 0; transform: scale(.5); transition: all .18s;
+        }
+        .disc-agree input:checked + .chk-box {
+            background: linear-gradient(135deg, #2563eb, #4f46e5);
+            border-color: transparent;
+            box-shadow: 0 2px 8px rgba(37, 99, 235, .35);
+        }
+        .disc-agree input:checked + .chk-box::after { opacity: 1; transform: scale(1); }
+        .disc-agree input:focus-visible + .chk-box { outline: 2px solid #2563eb; outline-offset: 2px; }
+        .chk-text { color: var(--text-color, #222); }
+        /* 同意按钮 */
+        .disc-btn {
+            width: 100%; padding: 13px 18px; border: none; border-radius: 12px;
+            font-size: .95rem; font-weight: 700; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            transition: all .2s; font-family: inherit;
+        }
+        .disc-btn:disabled {
+            background: var(--tag-bg, #eee); color: var(--text-light, #999);
+            cursor: not-allowed; box-shadow: none;
+        }
+        .disc-btn:not(:disabled) {
+            background: linear-gradient(135deg, #2563eb, #4f46e5);
+            color: #fff;
+            box-shadow: 0 4px 16px rgba(37, 99, 235, .35);
+        }
+        .disc-btn:not(:disabled):hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 22px rgba(37, 99, 235, .45);
+        }
+        .disc-btn:not(:disabled):active { transform: translateY(0) scale(.99); }
+        .disc-btn svg { width: 17px; height: 17px; }
+        .disc-exit { display: block; text-align: center; margin-top: 12px; font-size: .8rem; color: var(--text-light, #888); cursor: pointer; }
+        .disc-exit:hover { opacity: .8; text-decoration: underline; }
 
     </style>
 </head>
@@ -1333,16 +1385,27 @@
 
 <div class="disc-modal" id="discModal" role="dialog" aria-modal="true" aria-label="免责声明">
     <div class="disc-modal-box">
-        <h2>欢迎访问 Onyes 的小站</h2>
-        <p class="disc-modal-sum">使用本站服务前，请阅读并同意以下声明：</p>
-        <ul>
-            <li>本站工具仅用于学习、研究与生活便利，<b>严禁用于任何违法犯罪活动</b>（如伪造身份信息、欺诈、侵犯隐私等）。</li>
-            <li>所有数据仅在您的浏览器本地处理，本站不收集、不上传、不存储任何个人信息。</li>
-            <li>因违规使用产生的后果由使用者自行承担。</li>
-        </ul>
-        <p class="disc-modal-more">完整条款请查阅 <a href="disclaimer.html" target="_blank" rel="noopener">《免责声明》</a></p>
-        <label class="disc-agree"><input type="checkbox" id="discCheck"> 我已知晓并同意上述声明</label>
-        <button class="btn" id="discBtn" disabled>请稍候（5 秒后可进入）</button>
+        <div class="disc-head">
+            <span class="disc-icon">📜</span>
+            <h2>网站使用声明</h2>
+        </div>
+        <p class="disc-sum">使用本站前，请仔细阅读并同意以下全部条款：</p>
+        <div class="disc-body">
+            <div class="disc-sec"><h3>一、用途声明</h3><p>本站收录的全部工具、模拟与游戏，均面向个人学习、研究、生活便利与正当娱乐用途开发。</p></div>
+            <div class="disc-sec"><h3>二、工具的正当使用</h3><p>本站部分工具属于"能力中性"的通用功能。使用者须确保使用目的合法合规，<b>严禁用于任何违法犯罪活动</b>，包括但不限于：伪造证件或身份信息、实施欺诈、侵犯他人隐私、传播违法内容等。</p></div>
+            <div class="disc-sec"><h3>三、数据与隐私</h3><p>本站所有页面均为纯前端实现，输入数据仅在您的浏览器本地处理，本站不收集、不上传、不存储任何用户数据。</p></div>
+            <div class="disc-sec"><h3>四、责任声明</h3><p>因使用本站任何工具所产生的后果，由使用者自行承担。本站不对任何违规或非法使用行为承担任何责任。如发现本站内容存在侵权或违规情形，可通过 GitHub Issues 联系我们。</p></div>
+            <div class="disc-sec"><h3>五、服务变更</h3><p>本站保留随时修改、下线或停止提供任何工具的权利，恕不另行逐一通知。</p></div>
+        </div>
+        <label class="disc-agree">
+            <input type="checkbox" id="discCheck">
+            <span class="chk-box"></span>
+            <span class="chk-text">我已知晓并同意以上全部条款</span>
+        </label>
+        <button class="disc-btn" id="discBtn" disabled>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209L241 337c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L335 175c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z"/></svg>
+            <span id="discBtnText">请稍候（5 秒后可进入）</span>
+        </button>
         <span class="disc-exit" id="discExit">不同意并退出</span>
     </div>
 </div>
@@ -2090,7 +2153,7 @@
                     async>
                 </script>
             </div>
-            <div class="debug-version" id="debugVersion">v1.9 · 最后编辑于 2026-08-02 15:10</div>
+            <div class="debug-version" id="debugVersion">v1.10 · 最后编辑于 2026-08-02 15:31</div>
             <div class="changelog-link"><a href="https://github.com/onyes5634/onyes5634.github.io/blob/main/README.md" target="_blank" rel="noopener">更新日志</a> · <a href="disclaimer.html">免责声明</a></div>
 
         </div><!-- .elastic-wrapper -->
@@ -2715,11 +2778,11 @@
         sec--;
         if (sec <= 0) {
             clearInterval(timer);
-            btn.textContent = '我知晓并同意，进入网站';
+            document.getElementById('discBtnText').textContent = '我知晓并同意，进入网站';
             btn.classList.add('btn-primary');
             btn.disabled = !chk.checked;
         } else {
-            btn.textContent = '请稍候（' + sec + ' 秒后可进入）';
+            document.getElementById('discBtnText').textContent = '请稍候（' + sec + ' 秒后可进入）';
         }
     }, 1000);
     chk.addEventListener('change', function () {
