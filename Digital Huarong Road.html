@@ -11,7 +11,8 @@
         .empty { background: #fff; }
     </style>
     <link rel="stylesheet" href="skin.css">
-
+
+    </head>
 <body>
     <header class="app-header">
         <a class="back" href="index.html"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H109.3l105.3-105.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg> 返回主页</a>
@@ -38,3 +39,27 @@
 
     </div></div>
 
+<script>
+(function () {
+    var root = document.documentElement;
+    var saved = null;
+    try { saved = localStorage.getItem('theme'); } catch (e) {}
+    var initial = 'light';
+    if (saved === 'dark' || saved === 'light') initial = saved;
+    else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) initial = 'dark';
+    root.setAttribute('data-theme', initial);
+    var btn = document.getElementById('themeToggle');
+    if (btn) {
+        btn.textContent = initial === 'dark' ? '☀️' : '🌙';
+        btn.addEventListener('click', function () {
+            var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            root.setAttribute('data-theme', next);
+            try { localStorage.setItem('theme', next); } catch (e) {}
+            btn.textContent = next === 'dark' ? '☀️' : '🌙';
+        });
+    }
+})();
+</script>
+
+</body>
+</html>
