@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>打砖块</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="skin.css">
+<style>
+
+.game-wrap { display:flex; gap:20px; flex-wrap:wrap; justify-content:center; }
+canvas { background:var(--input-bg); border:2px solid var(--input-border); border-radius:10px; }
+.side { display:flex; flex-direction:column; gap:12px; min-width:150px; }
+.stat { display:flex; justify-content:space-between; }
+.stat b { color:var(--primary); }
+.hint { color:var(--text-light); font-size:.82rem; }
+
+</style>
+</head>
+<body>
+<header class="app-header">
+<a class="back" href="index.html"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H109.3l105.3-105.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg> 返回主页</a>
+<h1 class="app-title">打砖块</h1>
+<button class="theme-toggle" id="themeToggle" title="切换主题" aria-label="切换主题">🌙</button>
+</header>
+<div class="app-shell">
+
+<div class="game-wrap">
+<canvas id="cv" width="600" height="420"></canvas>
+<div class="side">
+<div class="stat"><span>得分</span><b id="score">0</b></div>
+<div class="stat"><span>生命</span><b id="lives">3</b></div>
+<div class="row"><button class="btn btn-primary" id="new">新游戏</button></div>
+<p class="hint">← → 或 鼠标 移动挡板</p>
+</div>
+</div>
+
+</div>
+<script>
+
+const $ = id => document.getElementById(id);
+const cv=$('cv'), ctx=cv.getContext('2d');
+const W=cv.width, H=cv.height;
+let paddle, ball, bricks, score, lives, over, win, raf;
+function initBricks(){
+  bricks=[];
+  for(let r=0;r<5;r++) for(let c=0;c<8;c++)
+    bricks.push({x:20+c*72, y:30+r*30, w:66, h:22, alive:true, c:'hsl('+(r*45)+',70%,55%)'});
+}
+function reset(){
+  score=0; lives=3; over=false; win=false;
+  paddle={x:W/2-50, w:100, h:12, y:H-25};
+  ball={x:W/2, y:H-45, vx:3, vy:-3, r:7};
+  initBricks(); upd();
+}
+function upd(){ $('score').textContent=score; $('lives').textContent=lives; }
+function frame(){
+  if(over||win) return;
+  ball.x+=ball.vx; ball.y+=ball.vy;
+  if(ball.x<ball.r||ball.x>W-ball.r) ball.vx*=-1;
+  if(ball.y<ball.r) ball.vy*=-1;
+  if(ball.y>paddle.y-ball.r && ball.y<paddle.y+ball.r+6 && ball.x>paddle.x-ball.r && ball.x<paddle.x+paddle.w+ball.r){
+    const hit=(ball.x-(paddle.x+paddle.w/2))/(paddle.w/2);
+    ball.vy=-Math.abs(ball.vy);
+    ball.vx=hit*5;
+  }
+  for(const b of bricks){
+    if(!b.alive) continue;
+    if(ball.x>b.x-ball.r&&ball.x<b.x+b.w+ball.r&&ball.y>b.y-ball.r&&ball.y<b.y+b.h+ball.r){
+      b.alive=false; ball.vy*=-1; score+=10; upd();
+      if(bricks.every(x=>!x.alive)) win=true;
+      break;
+    }
+  }
+  if(ball.y>H+ball.r){ lives--; upd(); if(lives<=0){ over=true; } else { ball={x:W/2,y:H-45,vx:3,vy:-3,r:7}; } }
+  draw();
+  if(!over&&!win) raf=requestAnimationFrame(frame);
+}
+function draw(){
+  ctx.clearRect(0,0,W,H);
+  for(const b of bricks){ if(b.alive){ ctx.fillStyle=b.c; ctx.fillRect(b.x,b.y,b.w,b.h); } }
+  ctx.fillStyle='#3498db'; ctx.fillRect(paddle.x,paddle.y,paddle.w,paddle.h);
+  ctx.beginPath(); ctx.arc(ball.x,ball.y,ball.r,0,Math.PI*2); ctx.fillStyle='#e74c3c'; ctx.fill();
+  if(over){ ctx.fillStyle='rgba(0,0,0,.55)'; ctx.fillRect(0,0,W,H); ctx.fillStyle='#fff'; ctx.font='bold 30px sans-serif'; ctx.textAlign='center'; ctx.fillText('游戏结束',W/2,H/2-10); ctx.font='16px sans-serif'; ctx.fillText('得分 '+score,W/2,H/2+24); }
+  if(win){ ctx.fillStyle='rgba(0,0,0,.55)'; ctx.fillRect(0,0,W,H); ctx.fillStyle='#2ecc71'; ctx.font='bold 30px sans-serif'; ctx.textAlign='center'; ctx.fillText('\uD83C\uDF89 通关！',W/2,H/2); }
+}
+document.addEventListener('keydown', e=>{
+  if(e.key==='ArrowLeft') paddle.x=Math.max(0,paddle.x-30);
+  else if(e.key==='ArrowRight') paddle.x=Math.min(W-paddle.w,paddle.x+30);
+});
+cv.addEventListener('mousemove', e=>{
+  const r=cv.getBoundingClientRect();
+  paddle.x=e.clientX-r.left-paddle.w/2;
+});
+$('new').onclick=()=>{ cancelAnimationFrame(raf); reset(); frame(); };
+reset(); frame();
+
+</script>
+<script defer src="skin.js"></script>
+</body>
+</html>
