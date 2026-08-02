@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3D 旋转立方体</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="skin.css">
+<style>
+
+.wrap { display:flex; gap:20px; flex-wrap:wrap; justify-content:center; }
+canvas { background:var(--input-bg); border:1px solid var(--input-border); border-radius:12px; }
+.side { display:flex; flex-direction:column; gap:12px; min-width:180px; }
+.stat { display:flex; justify-content:space-between; }
+.stat b { color:var(--primary); }
+
+</style>
+</head>
+<body>
+<header class="app-header">
+<a class="back" href="index.html"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H109.3l105.3-105.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg> 返回主页</a>
+<h1 class="app-title">3D 旋转立方体</h1>
+<button class="theme-toggle" id="themeToggle" title="切换主题" aria-label="切换主题">🌙</button>
+</header>
+<div class="app-shell">
+
+<div class="wrap">
+<canvas id="cv" width="480" height="480"></canvas>
+<div class="side">
+<div class="col"><label>旋转速度</label><input type="range" id="speed" min="0" max="5" step="0.1" value="1"></div>
+<div class="col"><label>透视距离</label><input type="range" id="dist" min="300" max="900" value="560"></div>
+<div class="row"><button class="btn btn-primary" id="reset">重置视角</button></div>
+<p class="hint">canvas 三维投影：正交面线框 + 顶点连线，近大远小。</p>
+</div>
+</div>
+
+</div>
+<script>
+
+const $ = id => document.getElementById(id);
+const cv = $('cv'), ctx = cv.getContext('2d');
+const W = cv.width, H = cv.height;
+// 立方体 8 顶点（边长为 2，中心原点）
+const V = [
+    [-1,-1,-1],[1,-1,-1],[1,1,-1],[-1,1,-1],
+    [-1,-1,1],[1,-1,1],[1,1,1],[-1,1,1]
+];
+// 12 条棱
+const E = [[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]];
+let ax = 0.6, ay = 0.8, t = 0;
+function project(p, d){
+    const f = d / (d - p[2]);
+    return [W/2 + p[0] * 150 * f, H/2 + p[1] * 150 * f];
+}
+function rot(v, a, b){
+    const [x,y,z] = v;
+    const x1 = x*Math.cos(b) + z*Math.sin(b);
+    const z1 = -x*Math.sin(b) + z*Math.cos(b);
+    const y1 = y*Math.cos(a) - z1*Math.sin(a);
+    const z2 = y*Math.sin(a) + z1*Math.cos(a);
+    return [x1, y1, z2];
+}
+function draw(){
+    const spd = +$('speed').value;
+    ax += 0.008 * spd; ay += 0.012 * spd;
+    const d = +$('dist').value;
+    ctx.clearRect(0, 0, W, H);
+    const pts = V.map(v => project(rot(v, ax, ay), d));
+    ctx.strokeStyle = '#3498db'; ctx.lineWidth = 2;
+    E.forEach(([i,j]) => {
+        ctx.beginPath(); ctx.moveTo(pts[i][0], pts[i][1]); ctx.lineTo(pts[j][0], pts[j][1]); ctx.stroke();
+    });
+    ctx.fillStyle = 'rgba(52,152,219,.35)';
+    [[0,1,2,3],[4,5,6,7],[0,1,5,4],[2,3,7,6],[0,3,7,4],[1,2,6,5]].forEach(f => {
+        ctx.beginPath();
+        f.forEach((v,k) => { k ? ctx.lineTo(pts[v][0], pts[v][1]) : ctx.moveTo(pts[v][0], pts[v][1]); });
+        ctx.closePath(); ctx.fill();
+    });
+    ctx.fillStyle = '#e74c3c';
+    pts.forEach(p => { ctx.beginPath(); ctx.arc(p[0], p[1], 3.5, 0, Math.PI*2); ctx.fill(); });
+    requestAnimationFrame(draw);
+}
+$('reset').onclick = () => { ax = 0.6; ay = 0.8; };
+draw();
+
+</script>
+<script defer src="skin.js"></script>
+</body>
+</html>
