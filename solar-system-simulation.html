@@ -238,8 +238,11 @@
             function resizeCanvas() {
                 const container = canvas.parentElement;
                 const dpr = Math.min(window.devicePixelRatio || 1, 2);
-                canvas.width = Math.round(container.clientWidth * dpr);
-                canvas.height = Math.round(container.clientHeight * dpr);
+                // 容器尺寸兜底：避免容器高度为 0 时画布不可见
+                const cw = container.clientWidth || 900;
+                const ch = container.clientHeight || 560;
+                canvas.width = Math.round(cw * dpr);
+                canvas.height = Math.round(ch * dpr);
                 ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
             }
             
@@ -539,6 +542,16 @@
             });
         });
     </script>
-</body>
+
+<script>
+// 深色设计页：锁定深色主题（皮肤变量跟随），隐藏主题切换按钮
+document.documentElement.setAttribute('data-theme', 'dark');
+(function () {
+    var t = document.getElementById('themeToggle');
+    if (t) t.style.display = 'none';
+})();
+</script>
+
+
 </html>
     
