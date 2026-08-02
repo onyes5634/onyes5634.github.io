@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>波干涉</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="skin.css">
+<style>
+
+.wrap { display:flex; gap:20px; flex-wrap:wrap; justify-content:center; }
+canvas { background:#0d1117; border-radius:10px; }
+.side { display:flex; flex-direction:column; gap:12px; min-width:190px; }
+.stat { display:flex; justify-content:space-between; }
+.stat b { color:var(--primary); }
+
+</style>
+</head>
+<body>
+<header class="app-header">
+<a class="back" href="index.html"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H109.3l105.3-105.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg> 返回主页</a>
+<h1 class="app-title">波干涉</h1>
+<button class="theme-toggle" id="themeToggle" title="切换主题" aria-label="切换主题">🌙</button>
+</header>
+<div class="app-shell">
+
+<div class="wrap">
+<canvas id="cv" width="560" height="460"></canvas>
+<div class="side">
+<div class="col"><label>波长</label><input type="range" id="wl" min="20" max="120" value="60"></div>
+<div class="col"><label>波源间距</label><input type="range" id="gap" min="40" max="220" value="140"></div>
+<div class="row"><button class="btn btn-primary" id="pause">暂停</button></div>
+<div class="stat"><span>相位</span><b id="phase">0</b></div>
+<p class="hint">双波源同频干涉：相长（亮）/ 相消（暗）条纹。</p>
+</div>
+</div>
+
+</div>
+<script>
+
+const $ = id => document.getElementById(id);
+const cv=$('cv'), ctx=cv.getContext('2d');
+const W=cv.width, H=cv.height;
+let ph=0, paused=false, img=null;
+function makeImg(){
+  img=ctx.createImageData(W,H);
+}
+function render(){
+  const wl=+$('wl').value, gap=+$('gap').value;
+  const cx=W/2, cy=H/2;
+  const s1x=cx-gap/2, s2x=cx+gap/2;
+  const data=img.data;
+  const wl2=wl/2;
+  for(let y=0;y<H;y++){
+    for(let x=0;x<W;x++){
+      const d1=Math.hypot(x-s1x,y-cy), d2=Math.hypot(x-s2x,y-cy);
+      const v=Math.sin(d1/wl2+ph)+Math.sin(d2/wl2+ph);
+      const amp=Math.max(0,Math.min(1,(v/2+0.5)));
+      const i=(y*W+x)*4;
+      // 蓝色系
+      data[i]=20; data[i+1]=80+amp*140; data[i+2]=150+amp*105; data[i+3]=255;
+    }
+  }
+  ctx.putImageData(img,0,0);
+  ctx.fillStyle='#fff';
+  ctx.beginPath(); ctx.arc(s1x,cy,5,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(s2x,cy,5,0,Math.PI*2); ctx.fill();
+  $('phase').textContent=(ph*180/Math.PI).toFixed(0)+'°';
+}
+function loop(){
+  if(!paused) ph+=0.06;
+  render();
+  requestAnimationFrame(loop);
+}
+$('pause').onclick=function(){ paused=!paused; this.textContent=paused?'继续':'暂停'; };
+makeImg();
+loop();
+
+</script>
+<script defer src="skin.js"></script>
+</body>
+</html>
