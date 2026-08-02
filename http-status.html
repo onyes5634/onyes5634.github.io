@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HTTP 状态码速查</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="skin.css">
+<style>
+
+.search-row { display:flex; gap:10px; margin-bottom:14px; }
+.stat-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:10px; }
+.stat-card { border:1px solid var(--input-border); border-radius:12px; padding:12px 14px; background:var(--item-bg); cursor:pointer; transition:transform .15s; }
+.stat-card:hover { transform:translateY(-2px); }
+.stat-card .code { font-weight:800; font-size:1.15rem; margin-right:8px; }
+.stat-card .name { font-weight:600; }
+.stat-card .desc { color:var(--text-light); font-size:.82rem; margin-top:4px; }
+.c-1 { color:#3498db; } .c-2 { color:#2ecc71; } .c-3 { color:#f39c12; } .c-4 { color:#e67e22; } .c-5 { color:#e74c3c; }
+
+</style>
+</head>
+<body>
+<header class="app-header">
+<a class="back" href="index.html"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H109.3l105.3-105.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg> 返回主页</a>
+<h1 class="app-title">HTTP 状态码速查</h1>
+<button class="theme-toggle" id="themeToggle" title="切换主题" aria-label="切换主题">🌙</button>
+</header>
+<div class="app-shell">
+
+<div class="col">
+<div class="search-row">
+<input type="text" id="search" class="grow" placeholder="搜索状态码或描述，例如 404 / Not Found">
+</div>
+<div class="stat-grid" id="grid"></div>
+</div>
+
+</div>
+<script>
+
+const $ = id => document.getElementById(id);
+const DATA = [
+    [100,'Continue','继续'], [101,'Switching Protocols','切换协议'],
+    [200,'OK','请求成功'], [201,'Created','已创建'], [202,'Accepted','已接受'], [204,'No Content','无内容'],
+    [301,'Moved Permanently','永久重定向'], [302,'Found','临时重定向'], [304,'Not Modified','未修改'], [307,'Temporary Redirect','临时重定向'], [308,'Permanent Redirect','永久重定向'],
+    [400,'Bad Request','请求错误'], [401,'Unauthorized','未认证'], [403,'Forbidden','禁止访问'], [404,'Not Found','资源不存在'], [405,'Method Not Allowed','方法不允许'],
+    [408,'Request Timeout','请求超时'], [409,'Conflict','冲突'], [410,'Gone','资源已删除'], [413,'Payload Too Large','请求体过大'], [429,'Too Many Requests','请求过多'],
+    [500,'Internal Server Error','服务器内部错误'], [501,'Not Implemented','未实现'], [502,'Bad Gateway','网关错误'], [503,'Service Unavailable','服务不可用'], [504,'Gateway Timeout','网关超时'], [505,'HTTP Version Not Supported','HTTP版本不支持']
+];
+function cls(code){ return 'c-' + Math.floor(code/100); }
+function render(filter){
+    const kw = (filter || '').toLowerCase();
+    const items = DATA.filter(d =>
+        !kw || String(d[0]).includes(kw) || d[1].toLowerCase().includes(kw) || d[2].toLowerCase().includes(kw));
+    $('grid').innerHTML = items.map(d =>
+        '<div class="stat-card"><span class="code ' + cls(d[0]) + '">' + d[0] + '</span><span class="name">' + d[1] + '</span>' +
+        '<div class="desc">' + d[2] + '</div></div>').join('') || '<p class="hint">无匹配结果</p>';
+}
+$('search').addEventListener('input', e => render(e.target.value));
+render();
+
+</script>
+<script defer src="skin.js"></script>
+</body>
+</html>
