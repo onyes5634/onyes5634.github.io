@@ -501,5 +501,15 @@
             animate();
         })();
     </script>
-</body>
+
+<script>
+// 深色设计页：锁定深色主题（皮肤变量跟随），隐藏主题切换按钮
+document.documentElement.setAttribute('data-theme', 'dark');
+(function () {
+    var t = document.getElementById('themeToggle');
+    if (t) t.style.display = 'none';
+})();
+</script>
+
+
 </html>
