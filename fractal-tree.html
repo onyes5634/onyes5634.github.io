@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>分形树</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="skin.css">
+<style>
+
+.wrap { display:flex; gap:20px; flex-wrap:wrap; justify-content:center; }
+canvas { background:var(--input-bg); border:2px solid var(--input-border); border-radius:10px; }
+.side { display:flex; flex-direction:column; gap:12px; min-width:190px; }
+.stat { display:flex; justify-content:space-between; }
+.stat b { color:var(--primary); }
+
+</style>
+</head>
+<body>
+<header class="app-header">
+<a class="back" href="index.html"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H109.3l105.3-105.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg> 返回主页</a>
+<h1 class="app-title">分形树</h1>
+<button class="theme-toggle" id="themeToggle" title="切换主题" aria-label="切换主题">🌙</button>
+</header>
+<div class="app-shell">
+
+<div class="wrap">
+<canvas id="cv" width="520" height="480"></canvas>
+<div class="side">
+<div class="col"><label>递归深度</label><input type="range" id="depth" min="2" max="12" value="9"></div>
+<div class="col"><label>分支角度</label><input type="range" id="angle" min="10" max="50" value="25"></div>
+<div class="col"><label>风摆</label><input type="range" id="wind" min="0" max="1" value="0.15" step="0.01"></div>
+<div class="row"><button class="btn btn-primary" id="redraw">重绘</button></div>
+</div>
+</div>
+
+</div>
+<script>
+
+const $ = id => document.getElementById(id);
+const cv=$('cv'), ctx=cv.getContext('2d');
+const W=cv.width, H=cv.height;
+let t=0;
+function branch(x,y,len,ang,depth,wind){
+  if(depth<=0||len<2) return;
+  const sway=Math.sin(t*1.5+depth)*wind*0.06;
+  const a=ang+sway;
+  const nx=x+Math.sin(a)*len, ny=y-Math.cos(a)*len;
+  const g=Math.floor(120+depth*12);
+  ctx.strokeStyle='rgb('+g+','+Math.min(255,g+60)+',80)';
+  ctx.lineWidth=Math.max(1,depth*0.7);
+  ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(nx,ny); ctx.stroke();
+  branch(nx,ny,len*0.72,a+$('angle').value*Math.PI/180,depth-1,wind);
+  branch(nx,ny,len*0.72,a-$('angle').value*Math.PI/180,depth-1,wind);
+}
+function draw(){
+  ctx.clearRect(0,0,W,H);
+  branch(W/2,H-10,110,0,+$('depth').value,+$('wind').value);
+  t+=0.02;
+  requestAnimationFrame(draw);
+}
+$('redraw').onclick=draw;
+draw();
+
+</script>
+<script defer src="skin.js"></script>
+</body>
+</html>
