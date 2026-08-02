@@ -46,5 +46,15 @@
         <p>你访问的页面可能已被删除、移动，或者根本不存在。</p>
         <a href="/">🏠 回到首页</a>
     </div>
-</body>
+
+<script>
+// 深色设计页：锁定深色主题（皮肤变量跟随），隐藏主题切换按钮
+document.documentElement.setAttribute('data-theme', 'dark');
+(function () {
+    var t = document.getElementById('themeToggle');
+    if (t) t.style.display = 'none';
+})();
+</script>
+
+
 </html>
