@@ -1292,9 +1292,61 @@
                 font-size: 1.2rem;
             }
         }
+
+        /* ===== 首访免责声明弹窗 ===== */
+        .disc-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: rgba(0, 0, 0, 0.62);
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .disc-modal.show { display: flex; }
+        .disc-modal-box {
+            background: var(--bg-card, #fff);
+            color: var(--text-color, #222);
+            max-width: 480px;
+            width: 100%;
+            border-radius: 16px;
+            padding: 26px 24px 22px;
+            box-shadow: 0 12px 48px rgba(0, 0, 0, 0.35);
+            max-height: 86vh;
+            overflow-y: auto;
+        }
+        .disc-modal-box h2 { font-size: 1.2rem; margin: 0 0 10px; }
+        .disc-modal-sum { font-size: .88rem; color: var(--text-light, #666); margin: 0 0 10px; }
+        .disc-modal-box ul { margin: 0 0 12px; padding-left: 18px; font-size: .86rem; line-height: 1.9; }
+        .disc-modal-more { font-size: .8rem; margin: 0 0 14px; }
+        .disc-modal-more a { color: var(--primary, #2563eb); }
+        .disc-agree { display: flex; align-items: center; gap: 8px; font-size: .88rem; margin: 0 0 14px; cursor: pointer; }
+        .disc-agree input { width: 16px; height: 16px; }
+        .disc-modal-box .btn { width: 100%; }
+        .disc-exit { display: block; text-align: center; margin-top: 10px; font-size: .8rem; color: var(--text-light, #888); cursor: pointer; }
+        .disc-exit:hover { opacity: .8; }
+
     </style>
 </head>
 <body>
+
+<div class="disc-modal" id="discModal" role="dialog" aria-modal="true" aria-label="免责声明">
+    <div class="disc-modal-box">
+        <h2>欢迎访问 Onyes 的小站</h2>
+        <p class="disc-modal-sum">使用本站服务前，请阅读并同意以下声明：</p>
+        <ul>
+            <li>本站工具仅用于学习、研究与生活便利，<b>严禁用于任何违法犯罪活动</b>（如伪造身份信息、欺诈、侵犯隐私等）。</li>
+            <li>所有数据仅在您的浏览器本地处理，本站不收集、不上传、不存储任何个人信息。</li>
+            <li>因违规使用产生的后果由使用者自行承担。</li>
+        </ul>
+        <p class="disc-modal-more">完整条款请查阅 <a href="disclaimer.html" target="_blank" rel="noopener">《免责声明》</a></p>
+        <label class="disc-agree"><input type="checkbox" id="discCheck"> 我已知晓并同意上述声明</label>
+        <button class="btn" id="discBtn" disabled>请稍候（5 秒后可进入）</button>
+        <span class="disc-exit" id="discExit">不同意并退出</span>
+    </div>
+</div>
+
 
     <!-- ===== 顶部导航栏 ===== -->
     <nav class="navbar" id="navbar">
@@ -2038,7 +2090,7 @@
                     async>
                 </script>
             </div>
-            <div class="debug-version" id="debugVersion">v1.8 · 最后编辑于 2026-08-02 15:02</div>
+            <div class="debug-version" id="debugVersion">v1.9 · 最后编辑于 2026-08-02 15:10</div>
             <div class="changelog-link"><a href="https://github.com/onyes5634/onyes5634.github.io/blob/main/README.md" target="_blank" rel="noopener">更新日志</a> · <a href="disclaimer.html">免责声明</a></div>
 
         </div><!-- .elastic-wrapper -->
@@ -2643,6 +2695,52 @@
 
         })();
     </script>
+
+<script>
+(function () {
+    'use strict';
+    var KEY = 'onyes_disclaimer_v1';
+    var accepted = false;
+    try { accepted = localStorage.getItem(KEY) === '1'; } catch (e) {}
+    if (accepted) return;
+    var modal = document.getElementById('discModal');
+    var btn = document.getElementById('discBtn');
+    var chk = document.getElementById('discCheck');
+    var exit = document.getElementById('discExit');
+    if (!modal || !btn || !chk || !exit) return;
+    modal.classList.add('show');
+    document.body.style.overflow = 'hidden';
+    var sec = 5;
+    var timer = setInterval(function () {
+        sec--;
+        if (sec <= 0) {
+            clearInterval(timer);
+            btn.textContent = '我知晓并同意，进入网站';
+            btn.classList.add('btn-primary');
+            btn.disabled = !chk.checked;
+        } else {
+            btn.textContent = '请稍候（' + sec + ' 秒后可进入）';
+        }
+    }, 1000);
+    chk.addEventListener('change', function () {
+        if (sec <= 0) btn.disabled = !chk.checked;
+    });
+    btn.addEventListener('click', function () {
+        if (sec > 0 || !chk.checked) return;
+        try { localStorage.setItem(KEY, '1'); } catch (e) {}
+        modal.classList.remove('show');
+        document.body.style.overflow = '';
+    });
+    exit.addEventListener('click', function () {
+        clearInterval(timer);
+        try { localStorage.setItem(KEY, 'exit'); } catch (e) {}
+        modal.innerHTML = '<div class="disc-modal-box"><h2>感谢访问</h2>' +
+            '<p class="disc-modal-sum">您已选择不同意声明。如需继续使用，请重新考虑后刷新页面；' +
+            '如认为本站内容有不妥之处，可通过 GitHub Issues 反馈。</p>' +
+            '<a class="btn" href="https://onyes5634.github.io" onclick="history.length>1?history.back():0;return false;">返回</a></div>';
+    });
+})();
+</script>
     <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 </body>
 </html>
