@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>星空粒子</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="skin.css">
+<style>
+
+.wrap { display:flex; gap:20px; flex-wrap:wrap; justify-content:center; }
+canvas { background:#0d1117; border-radius:12px; }
+.side { display:flex; flex-direction:column; gap:12px; min-width:170px; }
+.stat { display:flex; justify-content:space-between; }
+.stat b { color:var(--primary); }
+.hint { color:var(--text-light); font-size:.82rem; }
+
+</style>
+</head>
+<body>
+<header class="app-header">
+<a class="back" href="index.html"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H109.3l105.3-105.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg> 返回主页</a>
+<h1 class="app-title">星空粒子</h1>
+<button class="theme-toggle" id="themeToggle" title="切换主题" aria-label="切换主题">🌙</button>
+</header>
+<div class="app-shell">
+
+<div class="wrap">
+<canvas id="cv" width="560" height="440"></canvas>
+<div class="side">
+<div class="col"><label>粒子数</label><input type="range" id="n" min="50" max="400" value="200"></div>
+<div class="col"><label>飞行速度</label><input type="range" id="sp" min="1" max="10" value="4"></div>
+<div class="stat"><span>粒子</span><b id="count">200</b></div>
+<p class="hint">星际穿越特效：粒子由中心向四周飞散，形成纵深运动感。</p>
+</div>
+</div>
+
+</div>
+<script>
+
+const $ = id => document.getElementById(id);
+const cv = $('cv'), ctx = cv.getContext('2d');
+const W = cv.width, H = cv.height;
+let stars = [];
+function build(){
+    const n = +$('n').value;
+    stars = [];
+    for (let i = 0; i < n; i++){
+        stars.push({ x: W/2, y: H/2, z: Math.random(), speed: 0.5 + Math.random() * 2.5 });
+    }
+    $('count').textContent = n;
+}
+function frame(){
+    const sp = +$('sp').value;
+    ctx.fillStyle = 'rgba(13,17,23,.35)';
+    ctx.fillRect(0, 0, W, H);
+    for (const s of stars){
+        s.z += 0.003 * sp * s.speed;
+        if (s.z > 1) { s.x = W/2; s.y = H/2; s.z = 0.01; }
+        const px = W/2 + (s.x - W/2) * s.z;
+        const py = H/2 + (s.y - H/2) * s.z;
+        const size = s.z * 2.6;
+        ctx.globalAlpha = Math.min(1, s.z * 1.5);
+        ctx.fillStyle = s.z > 0.8 ? '#e2e8f0' : '#60a5fa';
+        ctx.fillRect(px, py, size, size);
+        ctx.globalAlpha = 1;
+    }
+    requestAnimationFrame(frame);
+}
+$('n').addEventListener('input', build);
+build();
+frame();
+
+</script>
+<script defer src="skin.js"></script>
+</body>
+</html>
