@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>科学计算器</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="skin.css">
+<style>
+
+.calc { max-width:380px; margin:0 auto; }
+.disp { background:var(--input-bg); border:1px solid var(--input-border); border-radius:12px; padding:14px 16px; text-align:right; margin-bottom:12px; }
+.disp .expr { color:var(--text-light); font-size:.9rem; min-height:20px; word-break:break-all; }
+.disp .val { font-size:1.8rem; font-weight:700; font-variant-numeric:tabular-nums; color:var(--text-color); }
+.keys { display:grid; grid-template-columns:repeat(5,1fr); gap:8px; }
+.keys button { padding:12px 4px; border-radius:10px; border:1px solid var(--border-color); background:var(--item-bg); font-size:1rem; cursor:pointer; transition:background .15s; }
+.keys button:hover { background:var(--tag-bg); }
+.keys .op { background:var(--tag-bg); font-weight:600; }
+.keys .eq { grid-column:span 1; background:var(--primary); color:#fff; border-color:transparent; }
+.keys .fn { color:var(--secondary); font-size:.85rem; }
+
+</style>
+</head>
+<body>
+<header class="app-header">
+<a class="back" href="index.html"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H109.3l105.3-105.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg> 返回主页</a>
+<h1 class="app-title">科学计算器</h1>
+<button class="theme-toggle" id="themeToggle" title="切换主题" aria-label="切换主题">🌙</button>
+</header>
+<div class="app-shell">
+
+<div class="calc">
+<div class="disp"><div class="expr" id="expr"></div><div class="val" id="val">0</div></div>
+<div class="keys" id="keys"></div>
+</div>
+
+</div>
+<script>
+
+const $ = id => document.getElementById(id);
+const BUTTONS = [
+  ['C','fn'],['⌫','fn'],['(',']'],[')',']'],['÷','op'],
+  ['7',']'],['8',']'],['9',']'],['×','op'],['sin','fn'],
+  ['4',']'],['5',']'],['6',']'],['−','op'],['cos','fn'],
+  ['1',']'],['2',']'],['3',']'],['+','op'],['tan','fn'],
+  ['0',']'],['.',']'],['^','op'],['=', 'eq'],['ln','fn']
+];
+let expr='';
+function render(){ $('expr').textContent=expr||' '; }
+$('val').textContent='0';
+const keys=$('keys');
+BUTTONS.forEach(([label,cls])=>{
+  const b=document.createElement('button');
+  b.textContent=label;
+  if(cls!==']') b.className=cls;
+  b.onclick=()=>press(label);
+  keys.appendChild(b);
+});
+function press(k){
+  if(k==='C'){ expr=''; $('val').textContent='0'; render(); return; }
+  if(k==='⌫'){ expr=expr.slice(0,-1); render(); return; }
+  if(k==='='){ calc(); return; }
+  const map={'×':'*','÷':'/','−':'-','^':'**'};
+  expr += map[k]||k;
+  render();
+}
+function calc(){
+  try{
+    if(!expr) return;
+    let e=expr;
+    // 函数替换
+    e=e.replace(/sin\(/g,'Math.sin(').replace(/cos\(/g,'Math.cos(')
+        .replace(/tan\(/g,'Math.tan(').replace(/ln\(/g,'Math.log(')
+        .replace(/sqrt\(/g,'Math.sqrt(').replace(/pi/gi,'Math.PI');
+    if(!/^[0-9+\-*/().\sMatha-zA-Z]*$/.test(e)) throw 0;
+    const v=Function('"use strict";return ('+e+')')();
+    if(typeof v!=='number'||!isFinite(v)) throw 0;
+    $('val').textContent=String(Math.round(v*1e10)/1e10);
+    expr=e;
+    render();
+  }catch(err){ $('val').textContent='错误'; }
+}
+document.addEventListener('keydown', e=>{
+  const k=e.key;
+  if(/[0-9+\-*/().]/.test(k)) press(k);
+  else if(k==='Enter') calc();
+  else if(k==='Backspace') press('⌫');
+  else if(k==='Escape') press('C');
+});
+
+</script>
+<script defer src="skin.js"></script>
+</body>
+</html>
