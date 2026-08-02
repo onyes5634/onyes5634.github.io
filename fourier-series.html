@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>傅里叶级数</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="skin.css">
+<style>
+
+.wrap { display:flex; gap:20px; flex-wrap:wrap; justify-content:center; }
+canvas { background:#0d1117; border-radius:10px; }
+.side { display:flex; flex-direction:column; gap:12px; min-width:190px; }
+.stat { display:flex; justify-content:space-between; }
+.stat b { color:var(--primary); }
+.hint { color:var(--text-light); font-size:.82rem; }
+
+</style>
+</head>
+<body>
+<header class="app-header">
+<a class="back" href="index.html"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H109.3l105.3-105.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg> 返回主页</a>
+<h1 class="app-title">傅里叶级数</h1>
+<button class="theme-toggle" id="themeToggle" title="切换主题" aria-label="切换主题">🌙</button>
+</header>
+<div class="app-shell">
+
+<div class="wrap">
+<canvas id="cv" width="640" height="420"></canvas>
+<div class="side">
+<div class="col"><label>谐波数</label><input type="range" id="harm" min="1" max="30" value="12"></div>
+<div class="col">
+<label>目标波形</label>
+<select id="wave">
+<option value="square" selected>方波</option>
+<option value="saw">锯齿波</option>
+<option value="tri">三角波</option>
+</select>
+</div>
+<div class="row"><button class="btn btn-primary" id="pause">暂停</button></div>
+<p class="hint">旋转向量叠加逼近目标波形（吉布斯现象可见于方波/锯齿波）。</p>
+</div>
+</div>
+
+</div>
+<script>
+
+const $ = id => document.getElementById(id);
+const cv=$('cv'), ctx=cv.getContext('2d');
+const W=cv.width, H=cv.height;
+const CX=140, CY=H/2, R=90;
+let t=0, paused=false;
+function coef(n,type){
+  if(type==='square') return n%2? 4/(n*Math.PI):0;
+  if(type==='saw') return 2*Math.pow(-1,n+1)/(n*Math.PI);
+  if(type==='tri') return (n%2)? 8/(n*n*Math.PI*Math.PI)*Math.pow(-1,(n-1)/2):0;
+  return 0;
+}
+function draw(){
+  ctx.fillStyle='#0d1117'; ctx.fillRect(0,0,W,H);
+  const harm=+$('harm').value, type=$('wave').value;
+  // 旋转圆环
+  let x=CX, y=CY;
+  ctx.strokeStyle='rgba(148,163,184,.35)';
+  for(let n=1;n<=harm;n++){
+    const a=coef(n,type);
+    if(!a) continue;
+    ctx.beginPath(); ctx.arc(x,y,Math.abs(a)*R,0,Math.PI*2); ctx.stroke();
+    const ang=n*t;
+    const px=x+a*R*Math.cos(ang), py=y+a*R*Math.sin(ang);
+    ctx.strokeStyle='rgba(255,255,255,.5)';
+    ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(px,py); ctx.stroke();
+    x=px; y=py;
+  }
+  // 轨迹曲线
+  const startX=x+10;
+  ctx.strokeStyle='#22c55e'; ctx.lineWidth=1.5;
+  ctx.beginPath();
+  ctx.moveTo(startX,y);
+  for(let k=0;k<60;k++){
+    ctx.lineTo(startX+k, y + Math.sin(t-k*0.2)*Math.sin(t-k*0.2)*0);
+    ctx.lineTo(startX+k, H/2 - (y-H/2)*Math.exp(-0.02*k));
+  }
+  ctx.stroke();
+  // 实际波形图（右侧）
+  const gx=300, gw=W-gx-20;
+  ctx.strokeStyle='#94a3b8'; ctx.beginPath(); ctx.moveTo(gx,0); ctx.lineTo(gx,H); ctx.stroke();
+  ctx.strokeStyle='#60a5fa'; ctx.lineWidth=2;
+  ctx.beginPath();
+  for(let px=0;px<=gw;px++){
+    const phase=px/gw*Math.PI*2;
+    let sum=0;
+    for(let n=1;n<=harm;n++){
+      const a=coef(n,type);
+      if(a) sum += a*Math.sin(n*phase);
+    }
+    const py=CY - sum*R*0.6;
+    px===0?ctx.moveTo(gx+px,py):ctx.lineTo(gx+px,py);
+  }
+  ctx.stroke();
+  t+=0.02;
+  requestAnimationFrame(draw);
+}
+$('pause').onclick=function(){ paused=!paused; this.textContent=paused?'继续':'暂停'; };
+draw();
+
+</script>
+<script defer src="skin.js"></script>
+</body>
+</html>
