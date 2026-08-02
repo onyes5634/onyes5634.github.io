@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>乒乓</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="skin.css">
+<style>
+
+.game-box { display:flex; flex-direction:column; align-items:center; gap:12px; }
+canvas { background:var(--input-bg); border:1px solid var(--input-border); border-radius:12px; }
+.stat-row { display:flex; gap:24px; font-size:1.2rem; font-weight:700; }
+.stat-row .p1 { color:#3498db; } .stat-row .p2 { color:#e74c3c; }
+.hint { color:var(--text-light); font-size:.8rem; }
+
+</style>
+</head>
+<body>
+<header class="app-header">
+<a class="back" href="index.html"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H109.3l105.3-105.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg> 返回主页</a>
+<h1 class="app-title">乒乓</h1>
+<button class="theme-toggle" id="themeToggle" title="切换主题" aria-label="切换主题">🌙</button>
+</header>
+<div class="app-shell">
+
+<div class="game-box">
+<div class="stat-row"><span class="p1">玩家 <b id="s1">0</b></span><span>—</span><span class="p2">电脑 <b id="s2">0</b></span></div>
+<canvas id="cv" width="600" height="380"></canvas>
+<div id="msg" class="hint">↑↓ 或 鼠标 控制左挡板 · 先到 5 分获胜</div>
+<button class="btn btn-primary" id="new">重新开始</button>
+</div>
+
+</div>
+<script>
+
+const $ = id => document.getElementById(id);
+const cv = $('cv'), ctx = cv.getContext('2d');
+const W = cv.width, H = cv.height;
+let p1y, p2y, bx, by, bvx, bvy, s1, s2, over, raf;
+const PW = 10, PH = 70, BALL = 7;
+function reset(){
+    p1y = H/2 - PH/2; p2y = H/2 - PH/2;
+    s1 = 0; s2 = 0; over = false;
+    $('s1').textContent = 0; $('s2').textContent = 0;
+    serve();
+}
+function serve(){
+    bx = W/2; by = H/2;
+    const a = (Math.random()*0.6 + 0.3) * Math.PI;
+    bvx = Math.cos(a) * 5 * (Math.random() < 0.5 ? 1 : -1);
+    bvy = Math.sin(a) * 5 * (Math.random() < 0.5 ? 1 : -1);
+    if (Math.abs(bvx) < 2.5) bvx = bvx < 0 ? -3 : 3;
+}
+function frame(){
+    if (over) return;
+    // 球
+    bx += bvx; by += bvy;
+    if (by < BALL || by > H - BALL) bvy *= -1;
+    // 左挡板（玩家）
+    if (bx - BALL < PW && bx + BALL > PW && by > p1y && by < p1y + PH && bvx < 0){ bvx = Math.abs(bvx) + 0.3; }
+    // 右挡板（电脑 AI）
+    if (bx + BALL > W - PW && bx - BALL < W - PW && by > p2y && by < p2y + PH && bvx > 0){ bvx = -Math.abs(bvx) - 0.3; }
+    if (p2y + PH/2 < by - 4) p2y += 3.5; else if (p2y + PH/2 > by + 4) p2y -= 3.5;
+    p2y = Math.max(0, Math.min(H - PH, p2y));
+    // 得分
+    if (bx < -BALL){ s2++; $('s2').textContent = s2; if (s2 >= 5){ over = true; $('msg').textContent = '💻 电脑获胜！'; } else serve(); }
+    if (bx > W + BALL){ s1++; $('s1').textContent = s1; if (s1 >= 5){ over = true; $('msg').textContent = '🎉 你赢了！'; } else serve(); }
+    draw();
+    raf = requestAnimationFrame(frame);
+}
+function draw(){
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = '#3498db'; ctx.fillRect(4, p1y, PW, PH);
+    ctx.fillStyle = '#e74c3c'; ctx.fillRect(W - PW - 4, p2y, PW, PH);
+    ctx.fillStyle = 'var(--text-color)';
+    ctx.beginPath(); ctx.arc(bx, by, BALL, 0, Math.PI*2); ctx.fill();
+    ctx.strokeStyle = 'var(--border-color)';
+    ctx.beginPath(); ctx.moveTo(W/2, 0); ctx.lineTo(W/2, H); ctx.stroke();
+}
+document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowUp') p1y = Math.max(0, p1y - 30);
+    if (e.key === 'ArrowDown') p1y = Math.min(H - PH, p1y + 30);
+});
+cv.addEventListener('mousemove', e => {
+    const r = cv.getBoundingClientRect();
+    p1y = (e.clientY - r.top) * H / r.height - PH/2;
+});
+$('new').onclick = () => { cancelAnimationFrame(raf); reset(); frame(); };
+reset(); frame();
+
+</script>
+<script defer src="skin.js"></script>
+</body>
+</html>
