@@ -1941,7 +1941,7 @@
                     async>
                 </script>
             </div>
-            <div class="debug-version" id="debugVersion">v2.3.0 · 2026-07-31 18:42</div>
+            <div class="debug-version" id="debugVersion">v2.3.0 · 2026-08-02 13:01</div>
 
         </div><!-- .elastic-wrapper -->
     </div><!-- .container -->
@@ -1951,15 +1951,8 @@
             'use strict';
 
             // =============================================
-            // 调试版本号
+            // 调试版本号（静态：v2.3.0 · 最后更新时间，见页脚 HTML）
             // =============================================
-            var now = new Date();
-            var dateStr = now.getFullYear() + '-' + 
-                         String(now.getMonth() + 1).padStart(2, '0') + '-' + 
-                         String(now.getDate()).padStart(2, '0') + ' ' +
-                         String(now.getHours()).padStart(2, '0') + ':' +
-                         String(now.getMinutes()).padStart(2, '0');
-            document.getElementById('debugVersion').textContent = 'v2.3.0 · ' + dateStr;
             document.getElementById('currentYear').textContent = new Date().getFullYear();
 
             // =============================================
