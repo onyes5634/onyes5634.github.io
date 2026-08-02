@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>井字棋</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="skin.css">
+<style>
+
+.game-box { display:flex; flex-direction:column; align-items:center; gap:12px; }
+.board { display:grid; grid-template-columns:repeat(3, minmax(80px, 1fr)); gap:8px; width:min(300px, 90vw); }
+.cell { aspect-ratio:1; border-radius:14px; border:1px solid var(--input-border); background:var(--item-bg); font-size:2.4rem; font-weight:800; display:flex; align-items:center; justify-content:center; cursor:pointer; user-select:none; transition:background .15s; }
+.cell:hover { background:var(--tag-bg); }
+.cell.x { color:#3498db; } .cell.o { color:#e74c3c; }
+.stat-row b { color:var(--primary); }
+
+</style>
+</head>
+<body>
+<header class="app-header">
+<a class="back" href="index.html"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H109.3l105.3-105.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg> 返回主页</a>
+<h1 class="app-title">井字棋</h1>
+<button class="theme-toggle" id="themeToggle" title="切换主题" aria-label="切换主题">🌙</button>
+</header>
+<div class="app-shell">
+
+<div class="game-box">
+<div class="stat-row"><span>当前: <b id="turn">X</b></span><span id="score">胜 0 - 0 负</span></div>
+<div class="board" id="board"></div>
+<div id="msg" class="hint">你执 X，点击格子落子</div>
+<button class="btn btn-primary" id="new">再来一局</button>
+</div>
+
+</div>
+<script>
+
+const $ = id => document.getElementById(id);
+let cells, turn, over, wins = 0, losses = 0;
+const LINES = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+function init(){
+    cells = Array(9).fill('');
+    turn = 'X'; over = false;
+    $('turn').textContent = 'X';
+    $('msg').textContent = '你执 X，点击格子落子';
+    render();
+}
+function render(){
+    const b = $('board'); b.innerHTML = '';
+    cells.forEach((v, i) => {
+        const el = document.createElement('div');
+        el.className = 'cell ' + (v === 'X' ? 'x' : v === 'O' ? 'o' : '');
+        el.textContent = v;
+        el.addEventListener('click', () => click(i));
+        b.appendChild(el);
+    });
+}
+function click(i){
+    if (over || cells[i] || turn !== 'X') return;
+    place(i, 'X');
+    if (!over) setTimeout(aiTurn, 400);
+}
+function place(i, p){
+    cells[i] = p;
+    render();
+    const w = winner();
+    if (w){
+        over = true;
+        if (w === 'X'){ wins++; $('msg').textContent = '🎉 你赢了！'; }
+        else { losses++; $('msg').textContent = '😅 电脑赢了'; }
+        $('score').textContent = '胜 ' + wins + ' - ' + losses + ' 负';
+        return;
+    }
+    if (cells.every(c => c)){ over = true; $('msg').textContent = '平局'; return; }
+    turn = turn === 'X' ? 'O' : 'X';
+    $('turn').textContent = turn;
+}
+function winner(){
+    for (const [a,b,c] of LINES)
+        if (cells[a] && cells[a] === cells[b] && cells[a] === cells[c]) return cells[a];
+    return null;
+}
+function aiTurn(){
+    if (over) return;
+    // 简单策略：赢 > 堵 > 中心 > 角 > 边
+    let move = findWin('O') ?? findWin('X');
+    if (move === null){
+        if (cells[4] === '') move = 4;
+        else {
+            const corners = [0,2,6,8].filter(i => cells[i] === '');
+            const edges = [1,3,5,7].filter(i => cells[i] === '');
+            const pool = corners.length ? corners : edges;
+            move = pool[Math.floor(Math.random()*pool.length)];
+        }
+    }
+    place(move, 'O');
+}
+function findWin(p){
+    for (const [a,b,c] of LINES){
+        const vals = [cells[a], cells[b], cells[c]];
+        if (vals.filter(v => v === p).length === 2 && vals.includes(''))
+            return [a,b,c][vals.indexOf('')];
+    }
+    return null;
+}
+$('new').onclick = init;
+init();
+
+</script>
+<script defer src="skin.js"></script>
+</body>
+</html>
