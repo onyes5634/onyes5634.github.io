@@ -45,7 +45,9 @@
 
 * { box-sizing: border-box; }
 
-html { scroll-behavior: smooth; }
+/* 注意：不在 html 上使用 scroll-behavior:smooth。
+   Chrome 等浏览器会让鼠标滚轮滚动变成"逐格动画"，表现为一格格跳；
+   滚轮交给浏览器/系统原生滚动（更丝滑），平滑滚动仅用于锚点跳转（见各页 JS）。 */
 
 body {
     margin: 0 !important;
