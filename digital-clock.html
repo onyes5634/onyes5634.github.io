@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>数字时钟</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="skin.css">
+<style>
+
+.clock-box { text-align:center; padding:30px 10px; }
+.time { font-size:clamp(3rem, 12vw, 6rem); font-weight:800; font-variant-numeric:tabular-nums; color:var(--primary); line-height:1.1; }
+.sec { font-size:clamp(1.2rem, 4vw, 2rem); color:var(--text-light); font-variant-numeric:tabular-nums; }
+.date { margin-top:14px; font-size:clamp(1rem, 3vw, 1.4rem); color:var(--text-color); }
+.week { margin-top:6px; font-size:.95rem; color:var(--text-light); }
+.am-pm { font-size:1rem; color:var(--text-light); }
+
+</style>
+</head>
+<body>
+<header class="app-header">
+<a class="back" href="index.html"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H109.3l105.3-105.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg> 返回主页</a>
+<h1 class="app-title">数字时钟</h1>
+<button class="theme-toggle" id="themeToggle" title="切换主题" aria-label="切换主题">🌙</button>
+</header>
+<div class="app-shell">
+
+<div class="card">
+<div class="clock-box">
+<div class="time" id="time">--:--</div>
+<div class="sec" id="sec">:--</div>
+<div class="date" id="date"></div>
+<div class="week" id="week"></div>
+</div>
+</div>
+
+</div>
+<script>
+
+const $ = id => document.getElementById(id);
+const WEEKS = ['星期日','星期一','星期二','星期三','星期四','星期五','星期六'];
+function tick() {
+    const d = new Date();
+    const p = n => String(n).padStart(2, '0');
+    const h = d.getHours(), ap = h >= 12 ? 'PM' : 'AM';
+    const h12 = h % 12 || 12;
+    $('time').textContent = p(h12) + ':' + p(d.getMinutes());
+    $('sec').textContent = ':' + p(d.getSeconds()) + ' ' + ap;
+    $('date').textContent = d.getFullYear() + '年' + (d.getMonth()+1) + '月' + d.getDate() + '日';
+    $('week').textContent = WEEKS[d.getDay()];
+}
+tick();
+setInterval(tick, 1000);
+
+</script>
+<script defer src="skin.js"></script>
+</body>
+</html>
