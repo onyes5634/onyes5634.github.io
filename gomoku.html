@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>五子棋</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="skin.css">
+<style>
+
+.game-box { display:flex; flex-direction:column; align-items:center; gap:12px; }
+canvas { background:var(--input-bg); border:1px solid var(--input-border); border-radius:12px; cursor:pointer; }
+.stat-row { display:flex; gap:16px; align-items:center; }
+.stat-row b { color:var(--primary); }
+
+</style>
+</head>
+<body>
+<header class="app-header">
+<a class="back" href="index.html"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H109.3l105.3-105.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg> 返回主页</a>
+<h1 class="app-title">五子棋</h1>
+<button class="theme-toggle" id="themeToggle" title="切换主题" aria-label="切换主题">🌙</button>
+</header>
+<div class="app-shell">
+
+<div class="game-box">
+<div class="stat-row">
+<span>模式</span>
+<select id="mode"><option value="ai" selected>人机对战</option><option value="pvp">双人对战</option></select>
+<span>当前: <b id="turn">黑棋</b></span>
+</div>
+<canvas id="cv" width="480" height="480"></canvas>
+<div id="msg" class="hint">黑棋先手，点击交叉点落子</div>
+<button class="btn btn-primary" id="new">重新开局</button>
+</div>
+
+</div>
+<script>
+
+const $ = id => document.getElementById(id);
+const cv = $('cv'), ctx = cv.getContext('2d');
+const N = 15, SIZE = 30, M = 20;
+let board, turn, over;
+function init(){
+    board = Array.from({length: N}, () => Array(N).fill(0));
+    turn = 1; over = false;
+    $('turn').textContent = '黑棋';
+    $('msg').textContent = '黑棋先手，点击交叉点落子';
+    draw();
+}
+function draw(){
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    ctx.strokeStyle = 'var(--text-color)';
+    for (let i = 0; i < N; i++){
+        ctx.beginPath(); ctx.moveTo(M, M + i*SIZE); ctx.lineTo(M + (N-1)*SIZE, M + i*SIZE); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(M + i*SIZE, M); ctx.lineTo(M + i*SIZE, M + (N-1)*SIZE); ctx.stroke();
+    }
+    for (let r = 0; r < N; r++) for (let c = 0; c < N; c++){
+        if (!board[r][c]) continue;
+        ctx.beginPath();
+        ctx.arc(M + c*SIZE, M + r*SIZE, 11, 0, Math.PI*2);
+        ctx.fillStyle = board[r][c] === 1 ? '#1a1a1a' : '#fff';
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(0,0,0,.2)'; ctx.stroke();
+    }
+}
+function checkWin(r, c){
+    const p = board[r][c];
+    const dirs = [[0,1],[1,0],[1,1],[1,-1]];
+    for (const [dr, dc] of dirs){
+        let n = 1;
+        for (let s = 1; s < 5; s++){ const nr = r+dr*s, nc = c+dc*s; if (nr>=0&&nr<N&&nc>=0&&nc<N&&board[nr][nc]===p) n++; else break; }
+        for (let s = 1; s < 5; s++){ const nr = r-dr*s, nc = c-dc*s; if (nr>=0&&nr<N&&nc>=0&&nc<N&&board[nr][nc]===p) n++; else break; }
+        if (n >= 5) return true;
+    }
+    return false;
+}
+function aiMove(){
+    // 简单 AI：先抢中心，再按打分（进攻+防守）
+    let best = null, bestScore = -1;
+    for (let r = 0; r < N; r++) for (let c = 0; c < N; c++){
+        if (board[r][c]) continue;
+        let score = 0;
+        // 靠近中心加分
+        score += 8 - Math.min(Math.abs(r-7), Math.abs(c-7));
+        score += eval(r, c, -1) * 2; // 防守
+        score += eval(r, c, 1);      // 进攻
+        if (score > bestScore){ bestScore = score; best = [r, c]; }
+    }
+    if (best){ place(best[0], best[1]); }
+}
+function eval(r, c, p){
+    let s = 0;
+    const dirs = [[0,1],[1,0],[1,1],[1,-1]];
+    for (const [dr, dc] of dirs){
+        let n = 1;
+        for (let k = 1; k < 5; k++){ const nr=r+dr*k, nc=c+dc*k; if (nr>=0&&nr<N&&nc>=0&&nc<N&&board[nr][nc]===p) n++; else break; }
+        for (let k = 1; k < 5; k++){ const nr=r-dr*k, nc=c-dc*k; if (nr>=0&&nr<N&&nc>=0&&nc<N&&board[nr][nc]===p) n++; else break; }
+        s += n * n;
+    }
+    return s;
+}
+function place(r, c){
+    board[r][c] = turn;
+    draw();
+    if (checkWin(r, c)){
+        over = true;
+        $('msg').textContent = (turn === 1 ? '黑棋' : '白棋') + ' 获胜！🎉';
+        return;
+    }
+    turn = -turn;
+    $('turn').textContent = turn === 1 ? '黑棋' : '白棋';
+    if ($('mode').value === 'ai' && turn === -1 && !over){
+        setTimeout(aiMove, 350);
+    }
+}
+cv.addEventListener('click', e => {
+    if (over) return;
+    const r = cv.getBoundingClientRect();
+    const c = Math.round((e.clientX - r.left - M) / SIZE);
+    const rr = Math.round((e.clientY - r.top - M) / SIZE);
+    if (c < 0 || c >= N || rr < 0 || rr >= N || board[rr][c]) return;
+    place(rr, c);
+});
+$('new').onclick = init;
+$('mode').onchange = init;
+init();
+
+</script>
+<script defer src="skin.js"></script>
+</body>
+</html>
