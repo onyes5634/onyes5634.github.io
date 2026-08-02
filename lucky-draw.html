@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>抽奖转盘</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="skin.css">
+<style>
+
+.wrap { display:flex; gap:20px; flex-wrap:wrap; justify-content:center; align-items:flex-start; }
+.side { display:flex; flex-direction:column; gap:10px; min-width:230px; flex:1; }
+canvas { border-radius:50%; box-shadow:0 6px 30px var(--shadow); }
+.pointer { width:0; height:0; border-left:14px solid transparent; border-right:14px solid transparent; border-top:22px solid var(--accent); margin:-4px auto 0; }
+
+</style>
+</head>
+<body>
+<header class="app-header">
+<a class="back" href="index.html"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H109.3l105.3-105.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg> 返回主页</a>
+<h1 class="app-title">抽奖转盘</h1>
+<button class="theme-toggle" id="themeToggle" title="切换主题" aria-label="切换主题">🌙</button>
+</header>
+<div class="app-shell">
+
+<div class="wrap">
+<div>
+<div class="pointer"></div>
+<canvas id="cv" width="360" height="360"></canvas>
+</div>
+<div class="side">
+<textarea id="names" class="mini" style="min-height:120px" placeholder="输入选项，逗号或换行分隔">一等奖,二等奖,三等奖,参与奖</textarea>
+<div class="row"><button class="btn btn-primary" id="spin">开始抽奖</button><button class="btn" id="redraw">更新转盘</button></div>
+<div id="result" class="result-box">点击「更新转盘」加载选项</div>
+</div>
+</div>
+
+</div>
+<script>
+
+const $ = id => document.getElementById(id);
+const cv=$('cv'), ctx=cv.getContext('2d');
+const W=cv.width, H=cv.height, cx=W/2, cy=H/2, R=W/2-6;
+let items=[], angle=0, spinning=false;
+const COLORS=['#e74c3c','#3498db','#2ecc71','#f39c12','#9b59b6','#1abc9c','#e67e22','#34495e'];
+function loadItems(){
+  items=$('names').value.split(/[,，\n]/).map(s=>s.trim()).filter(Boolean);
+  if(!items.length) items=['一等奖'];
+  draw();
+  $('result').textContent='共 '+items.length+' 个选项，点击「开始抽奖」';
+}
+function draw(){
+  ctx.clearRect(0,0,W,H);
+  const n=items.length, slice=Math.PI*2/n;
+  for(let i=0;i<n;i++){
+    ctx.beginPath();
+    ctx.moveTo(cx,cy);
+    ctx.arc(cx,cy,R,angle+i*slice,angle+(i+1)*slice);
+    ctx.closePath();
+    ctx.fillStyle=COLORS[i%COLORS.length];
+    ctx.fill();
+    ctx.strokeStyle='#fff'; ctx.lineWidth=1.5; ctx.stroke();
+    // 文字
+    ctx.save();
+    ctx.translate(cx,cy);
+    ctx.rotate(angle+i*slice+slice/2);
+    ctx.textAlign='right';
+    ctx.fillStyle='#fff';
+    ctx.font='bold 14px sans-serif';
+    ctx.fillText(items[i].slice(0,5), R-14, 5);
+    ctx.restore();
+  }
+  ctx.beginPath(); ctx.arc(cx,cy,26,0,Math.PI*2); ctx.fillStyle='#fff'; ctx.fill();
+  ctx.beginPath(); ctx.arc(cx,cy,20,0,Math.PI*2); ctx.fillStyle='#3498db'; ctx.fill();
+}
+function spin(){
+  if(spinning) return;
+  spinning=true;
+  const target=angle+Math.PI*2*(5+Math.random()*5);
+  const start=angle, dur=4000, t0=performance.now();
+  function anim(t){
+    const p=Math.min(1,(t-t0)/dur);
+    const ease=1-Math.pow(1-p,3);
+    angle=start+(target-start)*ease;
+    draw();
+    if(p<1){ requestAnimationFrame(anim); }
+    else {
+      spinning=false;
+      const n=items.length, slice=Math.PI*2/n;
+      // 指针在正上方（-90°），找对应扇区
+      const norm=(((-Math.PI/2 - angle) % (Math.PI*2)) + Math.PI*2) % (Math.PI*2);
+      const idx=Math.floor(norm/slice);
+      $('result').textContent='🎉 抽中：'+items[idx];
+    }
+  }
+  requestAnimationFrame(anim);
+}
+$('spin').onclick=spin;
+$('redraw').onclick=loadItems;
+loadItems();
+
+</script>
+<script defer src="skin.js"></script>
+</body>
+</html>
