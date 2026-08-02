@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>多体引力模拟</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="skin.css">
+<style>
+
+.wrap { display:flex; gap:20px; flex-wrap:wrap; justify-content:center; }
+canvas { background:#0d1117; border-radius:10px; }
+.side { display:flex; flex-direction:column; gap:12px; min-width:190px; }
+.stat { display:flex; justify-content:space-between; }
+.stat b { color:var(--primary); }
+
+</style>
+</head>
+<body>
+<header class="app-header">
+<a class="back" href="index.html"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H109.3l105.3-105.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg> 返回主页</a>
+<h1 class="app-title">多体引力模拟</h1>
+<button class="theme-toggle" id="themeToggle" title="切换主题" aria-label="切换主题">🌙</button>
+</header>
+<div class="app-shell">
+
+<div class="wrap">
+<canvas id="cv" width="560" height="480"></canvas>
+<div class="side">
+<div class="col"><label>天体数量</label><input type="range" id="n" min="3" max="20" value="8"></div>
+<div class="row"><button class="btn btn-primary" id="reset">重新生成</button></div>
+<div class="stat"><span>步数</span><b id="steps">0</b></div>
+<p class="hint">N 体万有引力相互作用，演化出复杂轨道。</p>
+</div>
+</div>
+
+</div>
+<script>
+
+const $ = id => document.getElementById(id);
+const cv=$('cv'), ctx=cv.getContext('2d');
+const W=cv.width, H=cv.height;
+let bodies=[], steps=0;
+function reset(){
+  const n=+$('n').value;
+  bodies=[];
+  for(let i=0;i<n;i++){
+    bodies.push({
+      x:W/2+(Math.random()-0.5)*380, y:H/2+(Math.random()-0.5)*320,
+      vx:(Math.random()-0.5)*2, vy:(Math.random()-0.5)*2,
+      m:0.5+Math.random()*3, c:'hsl('+(i*360/n)+',70%,60%)', trail:[]
+    });
+  }
+  steps=0; $('steps').textContent=0;
+  ctx.fillStyle='#0d1117'; ctx.fillRect(0,0,W,H);
+}
+function step(){
+  const G=120, dt=0.02;
+  // 计算力
+  for(let i=0;i<bodies.length;i++){
+    for(let j=i+1;j<bodies.length;j++){
+      const a=bodies[i], b=bodies[j];
+      let dx=b.x-a.x, dy=b.y-a.y;
+      let d=Math.hypot(dx,dy);
+      if(d<8) d=8;
+      const f=G*a.m*b.m/(d*d);
+      const fx=f*dx/d, fy=f*dy/d;
+      a.vx+=fx/a.m*dt; a.vy+=fy/a.m*dt;
+      b.vx-=fx/b.m*dt; b.vy-=fy/b.m*dt;
+    }
+  }
+  for(const b of bodies){
+    b.x+=b.vx*dt; b.y+=b.vy*dt;
+    // 边界软反弹
+    if(b.x<4||b.x>W-4) b.vx*=-0.9;
+    if(b.y<4||b.y>H-4) b.vy*=-0.9;
+    b.x=Math.max(4,Math.min(W-4,b.x));
+    b.y=Math.max(4,Math.min(H-4,b.y));
+    b.trail.push({x:b.x,y:b.y});
+    if(b.trail.length>90) b.trail.shift();
+  }
+  ctx.fillStyle='rgba(13,17,23,.14)'; ctx.fillRect(0,0,W,H);
+  for(const b of bodies){
+    ctx.strokeStyle=b.c; ctx.lineWidth=.8;
+    ctx.beginPath();
+    b.trail.forEach((p,i)=>{ i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y); });
+    ctx.stroke();
+    ctx.fillStyle=b.c;
+    ctx.beginPath(); ctx.arc(b.x,b.y,Math.sqrt(b.m)*2.2,0,Math.PI*2); ctx.fill();
+  }
+  steps++; $('steps').textContent=steps;
+  requestAnimationFrame(step);
+}
+$('reset').onclick=reset;
+$('n').addEventListener('input', reset);
+reset();
+step();
+
+</script>
+<script defer src="skin.js"></script>
+</body>
+</html>
