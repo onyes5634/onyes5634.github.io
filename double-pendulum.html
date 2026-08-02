@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>双摆混沌</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="skin.css">
+<style>
+
+.wrap { display:flex; gap:20px; flex-wrap:wrap; justify-content:center; }
+canvas { background:#0d1117; border-radius:10px; }
+.side { display:flex; flex-direction:column; gap:12px; min-width:180px; }
+.stat { display:flex; justify-content:space-between; }
+.stat b { color:var(--primary); }
+.hint { color:var(--text-light); font-size:.82rem; }
+
+</style>
+</head>
+<body>
+<header class="app-header">
+<a class="back" href="index.html"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H109.3l105.3-105.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg> 返回主页</a>
+<h1 class="app-title">双摆混沌</h1>
+<button class="theme-toggle" id="themeToggle" title="切换主题" aria-label="切换主题">🌙</button>
+</header>
+<div class="app-shell">
+
+<div class="wrap">
+<canvas id="cv" width="560" height="520"></canvas>
+<div class="side">
+<div class="row"><button class="btn btn-primary" id="reset">重新释放</button></div>
+<div class="stat"><span>摆1角度</span><b id="a1">120°</b></div>
+<div class="stat"><span>摆2角度</span><b id="a2">-90°</b></div>
+<p class="hint">双摆是经典混沌系统：初始条件的微小差异会被指数放大（蝴蝶效应）。</p>
+</div>
+</div>
+
+</div>
+<script>
+
+const $ = id => document.getElementById(id);
+const cv=$('cv'), ctx=cv.getContext('2d');
+const W=cv.width, H=cv.height;
+const L1=110, L2=110, M1=12, M2=12;
+let a1, a2, w1, w2, trail=[];
+function reset(){
+  a1 = 120*Math.PI/180; a2 = -90*Math.PI/180;
+  w1 = 0; w2 = 0; trail=[];
+  $('a1').textContent='120°'; $('a2').textContent='-90°';
+}
+function step(){
+  const dt=1/60, g=9.8;
+  const d=a1-a2;
+  const den1=(M1+M2)*L1 - M2*L1*Math.cos(d)*Math.cos(d);
+  const aa1 = (-g*(2*M1+M2)*Math.sin(a1) - M2*g*Math.sin(a1-2*a2)
+    - 2*Math.sin(d)*M2*(w2*w2*L2 + w1*w1*L1*Math.cos(d))) / (L1*den1);
+  const den2 = (2*M1+M2) - M2*Math.cos(2*a1-2*a2);
+  const aa2 = (2*Math.sin(d)*(w1*w1*L1*(M1+M2) + g*(M1+M2)*Math.cos(a1)
+    + w2*w2*L2*M2*Math.cos(d))) / (L2*den2);
+  w1 += aa1*dt; w2 += aa2*dt;
+  a1 += w1*dt; a2 += w2*dt;
+  const x1=W/2+L1*Math.sin(a1), y1=H*0.32+L1*Math.cos(a1);
+  const x2=x1+L2*Math.sin(a2), y2=y1+L2*Math.cos(a2);
+  trail.push({x:x2,y:y2});
+  if(trail.length>400) trail.shift();
+  draw(x1,y1,x2,y2);
+  $('a1').textContent=(a1*180/Math.PI).toFixed(0)+'°';
+  $('a2').textContent=(a2*180/Math.PI).toFixed(0)+'°';
+  requestAnimationFrame(step);
+}
+function draw(x1,y1,x2,y2){
+  ctx.fillStyle='#0d1117'; ctx.fillRect(0,0,W,H);
+  // 轨迹
+  ctx.strokeStyle='rgba(52,152,219,.45)'; ctx.lineWidth=1.4;
+  ctx.beginPath();
+  trail.forEach((p,i)=>{ i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y); });
+  ctx.stroke();
+  const pivot={x:W/2,y:H*0.32};
+  ctx.strokeStyle='#8b949e'; ctx.lineWidth=3;
+  ctx.beginPath(); ctx.moveTo(pivot.x,pivot.y); ctx.lineTo(x1,y1); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+  ctx.fillStyle='#3498db'; ctx.beginPath(); ctx.arc(x1,y1,M1,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#e74c3c'; ctx.beginPath(); ctx.arc(x2,y2,M2,0,Math.PI*2); ctx.fill();
+}
+$('reset').onclick=reset;
+reset();
+step();
+
+</script>
+<script defer src="skin.js"></script>
+</body>
+</html>
