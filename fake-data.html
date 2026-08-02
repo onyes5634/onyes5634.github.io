@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>假数据生成器</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="skin.css">
+<style>
+
+.row-opt { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+textarea.mini { min-height:200px; }
+
+</style>
+</head>
+<body>
+<header class="app-header">
+<a class="back" href="index.html"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H109.3l105.3-105.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg> 返回主页</a>
+<h1 class="app-title">假数据生成器</h1>
+<button class="theme-toggle" id="themeToggle" title="切换主题" aria-label="切换主题">🌙</button>
+</header>
+<div class="app-shell">
+
+<div class="col">
+<div class="row-opt">
+<label>类型</label>
+<select id="type">
+<option value="name">中文姓名</option>
+<option value="phone">手机号</option>
+<option value="email">邮箱</option>
+<option value="idcard">身份证号(格式)</option>
+<option value="date">日期</option>
+<option value="address">地址</option>
+<option value="uuid">UUID</option>
+<option value="password">密码</option>
+<option value="mixed">混合(制表符分隔)</option>
+</select>
+<label>数量</label><input type="number" id="count" value="10" min="1" max="100" style="width:80px">
+<button class="btn btn-primary" id="gen">生成</button>
+<button class="btn" id="copy">复制</button>
+</div>
+<textarea id="out" class="mini" placeholder="生成结果" readonly></textarea>
+</div>
+
+</div>
+<script>
+
+const $ = id => document.getElementById(id);
+const SURNAMES = '赵钱孙李周吴郑王冯陈褚卫蒋沈韩杨朱秦尤许何吕施张孔曹严华金魏陶姜';
+const GIVEN = ['伟','芳','娜','敏','静','磊','军','洋','勇','艳','杰','涛','明','超','秀英','霞','平','刚','桂英','文','辉','力','志强','丽','建华','秀兰','春','海燕','振国','晓燕'];
+const STREETS = ['中山路','人民大道','解放街','建设巷','朝阳路','幸福里','科技园路','新城大道','长江街','和平巷'];
+const CITIES = ['北京市','上海市','广州市','深圳市','成都市','杭州市','武汉市','南京市','西安市','重庆市'];
+function pick(a){ return a[Math.floor(Math.random()*a.length)]; }
+function genOne(type){
+    switch(type){
+        case 'name': return pick(SURNAMES) + pick(GIVEN) + (Math.random()<.3 ? pick(GIVEN) : '');
+        case 'phone': return '1' + pick(['3','5','7','8','9']) + Math.floor(Math.random()*9) + String(Math.floor(Math.random()*1e8)).padStart(8,'0');
+        case 'email': return pick('abcdefghijklmnopqrstuvwxyz') + String(Math.floor(Math.random()*999)) + '@' + pick(['qq.com','163.com','gmail.com','outlook.com','126.com']);
+        case 'idcard': {
+            const y = 1960 + Math.floor(Math.random()*40);
+            const m = String(1+Math.floor(Math.random()*12)).padStart(2,'0');
+            const d = String(1+Math.floor(Math.random()*28)).padStart(2,'0');
+            const seq = String(Math.floor(Math.random()*999)).padStart(3,'0');
+            return pick(['110','310','440','510','330','420']) + String(Math.floor(Math.random()*10)) + String(Math.floor(Math.random()*10)) + y + m + d + seq + pick('0123456789X');
+        }
+        case 'date': {
+            const y = 2000 + Math.floor(Math.random()*24);
+            const m = String(1+Math.floor(Math.random()*12)).padStart(2,'0');
+            const d = String(1+Math.floor(Math.random()*28)).padStart(2,'0');
+            return y + '-' + m + '-' + d;
+        }
+        case 'address': return pick(CITIES) + pick(['东','西','南','北']) + pick(STREETS) + String(1+Math.floor(Math.random()*200)) + '号';
+        case 'uuid': {
+            const hex = '0123456789abcdef';
+            let s = '';
+            for(let i=0;i<36;i++){
+                if(i===8||i===13||i===18||i===23) s += '-';
+                else s += hex[Math.floor(Math.random()*16)];
+            }
+            return s;
+        }
+        case 'password': {
+            const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*';
+            let s='';
+            for(let i=0;i<16;i++) s += chars[Math.floor(Math.random()*chars.length)];
+            return s;
+        }
+        case 'mixed': return [genOne('name'), genOne('phone'), genOne('email'), genOne('date'), genOne('address')].join('\t');
+    }
+}
+$('gen').onclick = function(){
+    const type = $('type').value;
+    const n = Math.min(100, Math.max(1, +$('count').value || 10));
+    const rows = [];
+    for(let i=0;i<n;i++) rows.push(genOne(type));
+    $('out').value = rows.join('\n');
+};
+$('copy').onclick = function(){
+    const t = $('out').value;
+    if(!t) return;
+    navigator.clipboard && navigator.clipboard.writeText(t).then(()=>{ $('copy').textContent='已复制'; setTimeout(()=>$('copy').textContent='复制',1200); });
+};
+$('gen').click();
+
+</script>
+<script defer src="skin.js"></script>
+</body>
+</html>
