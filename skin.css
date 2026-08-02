@@ -261,3 +261,45 @@ a { color: var(--primary); }
 .control-btn, .btn-reset, .btn-start {
     font-family: inherit;
 }
+
+
+/* ============================================================
+   设备适配（手机 / 平板 / 桌面）——全站统一响应式
+   ============================================================ */
+/* 手机（<=640px） */
+@media (max-width: 640px) {
+    .app-header { padding: 0 10px; height: 52px; }
+    .app-header .back { padding: 5px 8px; font-size: .8rem; }
+    .app-header .back svg { width: 12px; height: 12px; }
+    .app-header .app-title { font-size: .9rem; }
+    .app-header .theme-toggle { width: 32px; height: 32px; }
+    .app-shell { padding: 14px 10px 40px; }
+    .card { padding: 16px; border-radius: 14px; }
+    .row { gap: 8px; margin: 10px 0; }
+    .col { gap: 5px; }
+    .btn { padding: 9px 13px; font-size: .88rem; border-radius: 9px; }
+    .btn-sm { padding: 5px 9px; font-size: .8rem; }
+    .tool-title { font-size: 1rem; }
+    .hint { font-size: .78rem; }
+    input[type="text"], input[type="number"], input[type="date"],
+    input[type="time"], input[type="email"], input[type="search"],
+    textarea, select { padding: 9px 11px; font-size: .9rem; border-radius: 9px; }
+    textarea.mini { min-height: 110px; }
+    .grid-2 { gap: 10px; }
+    .result-box { padding: 10px 12px; font-size: .88rem; }
+    .tag { font-size: .74rem; }
+    /* 固定尺寸 canvas（贪吃蛇/俄罗斯方块/打砖块等）按屏等比缩放 */
+    canvas { max-width: 100% !important; height: auto !important; }
+    .game-wrap, .wrap { justify-content: center; }
+    table { font-size: .8rem; }
+    th, td { padding: 5px 6px; }
+}
+/* 平板（641-1024px） */
+@media (min-width: 641px) and (max-width: 1024px) {
+    .app-shell { padding: 20px 16px 48px; }
+    .card { padding: 20px; }
+}
+/* iOS 刘海屏 / 全面屏安全区 */
+@supports (padding: env(safe-area-inset-top)) {
+    .app-header { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
+}
