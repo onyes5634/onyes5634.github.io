@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>颜色格式转换</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="skin.css">
+<style>
+
+.swatches { display:flex; gap:10px; margin:10px 0; }
+.sw { width:70px; height:46px; border-radius:10px; border:1px solid var(--border-color); cursor:pointer; }
+.preview { height:70px; border-radius:12px; margin:12px 0; border:1px solid var(--border-color); transition:background .2s; }
+
+</style>
+</head>
+<body>
+<header class="app-header">
+<a class="back" href="index.html"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H109.3l105.3-105.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg> 返回主页</a>
+<h1 class="app-title">颜色格式转换</h1>
+<button class="theme-toggle" id="themeToggle" title="切换主题" aria-label="切换主题">🌙</button>
+</header>
+<div class="app-shell">
+
+<div class="col">
+<div class="tool-title">HEX / RGB / HSL 互转</div>
+<div class="swatches" id="swatches">
+<div class="sw" style="background:#3498db" data-h="210" data-s="76" data-l="53"></div>
+<div class="sw" style="background:#9b59b6" data-h="262" data-s="60" data-l="53"></div>
+<div class="sw" style="background:#e74c3c" data-h="6" data-s="78" data-l="57"></div>
+<div class="sw" style="background:#2ecc71" data-h="145" data-s="63" data-l="49"></div>
+<div class="sw" style="background:#f39c12" data-h="37" data-s="91" data-l="52"></div>
+<div class="sw" style="background:#1abc9c" data-h="169" data-s="77" data-l="42"></div>
+</div>
+<div class="preview" id="preview"></div>
+<div class="row">
+<div class="col grow"><label>HEX</label><input type="text" id="hex" value="#3498db" placeholder="#3498db"></div>
+</div>
+<div class="row">
+<div class="col grow"><label>RGB</label><input type="text" id="rgb" value="52, 152, 219" placeholder="52, 152, 219"></div>
+</div>
+<div class="row">
+<div class="col grow"><label>HSL</label><input type="text" id="hsl" value="210, 76%, 53%" placeholder="210, 76%, 53%"></div>
+</div>
+<div id="msg" class="hint"></div>
+</div>
+
+</div>
+<script>
+
+const $ = id => document.getElementById(id);
+function hexToRgb(h){
+  h=h.trim().replace('#','');
+  if(h.length===3) h=h.split('').map(c=>c+c).join('');
+  if(!/^[0-9a-fA-F]{6}$/.test(h)) return null;
+  return [parseInt(h.slice(0,2),16), parseInt(h.slice(2,4),16), parseInt(h.slice(4,6),16)];
+}
+function rgbToHex(r,g,b){ return '#'+[r,g,b].map(v=>Math.round(v).toString(16).padStart(2,'0')).join(''); }
+function rgbToHsl(r,g,b){
+  r/=255;g/=255;b/=255;
+  const max=Math.max(r,g,b), min=Math.min(r,g,b);
+  let h=0,s=0,l=(max+min)/2;
+  if(max!==min){
+    const d=max-min;
+    s = l>0.5 ? d/(2-max-min) : d/(max+min);
+    switch(max){
+      case r: h=(g-b)/d+(g<b?6:0); break;
+      case g: h=(b-r)/d+2; break;
+      default: h=(r-g)/d+4;
+    }
+    h*=60;
+  }
+  return [Math.round(h), Math.round(s*100), Math.round(l*100)];
+}
+function hslToRgb(h,s,l){
+  s/=100; l/=100;
+  const c=(1-Math.abs(2*l-1))*s;
+  const x=c*(1-Math.abs((h/60)%2-1));
+  const m=l-c/2;
+  let r=0,g=0,b=0;
+  if(h<60){r=c;g=x;} else if(h<120){r=x;g=c;} else if(h<180){g=c;b=x;}
+  else if(h<240){g=x;b=c;} else if(h<300){r=x;b=c;} else {r=c;b=x;}
+  return [Math.round((r+m)*255),Math.round((g+m)*255),Math.round((b+m)*255)];
+}
+function update(field){
+  let r,g,b,h,s,l,hex;
+  if(field==='hex'){
+    const rgb=hexToRgb($('hex').value);
+    if(!rgb){ $('msg').textContent='✗ HEX 格式无效'; return; }
+    [r,g,b]=rgb; [h,s,l]=rgbToHsl(r,g,b);
+  } else if(field==='rgb'){
+    const m=$('rgb').value.match(/\d+/g);
+    if(!m||m.length<3){ $('msg').textContent='✗ RGB 格式无效'; return; }
+    [r,g,b]=m.map(Number); [h,s,l]=rgbToHsl(r,g,b);
+  } else {
+    const m=$('hsl').value.match(/\d+/g);
+    if(!m||m.length<3){ $('msg').textContent='✗ HSL 格式无效'; return; }
+    [h,s,l]=m.map(Number); [r,g,b]=hslToRgb(h,s,l);
+  }
+  r=Math.max(0,Math.min(255,r)); g=Math.max(0,Math.min(255,g)); b=Math.max(0,Math.min(255,b));
+  hex=rgbToHex(r,g,b);
+  $('hex').value=hex;
+  $('rgb').value=r+', '+g+', '+b;
+  $('hsl').value=h+', '+s+'%, '+l+'%';
+  $('preview').style.background=hex;
+  $('msg').textContent='';
+}
+$('hex').addEventListener('input',()=>update('hex'));
+$('rgb').addEventListener('input',()=>update('rgb'));
+$('hsl').addEventListener('input',()=>update('hsl'));
+document.querySelectorAll('.sw').forEach(el=>el.addEventListener('click',()=>{
+  $('hsl').value=el.dataset.h+', '+el.dataset.s+'%, '+el.dataset.l+'%';
+  update('hsl');
+}));
+update('hex');
+
+</script>
+<script defer src="skin.js"></script>
+</body>
+</html>
