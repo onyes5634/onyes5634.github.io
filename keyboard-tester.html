@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>键盘测试器</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="skin.css">
+<style>
+
+.keys { display:grid; grid-template-columns:repeat(auto-fill,minmax(72px,1fr)); gap:8px; margin-top:14px; }
+.key { padding:10px 4px; text-align:center; border-radius:8px; border:1px solid var(--input-border); background:var(--item-bg); font-size:.8rem; transition:all .12s; }
+.key.on { background:var(--primary); color:#fff; border-color:transparent; transform:scale(1.08); }
+.live { font-size:2.6rem; font-weight:800; color:var(--primary); text-align:center; min-height:64px; font-variant-numeric:tabular-nums; margin:6px 0; }
+.history { display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
+.history span { background:var(--tag-bg); border-radius:6px; padding:2px 8px; font-size:.78rem; }
+
+</style>
+</head>
+<body>
+<header class="app-header">
+<a class="back" href="index.html"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H109.3l105.3-105.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg> 返回主页</a>
+<h1 class="app-title">键盘测试器</h1>
+<button class="theme-toggle" id="themeToggle" title="切换主题" aria-label="切换主题">🌙</button>
+</header>
+<div class="app-shell">
+
+<div class="card">
+<div class="live" id="live">—</div>
+<div id="info" class="hint" style="text-align:center">按下任意按键测试…</div>
+<div class="keys" id="keys"></div>
+<div class="history" id="history"></div>
+</div>
+
+</div>
+<script>
+
+const $ = id => document.getElementById(id);
+const KEY_NAMES = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','0','1','2','3','4','5','6','7','8','9','Shift','Control','Alt','Enter','Backspace','Space','Tab','ArrowUp','ArrowDown','ArrowLeft','ArrowRight','CapsLock','Escape','F1','F2','F3','F4','F5','F6','F7','F8','F9','F10','F11','F12'];
+const keys = $('keys');
+KEY_NAMES.forEach(k => {
+    const el = document.createElement('div');
+    el.className = 'key'; el.textContent = k; el.id = 'k-' + k;
+    keys.appendChild(el);
+});
+let hist = [];
+document.addEventListener('keydown', e => {
+    e.preventDefault();
+    const name = e.key === ' ' ? 'Space' : e.key.length === 1 ? e.key.toUpperCase() : e.key;
+    const el = document.getElementById('k-' + name);
+    if (el) { el.classList.add('on'); setTimeout(() => el.classList.remove('on'), 200); }
+    $('live').textContent = name === ' ' ? '␣' : name;
+    $('info').textContent = 'key: ' + (e.key === ' ' ? 'Space' : e.key) + '  |  code: ' + e.code + '  |  keyCode: ' + e.keyCode;
+    hist.unshift(name);
+    if (hist.length > 12) hist.pop();
+    $('history').innerHTML = hist.map(x => '<span>' + x + '</span>').join('');
+});
+
+</script>
+<script defer src="skin.js"></script>
+</body>
+</html>
