@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SQL 格式化</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="skin.css">
+<style>
+
+textarea.mini { min-height:180px; font-size:.85rem; }
+
+</style>
+</head>
+<body>
+<header class="app-header">
+<a class="back" href="index.html"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H109.3l105.3-105.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg> 返回主页</a>
+<h1 class="app-title">SQL 格式化</h1>
+<button class="theme-toggle" id="themeToggle" title="切换主题" aria-label="切换主题">🌙</button>
+</header>
+<div class="app-shell">
+
+<div class="col">
+<textarea id="in" class="mini" placeholder="粘贴 SQL，例如：select id,name from users where age>18 order by id"></textarea>
+<div class="row">
+<button class="btn btn-primary" id="fmt">格式化</button>
+<button class="btn" id="min">压缩</button>
+</div>
+<textarea id="out" class="mini" placeholder="结果输出" readonly></textarea>
+</div>
+
+</div>
+<script>
+
+const $ = id => document.getElementById(id);
+const KWS = ['SELECT','FROM','WHERE','JOIN','LEFT JOIN','RIGHT JOIN','INNER JOIN','GROUP BY','ORDER BY','HAVING','LIMIT','OFFSET','SET','VALUES','INSERT INTO','UPDATE','DELETE FROM','CREATE TABLE','ALTER TABLE','DROP TABLE','AND','OR','ON','AS','UNION','DISTINCT','ASC','DESC'];
+function fmtSQL(sql){
+    let s = sql.replace(/;?\s*$/,'').trim();
+    // 关键字前换行（去重处理）
+    KWS.forEach(k => {
+        const re = new RegExp('\\b' + k.replace(/ /g,'\\s+') + '\\b', 'gi');
+        s = s.replace(re, m => {
+            if (['AND','OR','ON','AS','ASC','DESC'].includes(m.toUpperCase())) return ' ' + m + ' ';
+            return '\n' + m + ' ';
+        });
+    });
+    // 清理多余空格与空行
+    s = s.replace(/[ \t]+/g,' ').replace(/ *\n */g,'\n').replace(/\n{2,}/g,'\n');
+    // 逗号换行对齐
+    s = s.replace(/,(?=\s*\S)/g, ',\n    ');
+    return s.trim() + ';';
+}
+$('fmt').onclick = function(){
+    try { $('out').value = fmtSQL($('in').value); }
+    catch(e){ $('out').value = '✗ ' + e.message; }
+};
+$('min').onclick = function(){
+    $('out').value = $('in').value.replace(/--[^\n]*/g,'').replace(/\/\*[\s\S]*?\*\//g,'').replace(/\s+/g,' ').trim();
+};
+
+</script>
+<script defer src="skin.js"></script>
+</body>
+</html>
