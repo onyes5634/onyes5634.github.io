@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>曼德博分形</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="skin.css">
+<style>
+
+.wrap { display:flex; gap:20px; flex-wrap:wrap; justify-content:center; }
+canvas { border-radius:10px; cursor:crosshair; }
+.side { display:flex; flex-direction:column; gap:12px; min-width:190px; }
+.stat { display:flex; justify-content:space-between; }
+.stat b { color:var(--primary); }
+.hint { color:var(--text-light); font-size:.82rem; }
+
+</style>
+</head>
+<body>
+<header class="app-header">
+<a class="back" href="index.html"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H109.3l105.3-105.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg> 返回主页</a>
+<h1 class="app-title">曼德博分形</h1>
+<button class="theme-toggle" id="themeToggle" title="切换主题" aria-label="切换主题">🌙</button>
+</header>
+<div class="app-shell">
+
+<div class="wrap">
+<canvas id="cv" width="560" height="480"></canvas>
+<div class="side">
+<div class="row"><button class="btn btn-primary" id="reset">重置视图</button></div>
+<div class="stat"><span>中心</span><b id="center">—</b></div>
+<div class="stat"><span>缩放</span><b id="zoom">1x</b></div>
+<p class="hint">点击画布放大到该点，可反复探索无限自相似的边界。</p>
+</div>
+</div>
+
+</div>
+<script>
+
+const $ = id => document.getElementById(id);
+const cv=$('cv'), ctx=cv.getContext('2d');
+const W=cv.width, H=cv.height, MAX=200;
+let cx=-0.5, cy=0, scale=3.2;
+function render(){
+  const img=ctx.createImageData(W,H);
+  const data=img.data;
+  for(let py=0;py<H;py++){
+    for(let px=0;px<W;px++){
+      const x0=cx+(px/W-0.5)*scale;
+      const y0=cy+(py/H-0.5)*scale;
+      let x=0,y=0,iter=0;
+      while(x*x+y*y<=4 && iter<MAX){
+        const xt=x*x-y*y+x0;
+        y=2*x*y+y0; x=xt; iter++;
+      }
+      const i=(py*W+px)*4;
+      if(iter===MAX){ data[i]=8; data[i+1]=10; data[i+2]=30; }
+      else {
+        const t=iter/MAX;
+        data[i]=Math.floor(9*(1-t)+52*t);
+        data[i+1]=Math.floor(10*(1-t)+152*t);
+        data[i+2]=Math.floor(38*(1-t)+219*t);
+      }
+      data[i+3]=255;
+    }
+  }
+  ctx.putImageData(img,0,0);
+  $('center').textContent=cx.toFixed(4)+', '+cy.toFixed(4);
+  $('zoom').textContent=(3.2/scale).toFixed(1)+'x';
+}
+cv.addEventListener('click', e=>{
+  const r=cv.getBoundingClientRect();
+  const nx=cx+((e.clientX-r.left)/W-0.5)*scale;
+  const ny=cy+((e.clientY-r.top)/H-0.5)*scale;
+  cx=nx; cy=ny; scale*=0.45;
+  render();
+});
+$('reset').onclick=()=>{ cx=-0.5; cy=0; scale=3.2; render(); };
+render();
+
+</script>
+<script defer src="skin.js"></script>
+</body>
+</html>
