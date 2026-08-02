@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>摩斯密码</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="skin.css">
+<style>
+
+.morse-out { letter-spacing:3px; word-break:break-all; }
+
+</style>
+</head>
+<body>
+<header class="app-header">
+<a class="back" href="index.html"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H109.3l105.3-105.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg> 返回主页</a>
+<h1 class="app-title">摩斯密码</h1>
+<button class="theme-toggle" id="themeToggle" title="切换主题" aria-label="切换主题">🌙</button>
+</header>
+<div class="app-shell">
+
+<div class="col">
+<textarea id="in" class="mini" placeholder="输入文字（字母/数字/常见标点）"></textarea>
+<div class="row">
+<button class="btn btn-primary" id="enc">文字 → 摩斯</button>
+<button class="btn" id="playBtn">播放声音</button>
+</div>
+<div id="out" class="result-box morse-out">—</div>
+<div class="out">
+<textarea id="in2" class="mini" placeholder="粘贴摩斯码（. 和 -，空格分隔字符，/ 分隔单词）"></textarea>
+<button class="btn btn-primary" id="dec">摩斯 → 文字</button>
+</div>
+<div id="out2" class="result-box">—</div>
+</div>
+
+</div>
+<script>
+
+const $ = id => document.getElementById(id);
+const MAP={
+  'A':'.-','B':'-...','C':'-.-.','D':'-..','E':'.','F':'..-.','G':'--.','H':'....',
+  'I':'..','J':'.---','K':'-.-','L':'.-..','M':'--','N':'-.','O':'---','P':'.--.',
+  'Q':'--.-','R':'.-.','S':'...','T':'-','U':'..-','V':'...-','W':'.--','X':'-..-',
+  'Y':'-.--','Z':'--..','0':'-----','1':'.----','2':'..---','3':'...--','4':'....-',
+  '5':'.....','6':'-....','7':'--...','8':'---..','9':'----.',
+  '.':'.-.-.-',',':'--..--','?':'..--..','!':'-.-.--','\'':'.----.','"':'.-..-.',
+  '(':'-.--.',')':'-.--.-','&':'.-...',':':'---...',';':'-.-.-.','/':'-..-.','@':'.--.-.'
+};
+const REV=Object.fromEntries(Object.entries(MAP).map(([k,v])=>[v,k]));
+let lastMorse='';
+$('enc').onclick=function(){
+  const t=$('in').value.trim().toUpperCase();
+  const words=t.split(/\s+/).filter(Boolean);
+  lastMorse=words.map(w=>w.split('').map(ch=>MAP[ch]||'').filter(Boolean).join(' ')).join(' / ');
+  $('out').textContent=lastMorse||'—';
+};
+$('dec').onclick=function(){
+  const t=$('in2').value.trim();
+  const words=t.split('/');
+  let res='';
+  for(const w of words){
+    const chars=w.trim().split(/\s+/).filter(Boolean);
+    for(const c of chars) res += REV[c]||'?';
+    res += ' ';
+  }
+  $('out2').textContent=res.trim()||'—';
+};
+let audioCtx=null;
+$('playBtn').onclick=function(){
+  if(!lastMorse){ $('enc').click(); }
+  if(!lastMorse) return;
+  audioCtx = audioCtx || new (window.AudioContext||window.webkitAudioContext)();
+  const t0=audioCtx.currentTime+0.05;
+  let t=t0, unit=0.09;
+  for(const ch of lastMorse){
+    if(ch==='.'){ beep(t,unit); t+=unit; }
+    else if(ch==='-'){ beep(t,unit*3); t+=unit*3; }
+    else if(ch===' '){ t+=unit*3; }
+    else if(ch==='/'){ t+=unit*7; }
+    t+=unit; // 字符间隔
+  }
+  function beep(at,dur){
+    const o=audioCtx.createOscillator(), g=audioCtx.createGain();
+    o.frequency.value=700; o.type='sine';
+    g.gain.setValueAtTime(0.0001,at);
+    g.gain.exponentialRampToValueAtTime(0.4,at+0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001,at+dur);
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start(at); o.stop(at+dur+0.02);
+  }
+};
+
+</script>
+<script defer src="skin.js"></script>
+</body>
+</html>
