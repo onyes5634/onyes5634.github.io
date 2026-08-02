@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>在线尺子</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="skin.css">
+<style>
+
+canvas { background:var(--input-bg); border:1px solid var(--input-border); border-radius:12px; width:100%; cursor:crosshair; }
+.ruler-info { display:flex; gap:18px; flex-wrap:wrap; justify-content:center; margin:10px 0; }
+.ruler-info span { color:var(--text-light); }
+.ruler-info b { color:var(--primary); font-size:1.15rem; }
+
+</style>
+</head>
+<body>
+<header class="app-header">
+<a class="back" href="index.html"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H109.3l105.3-105.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg> 返回主页</a>
+<h1 class="app-title">在线尺子</h1>
+<button class="theme-toggle" id="themeToggle" title="切换主题" aria-label="切换主题">🌙</button>
+</header>
+<div class="app-shell">
+
+<div class="col">
+<div class="ruler-info">
+<span>长度: <b id="px">0</b> px</span>
+<span>约 <b id="cm">0</b> cm</span>
+<span>约 <b id="inch">0</b> in</span>
+</div>
+<canvas id="cv" height="120"></canvas>
+<p class="hint">在尺子上按住鼠标左键拖动即可测量。按 96 DPI（1 英寸 = 96px）换算物理长度。</p>
+</div>
+
+</div>
+<script>
+
+const $ = id => document.getElementById(id);
+const cv = $('cv'), ctx = cv.getContext('2d');
+const DPI = 96;
+let drag = null;
+function resize() {
+    cv.width = Math.max(300, cv.clientWidth * (window.devicePixelRatio || 1));
+    cv.height = 120 * (window.devicePixelRatio || 1);
+    draw();
+}
+function draw() {
+    const W = cv.width, H = cv.height;
+    ctx.clearRect(0, 0, W, H);
+    const step = 50; // 每 50px 一个大刻度
+    ctx.strokeStyle = 'var(--text-color)';
+    ctx.fillStyle = 'var(--text-color)';
+    ctx.font = '10px monospace';
+    for (let x = 0; x <= W; x += 10) {
+        const big = x % step === 0;
+        const h = big ? 28 : x % 20 === 0 ? 16 : 8;
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+        if (big) ctx.fillText((x / step) + '', x + 2, h + 10);
+    }
+    if (drag) {
+        const x1 = Math.min(drag.x1, drag.x2), x2 = Math.max(drag.x1, drag.x2);
+        const len = x2 - x1;
+        ctx.fillStyle = 'rgba(52,152,219,.18)';
+        ctx.fillRect(x1, 0, len, H);
+        ctx.strokeStyle = '#3498db'; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(x1, 0); ctx.lineTo(x1, H); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x2, 0); ctx.lineTo(x2, H); ctx.stroke();
+    }
+}
+function pos(e) {
+    const r = cv.getBoundingClientRect();
+    return (e.clientX - r.left) * (cv.width / r.width);
+}
+cv.addEventListener('mousedown', e => { drag = { x1: pos(e), x2: pos(e) }; draw(); });
+cv.addEventListener('mousemove', e => {
+    if (!drag) return;
+    drag.x2 = pos(e);
+    const len = Math.abs(drag.x2 - drag.x1);
+    $('px').textContent = Math.round(len);
+    $('cm').textContent = (len / DPI * 2.54).toFixed(2);
+    $('inch').textContent = (len / DPI).toFixed(3);
+    draw();
+});
+cv.addEventListener('mouseup', () => drag = null);
+cv.addEventListener('mouseleave', () => drag = null);
+window.addEventListener('resize', resize);
+resize();
+
+</script>
+<script defer src="skin.js"></script>
+</body>
+</html>
