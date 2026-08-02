@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>生命游戏</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="skin.css">
+<style>
+
+.wrap { display:flex; gap:20px; flex-wrap:wrap; justify-content:center; }
+canvas { background:var(--input-bg); border:2px solid var(--input-border); border-radius:10px; cursor:pointer; }
+.side { display:flex; flex-direction:column; gap:12px; min-width:170px; }
+.stat { display:flex; justify-content:space-between; }
+.stat b { color:var(--primary); }
+.hint { color:var(--text-light); font-size:.82rem; }
+
+</style>
+</head>
+<body>
+<header class="app-header">
+<a class="back" href="index.html"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H109.3l105.3-105.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg> 返回主页</a>
+<h1 class="app-title">生命游戏</h1>
+<button class="theme-toggle" id="themeToggle" title="切换主题" aria-label="切换主题">🌙</button>
+</header>
+<div class="app-shell">
+
+<div class="wrap">
+<canvas id="cv" width="520" height="520"></canvas>
+<div class="side">
+<div class="row"><button class="btn btn-primary" id="run">开始</button><button class="btn" id="step">单步</button></div>
+<div class="row"><button class="btn" id="rand">随机</button><button class="btn" id="clear">清空</button></div>
+<div class="stat"><span>代数</span><b id="gen">0</b></div>
+<div class="stat"><span>活细胞</span><b id="alive">0</b></div>
+<p class="hint">点击格子画细胞。规则 B3/S23：3 邻居新生，2-3 邻居存活。</p>
+</div>
+</div>
+
+</div>
+<script>
+
+const $ = id => document.getElementById(id);
+const cv=$('cv'), ctx=cv.getContext('2d');
+const N=40, CELL=13;
+let grid=[], running=false, gen=0, timer=null;
+function initGrid(v){ grid=Array.from({length:N},()=>Array(N).fill(v)); }
+function countAlive(){ let n=0; for(const r of grid) for(const c of r) if(c) n++; return n; }
+function randomize(){ initGrid(0); for(let i=0;i<N*N*0.3;i++) grid[Math.floor(Math.random()*N)][Math.floor(Math.random()*N)]=1; gen=0; draw(); }
+function step(){
+  const ng=Array.from({length:N},()=>Array(N).fill(0));
+  for(let r=0;r<N;r++) for(let c=0;c<N;c++){
+    let n=0;
+    for(let dr=-1;dr<=1;dr++) for(let dc=-1;dc<=1;dc++){
+      if(!dr&&!dc) continue;
+      n += grid[(r+dr+N)%N][(c+dc+N)%N];
+    }
+    ng[r][c] = grid[r][c] ? (n===2||n===3?1:0) : (n===3?1:0);
+  }
+  grid=ng; gen++;
+  $('gen').textContent=gen; $('alive').textContent=countAlive();
+  draw();
+}
+function draw(){
+  ctx.clearRect(0,0,cv.width,cv.height);
+  ctx.fillStyle='#3498db';
+  for(let r=0;r<N;r++) for(let c=0;c<N;c++) if(grid[r][c]) ctx.fillRect(c*CELL+1,r*CELL+1,CELL-2,CELL-2);
+  ctx.strokeStyle='var(--border-color)'; ctx.lineWidth=.5;
+  for(let i=0;i<=N;i++){ ctx.beginPath(); ctx.moveTo(i*CELL,0); ctx.lineTo(i*CELL,cv.height); ctx.stroke(); ctx.beginPath(); ctx.moveTo(0,i*CELL); ctx.lineTo(cv.width,i*CELL); ctx.stroke(); }
+}
+cv.addEventListener('click', e=>{
+  const r=cv.getBoundingClientRect();
+  const c=Math.floor((e.clientX-r.left)/CELL), r2=Math.floor((e.clientY-r.top)/CELL);
+  if(c<0||c>=N||r2<0||r2>=N) return;
+  grid[r2][c]=grid[r2][c]?0:1;
+  $('alive').textContent=countAlive();
+  draw();
+});
+$('run').onclick=function(){
+  running=!running;
+  this.textContent=running?'暂停':'开始';
+  if(running){ timer=setInterval(step,120); } else clearInterval(timer);
+};
+$('step').onclick=step;
+$('rand').onclick=randomize;
+$('clear').onclick=()=>{ initGrid(0); gen=0; $('gen').textContent=0; $('alive').textContent=0; draw(); };
+initGrid(0); draw();
+
+</script>
+<script defer src="skin.js"></script>
+</body>
+</html>
