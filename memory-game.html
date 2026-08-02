@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>记忆翻牌</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="skin.css">
+<style>
+
+.grid { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; max-width:440px; margin:16px auto; }
+.card { aspect-ratio:1; border-radius:14px; background:var(--primary); display:flex; align-items:center; justify-content:center; font-size:2.2rem; cursor:pointer; transition:transform .25s, background .25s; border:none; }
+.card.flip { background:var(--input-bg); transform:rotateY(180deg); }
+.card.matched { background:rgba(46,204,113,.25); cursor:default; }
+.card.hidden { visibility:hidden; }
+.stat { display:flex; justify-content:center; gap:24px; margin:10px 0; }
+.stat span { color:var(--text-light); }
+.stat b { color:var(--primary); font-size:1.2rem; }
+
+</style>
+</head>
+<body>
+<header class="app-header">
+<a class="back" href="index.html"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H109.3l105.3-105.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg> 返回主页</a>
+<h1 class="app-title">记忆翻牌</h1>
+<button class="theme-toggle" id="themeToggle" title="切换主题" aria-label="切换主题">🌙</button>
+</header>
+<div class="app-shell">
+
+<div class="stat"><span>步数 <b id="moves">0</b></span><span>时间 <b id="time">0</b>s</span><span>配对 <b id="pairs">0</b>/8</span></div>
+<div class="grid" id="grid"></div>
+<div class="row" style="justify-content:center"><button class="btn btn-primary" id="new">重新开始</button></div>
+
+</div>
+<script>
+
+const $ = id => document.getElementById(id);
+const EMO = ['\uD83C\uDF4E','\uD83C\uDF4C','\uD83C\uDF47','\uD83C\uDF53','\uD83C\uDF51','\uD83C\uDF49','\uD83C\uDF4D','\uD83E\uDD5D'];
+let cards=[], flipped=[], matched=0, moves=0, timer=null, sec=0;
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function build(){
+  cards = shuffle([...EMO, ...EMO]);
+  const g=$('grid'); g.innerHTML='';
+  cards.forEach((e,i)=>{
+    const b=document.createElement('button');
+    b.className='card'; b.dataset.i=i;
+    b.addEventListener('click', ()=>flip(i));
+    g.appendChild(b);
+  });
+  flipped=[]; matched=0; moves=0; sec=0;
+  $('moves').textContent=0; $('pairs').textContent='0/8'; $('time').textContent='0';
+  clearInterval(timer);
+  timer=setInterval(()=>{ sec++; $('time').textContent=sec; },1000);
+}
+function flip(i){
+  if(flipped.length>=2 || flipped.includes(i)) return;
+  const b=$('grid').children[i];
+  if(b.classList.contains('matched')) return;
+  b.classList.add('flip'); b.textContent=cards[i];
+  flipped.push(i);
+  if(flipped.length===2){
+    moves++; $('moves').textContent=moves;
+    const [a,c]=flipped;
+    if(cards[a]===cards[c]){
+      $('grid').children[a].classList.add('matched');
+      $('grid').children[c].classList.add('matched');
+      matched++; $('pairs').textContent=matched+'/8';
+      flipped=[];
+      if(matched===8){ clearInterval(timer); $('time').textContent=sec; }
+    } else {
+      setTimeout(()=>{
+        $('grid').children[a].classList.remove('flip'); $('grid').children[a].textContent='';
+        $('grid').children[c].classList.remove('flip'); $('grid').children[c].textContent='';
+        flipped=[];
+      },700);
+    }
+  }
+}
+$('new').onclick=build;
+build();
+
+</script>
+<script defer src="skin.js"></script>
+</body>
+</html>
