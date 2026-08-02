@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>图片压缩</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="skin.css">
+<style>
+
+.preview-box { margin-top:14px; }
+.preview-box img { max-width:100%; max-height:320px; border-radius:12px; border:1px solid var(--border-color); }
+.ratio { display:flex; gap:20px; margin-top:8px; font-size:.85rem; color:var(--text-light); }
+
+</style>
+</head>
+<body>
+<header class="app-header">
+<a class="back" href="index.html"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H109.3l105.3-105.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg> 返回主页</a>
+<h1 class="app-title">图片压缩</h1>
+<button class="theme-toggle" id="themeToggle" title="切换主题" aria-label="切换主题">🌙</button>
+</header>
+<div class="app-shell">
+
+<div class="col">
+<input type="file" id="file" accept="image/*">
+<div class="row">
+<div class="col grow"><label>质量 (1-100)</label><input type="range" id="q" min="1" max="100" value="70"></div>
+<div class="col grow"><label>最大宽度 (px)</label><input type="number" id="mw" value="1280" min="100" max="4000"></div>
+</div>
+<div class="row"><button class="btn btn-primary" id="go" disabled>压缩</button></div>
+<div id="preview" class="preview-box" style="display:none">
+<img id="img" alt="预览">
+<div class="ratio"><span id="before">原图 —</span><span id="after">压缩后 —</span></div>
+<div class="row"><button class="btn" id="dl">下载</button></div>
+</div>
+</div>
+
+</div>
+<script>
+
+const $ = id => document.getElementById(id);
+let outBlob=null;
+$('file').onchange=function(){
+  const f=this.files[0];
+  if(!f) return;
+  const rd=new FileReader();
+  rd.onload=e=>{
+    const img=new Image();
+    img.onload=()=>{ $('img').src=img.src; $('before').textContent='原图 '+fmt(f.size); $('preview').style.display='block'; $('go').disabled=false; };
+    img.src=e.target.result;
+  };
+  rd.readAsDataURL(f);
+};
+function fmt(n){ return n>1048576?(n/1048576).toFixed(2)+' MB':Math.round(n/1024)+' KB'; }
+$('go').onclick=function(){
+  const img=$('img');
+  const q=+$('q').value, mw=+$('mw').value;
+  const scale=Math.min(1, mw/img.naturalWidth);
+  const w=Math.round(img.naturalWidth*scale), h=Math.round(img.naturalHeight*scale);
+  const cv=document.createElement('canvas'); cv.width=w; cv.height=h;
+  const ctx=cv.getContext('2d');
+  ctx.drawImage(img,0,0,w,h);
+  cv.toBlob(b=>{
+    outBlob=b;
+    $('after').textContent='压缩后 '+fmt(b.size)+'（'+(b.size/img.src.length*100).toFixed(0)+'%）';
+    $('dl').style.display='inline-flex';
+  }, 'image/jpeg', q/100);
+};
+$('dl').onclick=function(){
+  if(!outBlob) return;
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(outBlob);
+  a.download='compressed.jpg';
+  a.click();
+};
+
+</script>
+<script defer src="skin.js"></script>
+</body>
+</html>
