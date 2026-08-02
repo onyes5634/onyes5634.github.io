@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>文字转语音</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="skin.css">
+<style>
+
+.voice-row { display:flex; gap:12px; flex-wrap:wrap; }
+.voice { padding:8px 14px; border-radius:8px; border:1px solid var(--input-border); background:var(--item-bg); cursor:pointer; font-size:.88rem; }
+.voice.active { background:var(--primary); color:#fff; border-color:transparent; }
+
+</style>
+</head>
+<body>
+<header class="app-header">
+<a class="back" href="index.html"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H109.3l105.3-105.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg> 返回主页</a>
+<h1 class="app-title">文字转语音</h1>
+<button class="theme-toggle" id="themeToggle" title="切换主题" aria-label="切换主题">🌙</button>
+</header>
+<div class="app-shell">
+
+<div class="col">
+<textarea id="text" class="mini" placeholder="输入要朗读的文字……">你好，欢迎来到 Onyes 的小站！</textarea>
+<div class="row">
+<div class="col grow"><label>语速 (0.5-2)</label><input type="range" id="rate" min="0.5" max="2" step="0.1" value="1"></div>
+<div class="col grow"><label>音调 (0-2)</label><input type="range" id="pitch" min="0" max="2" step="0.1" value="1"></div>
+</div>
+<div class="row">
+<div class="col grow"><label>选择声音</label><select id="voice"></select></div>
+</div>
+<div class="row">
+<button class="btn btn-primary" id="speak">🔊 朗读</button>
+<button class="btn" id="stop">停止</button>
+</div>
+</div>
+
+</div>
+<script>
+
+const $ = id => document.getElementById(id);
+let voices=[];
+function loadVoices(){
+  voices=speechSynthesis.getVoices();
+  const sel=$('voice');
+  sel.innerHTML='';
+  voices.forEach((v,i)=>{
+    const o=document.createElement('option');
+    o.value=i; o.textContent=v.name+' ('+v.lang+')';
+    sel.appendChild(o);
+  });
+  // 优先中文
+  const idx=voices.findIndex(v=>v.lang.startsWith('zh'));
+  if(idx>=0) sel.selectedIndex=idx;
+}
+if('speechSynthesis' in window){
+  loadVoices();
+  speechSynthesis.onvoiceschanged=loadVoices;
+  $('speak').onclick=function(){
+    speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance($('text').value);
+    u.rate=+$('rate').value; u.pitch=+$('pitch').value;
+    const v=voices[+$('voice').value];
+    if(v) u.voice=v;
+    speechSynthesis.speak(u);
+  };
+  $('stop').onclick=()=>speechSynthesis.cancel();
+} else {
+  $('speak').disabled=true;
+  $('speak').textContent='当前浏览器不支持语音合成';
+}
+
+</script>
+<script defer src="skin.js"></script>
+</body>
+</html>
