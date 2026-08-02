@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>文本对比</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="skin.css">
+<style>
+
+.diff-wrap { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.diff-wrap textarea { min-height:220px; }
+@media (max-width:640px){ .diff-wrap { grid-template-columns:1fr; } }
+.out-box { border:1px solid var(--input-border); border-radius:10px; margin-top:12px; max-height:260px; overflow:auto; font-family:Consolas,Monaco,monospace; font-size:.88rem; line-height:1.7; }
+.out-box .add { background:rgba(46,204,113,.18); }
+.out-box .del { background:rgba(231,76,60,.18); text-decoration:line-through; }
+.legend { display:flex; gap:16px; margin-top:8px; font-size:.82rem; color:var(--text-light); }
+.legend i { display:inline-block; width:14px; height:14px; border-radius:3px; vertical-align:-2px; margin-right:4px; }
+
+</style>
+</head>
+<body>
+<header class="app-header">
+<a class="back" href="index.html"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H109.3l105.3-105.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg> 返回主页</a>
+<h1 class="app-title">文本对比</h1>
+<button class="theme-toggle" id="themeToggle" title="切换主题" aria-label="切换主题">🌙</button>
+</header>
+<div class="app-shell">
+
+<div class="diff-wrap">
+<div class="col"><label>原文 A</label><textarea id="a" placeholder="第一版文本"></textarea></div>
+<div class="col"><label>原文 B</label><textarea id="b" placeholder="第二版文本"></textarea></div>
+</div>
+<div class="legend"><span><i style="background:rgba(46,204,113,.4)"></i>新增</span><span><i style="background:rgba(231,76,60,.4)"></i>删除</span></div>
+<div id="out" class="out-box"></div>
+
+</div>
+<script>
+
+const $ = id => document.getElementById(id);
+function lcs(a, b){
+  const n=a.length, m=b.length;
+  const dp=Array.from({length:n+1},()=>Array(m+1).fill(0));
+  for(let i=n-1;i>=0;i--) for(let j=m-1;j>=0;j--)
+    dp[i][j] = a[i]===b[j] ? dp[i+1][j+1]+1 : Math.max(dp[i+1][j], dp[i][j+1]);
+  const ops=[];
+  let i=0,j=0;
+  while(i<n && j<m){
+    if(a[i]===b[j]){ ops.push(['same',a[i]]); i++; j++; }
+    else if(dp[i+1][j] >= dp[i][j+1]){ ops.push(['del',a[i]]); i++; }
+    else { ops.push(['add',b[j]]); j++; }
+  }
+  while(i<n){ ops.push(['del',a[i]]); i++; }
+  while(j<m){ ops.push(['add',b[j]]); j++; }
+  return ops;
+}
+function run(){
+  const a=$('a').value.split('\n'), b=$('b').value.split('\n');
+  const ops=lcs(a,b);
+  let html='';
+  for(const [t,line] of ops){
+    const esc = line.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+    html += '<div class="' + (t==='add'?'add':t==='del'?'del':'') + '">' +
+      (t==='add'?'+ ':'') + (t==='del'?'- ':'') + esc + '</div>';
+  }
+  $('out').innerHTML = html;
+}
+$('a').addEventListener('input', run);
+$('b').addEventListener('input', run);
+run();
+
+</script>
+<script defer src="skin.js"></script>
+</body>
+</html>
