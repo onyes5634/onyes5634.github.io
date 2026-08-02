@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>水波涟漪</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="skin.css">
+<style>
+
+.wrap { display:flex; gap:20px; flex-wrap:wrap; justify-content:center; }
+canvas { background:#0d1117; border-radius:12px; cursor:crosshair; }
+.side { display:flex; flex-direction:column; gap:12px; min-width:170px; }
+.stat { display:flex; justify-content:space-between; }
+.stat b { color:var(--primary); }
+.hint { color:var(--text-light); font-size:.82rem; }
+
+</style>
+</head>
+<body>
+<header class="app-header">
+<a class="back" href="index.html"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H109.3l105.3-105.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg> 返回主页</a>
+<h1 class="app-title">水波涟漪</h1>
+<button class="theme-toggle" id="themeToggle" title="切换主题" aria-label="切换主题">🌙</button>
+</header>
+<div class="app-shell">
+
+<div class="wrap">
+<canvas id="cv" width="560" height="440"></canvas>
+<div class="side">
+<div class="col"><label>波纹强度</label><input type="range" id="power" min="200" max="1500" value="700"></div>
+<div class="row"><button class="btn btn-primary" id="clear">平静水面</button></div>
+<p class="hint">点击或拖动水面产生涟漪，也可连续点击制造雨点效果。</p>
+</div>
+</div>
+
+</div>
+<script>
+
+const $ = id => document.getElementById(id);
+const cv = $('cv'), ctx = cv.getContext('2d');
+const W = cv.width, H = cv.height;
+let cur = new Float32Array(W * H), prev = new Float32Array(W * H);
+const DAMP = 0.985;
+function drop(x, y, r, h){
+    for (let i = -r; i <= r; i++) for (let j = -r; j <= r; j++){
+        const d = Math.sqrt(i*i + j*j);
+        if (d > r) continue;
+        const px = x + i, py = y + j;
+        if (px < 0 || px >= W || py < 0 || py >= H) continue;
+        cur[py*W + px] += h * (1 - d/r);
+    }
+}
+function step(){
+    for (let y = 1; y < H-1; y++){
+        for (let x = 1; x < W-1; x++){
+            const i = y*W + x;
+            const v = (prev[i-1] + prev[i+1] + prev[i-W] + prev[i+W]) / 2 - cur[i];
+            cur[i] = v * DAMP;
+        }
+    }
+    const img = ctx.createImageData(W, H);
+    const d = img.data;
+    for (let y = 0; y < H; y++){
+        for (let x = 0; x < W; x++){
+            const i = y*W + x;
+            const dx = cur[i-1 < 0 ? i : i-1] - cur[i+1 >= W*H ? i : i+1];
+            const dy = cur[i-W < 0 ? i : i-W] - cur[i+W >= W*H ? i : i+W];
+            const depth = (dx + dy) / 4;
+            const idx = i*4;
+            d[idx]   = 10 + depth * 40;
+            d[idx+1] = 60 + depth * 90;
+            d[idx+2] = 150 + depth * 60;
+            d[idx+3] = 255;
+        }
+    }
+    ctx.putImageData(img, 0, 0);
+    const t = prev; prev = cur; cur = t;
+    requestAnimationFrame(step);
+}
+function evtPos(e){
+    const r = cv.getBoundingClientRect();
+    return [Math.floor((e.clientX - r.left) * W / r.width), Math.floor((e.clientY - r.top) * H / r.height)];
+}
+cv.addEventListener('mousedown', e => { const [x,y] = evtPos(e); drop(x, y, 26, +$('power').value); });
+cv.addEventListener('mousemove', e => { if (e.buttons) { const [x,y] = evtPos(e); drop(x, y, 12, +$('power').value * 0.5); } });
+$('clear').onclick = () => { cur.fill(0); prev.fill(0); };
+step();
+
+</script>
+<script defer src="skin.js"></script>
+</body>
+</html>
