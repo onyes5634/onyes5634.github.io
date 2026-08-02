@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>图片裁剪</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="skin.css">
+<style>
+
+.wrap { display:flex; gap:18px; flex-wrap:wrap; }
+.stage { position:relative; flex:1; min-width:280px; }
+.stage img { display:block; max-width:100%; border-radius:12px; border:1px solid var(--border-color); user-select:none; }
+.crop-box { position:absolute; border:2px solid #fff; box-shadow:0 0 0 9999px rgba(0,0,0,.5); cursor:move; }
+.ratio-row { display:flex; gap:10px; flex-wrap:wrap; margin:10px 0; }
+.ratio-btn { padding:6px 14px; border-radius:8px; border:1px solid var(--input-border); background:var(--item-bg); cursor:pointer; }
+.ratio-btn.active { background:var(--primary); color:#fff; border-color:transparent; }
+
+</style>
+</head>
+<body>
+<header class="app-header">
+<a class="back" href="index.html"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H109.3l105.3-105.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg> 返回主页</a>
+<h1 class="app-title">图片裁剪</h1>
+<button class="theme-toggle" id="themeToggle" title="切换主题" aria-label="切换主题">🌙</button>
+</header>
+<div class="app-shell">
+
+<div class="col">
+<input type="file" id="file" accept="image/*">
+<div class="ratio-row">
+<span class="hint" style="margin:0">比例:</span>
+<button class="ratio-btn active" data-r="free">自由</button>
+<button class="ratio-btn" data-r="1">1:1</button>
+<button class="ratio-btn" data-r="1.333">4:3</button>
+<button class="ratio-btn" data-r="1.778">16:9</button>
+</div>
+<div class="wrap">
+<div class="stage" id="stage"><img id="img" alt="原图"></div>
+</div>
+<div class="row"><button class="btn btn-primary" id="crop" disabled>裁剪并下载</button></div>
+</div>
+
+</div>
+<script>
+
+const $ = id => document.getElementById(id);
+let img=null, box=null, ratio=null, dragging=false, offX=0, offY=0;
+$('file').onchange=function(){
+  const f=this.files[0]; if(!f) return;
+  const rd=new FileReader();
+  rd.onload=e=>{
+    img=new Image();
+    img.onload=()=>{
+      $('img').src=img.src;
+      initBox();
+      $('crop').disabled=false;
+    };
+    img.src=e.target.result;
+  };
+  rd.readAsDataURL(f);
+};
+function initBox(){
+  const stage=$('stage');
+  const w=$('img').clientWidth, h=$('img').clientHeight;
+  if(box) box.remove();
+  box=document.createElement('div');
+  box.className='crop-box';
+  const size=Math.min(w,h)*0.6;
+  box.style.left=(w-size)/2+'px'; box.style.top=(h-size)/2+'px';
+  box.style.width=size+'px'; box.style.height=size+'px';
+  stage.appendChild(box);
+}
+$('img').addEventListener('load', ()=>{ if($('img').src) initBox(); });
+document.querySelectorAll('.ratio-btn').forEach(b=>{
+  b.onclick=()=>{
+    document.querySelectorAll('.ratio-btn').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    ratio=b.dataset.r==='free'?null:parseFloat(b.dataset.r);
+    initBox();
+  };
+});
+$('stage').addEventListener('mousedown', e=>{
+  if(!box) return;
+  const r=box.getBoundingClientRect();
+  if(e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom){
+    dragging=true; offX=e.clientX-r.left; offY=e.clientY-r.top;
+    e.preventDefault();
+  }
+});
+document.addEventListener('mousemove', e=>{
+  if(!dragging||!box||!img) return;
+  const imgR=$('img').getBoundingClientRect();
+  const w=parseFloat(box.style.width), h=parseFloat(box.style.height);
+  let x=e.clientX-imgR.left-offX, y=e.clientY-imgR.top-offY;
+  x=Math.max(0,Math.min(imgR.width-w,x));
+  y=Math.max(0,Math.min(imgR.height-h,y));
+  box.style.left=x+'px'; box.style.top=y+'px';
+});
+document.addEventListener('mouseup', ()=>dragging=false);
+$('crop').onclick=function(){
+  if(!img||!box) return;
+  const imgR=$('img').getBoundingClientRect();
+  const sx=parseFloat(box.style.left)/imgR.width*img.naturalWidth;
+  const sy=parseFloat(box.style.top)/imgR.height*img.naturalHeight;
+  const sw=parseFloat(box.style.width)/imgR.width*img.naturalWidth;
+  const sh=parseFloat(box.style.height)/imgR.height*img.naturalHeight;
+  const cv=document.createElement('canvas');
+  cv.width=Math.round(sw); cv.height=Math.round(sh);
+  cv.getContext('2d').drawImage(img,sx,sy,sw,sh,0,0,cv.width,cv.height);
+  cv.toBlob(b=>{
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(b); a.download='cropped.png'; a.click();
+  },'image/png');
+};
+
+</script>
+<script defer src="skin.js"></script>
+</body>
+</html>
