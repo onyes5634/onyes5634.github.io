@@ -1,65 +1,119 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>华容道</title>
-    <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <style>
-        .board { display: grid; grid-template-columns: repeat(4, 60px); gap: 5px; margin:10px; }
-        .tile { width: 60px; height: 60px; background: #ccc; text-align: center; line-height: 60px; font-size: 24px; cursor: pointer; }
-        .empty { background: #fff; }
-    </style>
-    <link rel="stylesheet" href="skin.css">
-
-    </head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>华容道</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="skin.css">
+<style>
+.board-wrap { display:flex; flex-direction:column; align-items:center; gap:14px; padding:8px 0; }
+.board { display:grid; grid-template-columns:repeat(4, minmax(56px, 1fr)); gap:8px; width:min(340px, 90vw); background:var(--input-bg); border:1px solid var(--input-border); border-radius:16px; padding:10px; }
+.tile { aspect-ratio:1; display:flex; align-items:center; justify-content:center; font-size:1.4rem; font-weight:700; color:#fff; background:var(--primary); border-radius:10px; cursor:pointer; transition:transform .12s, background .2s; user-select:none; }
+.tile:hover { transform:scale(1.04); }
+.tile.empty { background:transparent; cursor:default; box-shadow:none; }
+.tile.empty:hover { transform:none; }
+.stat-row { display:flex; gap:20px; justify-content:center; }
+.stat-row span { color:var(--text-light); }
+.stat-row b { color:var(--primary); font-size:1.15rem; }
+.win-msg { font-size:1.1rem; font-weight:700; color:#2ecc71; min-height:28px; text-align:center; }
+.hint { color:var(--text-light); font-size:.82rem; text-align:center; margin-top:4px; }
+</style>
+</head>
 <body>
-    <header class="app-header">
-        <a class="back" href="index.html"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H109.3l105.3-105.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg> 返回主页</a>
-        <h1 class="app-title">华容道</h1>
-        <button class="theme-toggle" id="themeToggle" title="切换主题" aria-label="切换主题">🌙</button>
-    </header>
-    <div class="app-shell"><div class="card">
-
-    <div class="app-shell"><div class="card">
-
-    <div class="board" id="board"></div>
-
-    <script>
-        let board = Array(4).fill().map(() => Array(4).fill(0));
-        let empty = {x: 3, y: 3};
-
-        function render() {
-            const boardDom = document.getElementById('board');
-            boardDom.innerHTML = '';
-            board.forEach((row, i) => row.forEach((val, j) => {
-                const div = document.createElement('div');
-                div.className = `tile ${val? '' : 'empty'}`
-    </div></div>
-
-    </div></div>
-
+<header class="app-header">
+<a class="back" href="index.html"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H109.3l105.3-105.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg> 返回主页</a>
+<h1 class="app-title">华容道</h1>
+<button class="theme-toggle" id="themeToggle" title="切换主题" aria-label="切换主题">🌙</button>
+</header>
+<div class="app-shell">
+<div class="card">
+<div class="board-wrap">
+<div class="stat-row">
+<span>步数 <b id="moves">0</b></span>
+<span>时间 <b id="time">0</b>s</span>
+</div>
+<div class="board" id="board"></div>
+<div class="win-msg" id="winMsg"></div>
+<div class="row" style="justify-content:center">
+<button class="btn btn-primary" id="shuffle">打乱重来</button>
+</div>
+<p class="hint">4×4 数字华容道：点击与空格相邻的数字移动，按 1-15 顺序排好即获胜。</p>
+</div>
+</div>
+</div>
 <script>
 (function () {
-    var root = document.documentElement;
-    var saved = null;
-    try { saved = localStorage.getItem('theme'); } catch (e) {}
-    var initial = 'light';
-    if (saved === 'dark' || saved === 'light') initial = saved;
-    else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) initial = 'dark';
-    root.setAttribute('data-theme', initial);
-    var btn = document.getElementById('themeToggle');
-    if (btn) {
-        btn.textContent = initial === 'dark' ? '☀️' : '🌙';
-        btn.addEventListener('click', function () {
-            var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-            root.setAttribute('data-theme', next);
-            try { localStorage.setItem('theme', next); } catch (e) {}
-            btn.textContent = next === 'dark' ? '☀️' : '🌙';
+    'use strict';
+    const SIZE = 4;
+    const $ = id => document.getElementById(id);
+    const board = $('board');
+    let tiles = [], emptyIdx = 15, moves = 0, seconds = 0, timer = null, solved = false;
+
+    function newBoard() {
+        tiles = [];
+        for (let i = 1; i < 16; i++) tiles.push(i);
+        tiles.push(0);
+        emptyIdx = 15;
+        moves = 0; seconds = 0; solved = false;
+        if (timer) clearInterval(timer);
+        timer = setInterval(() => { seconds++; $('time').textContent = seconds; }, 1000);
+        $('moves').textContent = 0;
+        $('time').textContent = '0';
+        $('winMsg').textContent = '';
+        shuffle();
+        render();
+    }
+    function shuffle() {
+        // 从完整状态随机走 200 步（保证可解）
+        for (let s = 0; s < 200; s++) {
+            const idx = emptyIdx;
+            const row = Math.floor(idx / SIZE), col = idx % SIZE;
+            const cands = [];
+            if (row > 0) cands.push(idx - SIZE);
+            if (row < SIZE - 1) cands.push(idx + SIZE);
+            if (col > 0) cands.push(idx - 1);
+            if (col < SIZE - 1) cands.push(idx + 1);
+            const pick = cands[Math.floor(Math.random() * cands.length)];
+            tiles[idx] = tiles[pick];
+            tiles[pick] = 0;
+            emptyIdx = pick;
+        }
+    }
+    function render() {
+        board.innerHTML = '';
+        tiles.forEach((v, i) => {
+            const div = document.createElement('div');
+            div.className = 'tile' + (v === 0 ? ' empty' : '');
+            if (v) div.textContent = v;
+            div.addEventListener('click', () => clickTile(i));
+            board.appendChild(div);
         });
     }
+    function clickTile(idx) {
+        if (solved) return;
+        const er = Math.floor(emptyIdx / SIZE), ec = emptyIdx % SIZE;
+        const r = Math.floor(idx / SIZE), c = idx % SIZE;
+        const adjacent = (Math.abs(r - er) + Math.abs(c - ec)) === 1;
+        if (!adjacent) return;
+        tiles[emptyIdx] = tiles[idx];
+        tiles[idx] = 0;
+        emptyIdx = idx;
+        moves++;
+        $('moves').textContent = moves;
+        render();
+        checkWin();
+    }
+    function checkWin() {
+        for (let i = 0; i < 15; i++) if (tiles[i] !== i + 1) return;
+        solved = true;
+        clearInterval(timer);
+        $('winMsg').textContent = '🎉 恭喜通关！用时 ' + seconds + ' 秒，步数 ' + moves + ' 步';
+    }
+    $('shuffle').addEventListener('click', newBoard);
+    newBoard();
 })();
 </script>
-
+<script defer src="skin.js"></script>
 </body>
 </html>
