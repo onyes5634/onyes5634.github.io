@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>布朗运动</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="skin.css">
+<style>
+
+.wrap { display:flex; gap:20px; flex-wrap:wrap; justify-content:center; }
+canvas { background:#0d1117; border-radius:10px; }
+.side { display:flex; flex-direction:column; gap:12px; min-width:200px; }
+.stat { display:flex; justify-content:space-between; }
+.stat b { color:var(--primary); }
+.hint { color:var(--text-light); font-size:.82rem; }
+
+</style>
+</head>
+<body>
+<header class="app-header">
+<a class="back" href="index.html"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H109.3l105.3-105.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg> 返回主页</a>
+<h1 class="app-title">布朗运动</h1>
+<button class="theme-toggle" id="themeToggle" title="切换主题" aria-label="切换主题">🌙</button>
+</header>
+<div class="app-shell">
+
+<div class="wrap">
+<canvas id="cv" width="560" height="440"></canvas>
+<div class="side">
+<div class="col"><label>粒子数</label><input type="range" id="n" min="5" max="60" value="20"></div>
+<div class="col"><label>步长</label><input type="range" id="step" min="1" max="6" value="2.5" step="0.5"></div>
+<div class="row"><button class="btn btn-primary" id="reset">重新开始</button></div>
+<div class="stat"><span>已走步数</span><b id="frames">0</b></div>
+<div class="stat"><span>均方位移 &lt;r²&gt;</span><b id="msd">0</b></div>
+<p class="hint">均方位移 &lt;r²&gt; 随时间线性增长（&lt;r²&gt; ∝ t），是随机游走的重要统计规律。</p>
+</div>
+</div>
+
+</div>
+<script>
+
+const $ = id => document.getElementById(id);
+const cv=$('cv'), ctx=cv.getContext('2d');
+const W=cv.width, H=cv.height;
+let particles=[], frames=0;
+function reset(){
+  const n=+$('n').value;
+  particles=[];
+  for(let i=0;i<n;i++) particles.push({x:W/2, y:H/2, px:W/2, py:H/2, c:'hsl('+(i*360/n)+',75%,60%)'});
+  frames=0; update();
+}
+function tick(){
+  const s=+$('step').value;
+  for(const p of particles){
+    p.px=p.x; p.py=p.y;
+    const ang=Math.random()*Math.PI*2;
+    p.x=Math.max(2,Math.min(W-2,p.x+Math.cos(ang)*s));
+    p.y=Math.max(2,Math.min(H-2,p.y+Math.sin(ang)*s));
+  }
+  frames++;
+  update();
+  draw();
+  requestAnimationFrame(tick);
+}
+function update(){
+  $('frames').textContent=frames;
+  let sum=0;
+  for(const p of particles){
+    const dx=p.x-W/2, dy=p.y-H/2;
+    sum += dx*dx+dy*dy;
+  }
+  $('msd').textContent=(sum/particles.length).toFixed(0);
+}
+function draw(){
+  ctx.fillStyle='#0d1117'; ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle='rgba(255,255,255,.06)';
+  for(let i=1;i<6;i++){ ctx.beginPath(); ctx.arc(W/2,H/2,i*70,0,Math.PI*2); ctx.stroke(); }
+  for(const p of particles){
+    ctx.strokeStyle=p.c; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(p.px,p.py); ctx.lineTo(p.x,p.y); ctx.stroke();
+    ctx.fillStyle=p.c; ctx.beginPath(); ctx.arc(p.x,p.y,2.4,0,Math.PI*2); ctx.fill();
+  }
+}
+$('reset').onclick=reset;
+$('n').addEventListener('input', reset);
+reset();
+tick();
+
+</script>
+<script defer src="skin.js"></script>
+</body>
+</html>
