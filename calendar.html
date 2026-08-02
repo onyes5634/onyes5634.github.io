@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>万年历</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="skin.css">
+<style>
+
+.cal-nav { display:flex; justify-content:center; align-items:center; gap:16px; margin:10px 0 18px; }
+.cal-nav b { font-size:1.25rem; min-width:150px; text-align:center; }
+table { width:100%; border-collapse:collapse; }
+th,td { width:14.28%; padding:10px 4px; text-align:center; border:1px solid var(--border-color); font-size:.92rem; }
+th { background:var(--tag-bg); color:var(--text-light); font-weight:600; }
+td { background:var(--bg-card); cursor:pointer; border-radius:6px; }
+td:hover { background:var(--tag-bg); }
+td.today { background:var(--primary); color:#fff; font-weight:700; border-radius:8px; }
+td.other { color:var(--text-light); opacity:.45; }
+td.sun { color:var(--accent); }
+
+</style>
+</head>
+<body>
+<header class="app-header">
+<a class="back" href="index.html"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H109.3l105.3-105.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg> 返回主页</a>
+<h1 class="app-title">万年历</h1>
+<button class="theme-toggle" id="themeToggle" title="切换主题" aria-label="切换主题">🌙</button>
+</header>
+<div class="app-shell">
+
+<div class="col">
+<div class="cal-nav">
+<button class="btn" id="prev">← 上月</button>
+<b id="title">—</b>
+<button class="btn" id="next">下月 →</button>
+</div>
+<div class="row" style="justify-content:center"><button class="btn btn-primary" id="today">回到今天</button></div>
+<table>
+<thead><tr><th>日</th><th>一</th><th>二</th><th>三</th><th>四</th><th>五</th><th>六</th></tr></thead>
+<tbody id="body"></tbody>
+</table>
+</div>
+
+</div>
+<script>
+
+const $ = id => document.getElementById(id);
+const today = new Date();
+let viewY = today.getFullYear(), viewM = today.getMonth();
+const WD = ['日','一','二','三','四','五','六'];
+function render(){
+  $('title').textContent = viewY + ' 年 ' + (viewM+1) + ' 月';
+  const first = new Date(viewY, viewM, 1);
+  const startDow = first.getDay();
+  const days = new Date(viewY, viewM+1, 0).getDate();
+  const prevDays = new Date(viewY, viewM, 0).getDate();
+  const tb = $('body'); tb.innerHTML='';
+  let html = '<tr>';
+  for(let i=0;i<startDow;i++){
+    const d = prevDays - startDow + i + 1;
+    html += '<td class="other sun">' + d + '</td>';
+  }
+  for(let d=1;d<=days;d++){
+    const dow = new Date(viewY, viewM, d).getDay();
+    const cls = (viewY===today.getFullYear()&&viewM===today.getMonth()&&d===today.getDate()) ? 'today' : (dow===0||dow===6?'sun':'');
+    html += '<td class="' + cls + '">' + d + '</td>';
+    if((startDow+d)%7===0 && d<days) html += '</tr><tr>';
+  }
+  const tail = (startDow+days)%7;
+  if(tail!==0){ for(let i=0;i<7-tail;i++) html += '<td class="other"></td>'; }
+  html += '</tr>';
+  tb.innerHTML = html;
+}
+$('prev').onclick = ()=>{ viewM--; if(viewM<0){viewM=11;viewY--;} render(); };
+$('next').onclick = ()=>{ viewM++; if(viewM>11){viewM=0;viewY++;} render(); };
+$('today').onclick = ()=>{ viewY=today.getFullYear(); viewM=today.getMonth(); render(); };
+render();
+
+</script>
+<script defer src="skin.js"></script>
+</body>
+</html>
