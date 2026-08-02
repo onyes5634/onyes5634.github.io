@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>正则测试器</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="skin.css">
+<style>
+
+textarea.mini { min-height:160px; }
+.opt-row { display:flex; gap:14px; flex-wrap:wrap; font-size:.88rem; color:var(--text-light); }
+.opt-row label { display:inline-flex; align-items:center; gap:4px; cursor:pointer; }
+.out-box { border:1px solid var(--input-border); border-radius:10px; margin-top:12px; padding:12px; min-height:60px; font-family:Consolas,Monaco,monospace; font-size:.92rem; line-height:2; white-space:pre-wrap; word-break:break-all; }
+.out-box mark { background:#fbbf24; color:#111; border-radius:3px; padding:0 2px; }
+.info { color:var(--text-light); font-size:.85rem; margin-top:8px; }
+
+</style>
+</head>
+<body>
+<header class="app-header">
+<a class="back" href="index.html"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H109.3l105.3-105.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg> 返回主页</a>
+<h1 class="app-title">正则测试器</h1>
+<button class="theme-toggle" id="themeToggle" title="切换主题" aria-label="切换主题">🌙</button>
+</header>
+<div class="app-shell">
+
+<div class="col">
+<div class="col grow"><label>正则表达式</label><input type="text" id="pat" placeholder="例如：\d{3}-\d{4}" autocomplete="off"></div>
+<div class="opt-row" id="opts">
+<label><input type="checkbox" id="gi" checked> 全局 g</label>
+<label><input type="checkbox" id="ii"> 忽略大小写 i</label>
+<label><input type="checkbox" id="mi"> 多行 m</label>
+</div>
+<textarea id="txt" class="mini" placeholder="在此输入待匹配文本"></textarea>
+<div id="out" class="out-box">—</div>
+<div id="info" class="info"></div>
+</div>
+
+</div>
+<script>
+
+const $ = id => document.getElementById(id);
+function run(){
+  const patStr=$('pat').value;
+  const txt=$('txt').value;
+  const flags = ($('gi').checked?'g':'') + ($('ii').checked?'i':'') + ($('mi').checked?'m':'');
+  const out=$('out'), info=$('info');
+  if(!patStr){ out.textContent='—'; info.textContent=''; return; }
+  let re;
+  try { re = new RegExp(patStr, flags); }
+  catch(e){ out.textContent='✗ 正则错误: '+e.message; info.textContent=''; return; }
+  if(!txt){ out.textContent=''; info.textContent=''; return; }
+  let count=0;
+  const html = txt.replace(/[&<>]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  let marked;
+  if(flags.includes('g')){
+    marked = html.replace(new RegExp(patStr.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'g'), m=>{count++;return '<mark>'+m+'</mark>';});
+  } else {
+    // 无全局时，手工找出第一个匹配位置
+    const m = patStr && txt.match(new RegExp(patStr, flags));
+    // 简化：用 replace 一次
+    marked = html.replace(new RegExp(patStr.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'), flags.replace('g','')), m=>{count++;return '<mark>'+m+'</mark>';});
+    count = m ? 1 : 0;
+  }
+  out.innerHTML = marked;
+  info.textContent = '匹配: '+count+' 处';
+}
+for(const id of ['pat','txt','gi','ii','mi']) $(id).addEventListener('input', run);
+run();
+
+</script>
+<script defer src="skin.js"></script>
+</body>
+</html>
