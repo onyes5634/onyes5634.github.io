@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>加密 / 解密</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="skin.css">
+<style>
+
+.tabs { display:flex; gap:10px; margin-bottom:14px; }
+.tab { flex:1; padding:10px; border-radius:10px; border:1px solid var(--border-color); background:var(--item-bg); color:var(--text-color); font-weight:500; cursor:pointer; }
+.tab.active { background:var(--primary); color:#fff; border-color:transparent; }
+.mode { margin:12px 0 6px; font-weight:600; }
+
+</style>
+</head>
+<body>
+<header class="app-header">
+<a class="back" href="index.html"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H109.3l105.3-105.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg> 返回主页</a>
+<h1 class="app-title">加密 / 解密</h1>
+<button class="theme-toggle" id="themeToggle" title="切换主题" aria-label="切换主题">🌙</button>
+</header>
+<div class="app-shell">
+
+<div class="col">
+<div class="tabs">
+<button class="tab active" id="tabAes">AES-256 加解密</button>
+<button class="tab" id="tabCae">凯撒密码</button>
+</div>
+<div id="panelAes">
+<div class="row"><div class="col grow"><label>密钥（密码短语）</label><input type="text" id="aesKey" value="OnyesSecret" autocomplete="off"></div></div>
+<textarea id="aesIn" class="mini" placeholder="明文或密文"></textarea>
+<div class="row">
+<button class="btn btn-primary" id="aesEnc">加密</button>
+<button class="btn" id="aesDec">解密</button>
+</div>
+<textarea id="aesOut" class="mini" readonly placeholder="结果"></textarea>
+</div>
+<div id="panelCae" style="display:none">
+<div class="row">
+<div class="col grow"><label>位移量 (1-25)</label><input type="number" id="caeShift" value="3" min="1" max="25"></div>
+</div>
+<textarea id="caeIn" class="mini" placeholder="明文或密文"></textarea>
+<div class="row">
+<button class="btn btn-primary" id="caeEnc">加密</button>
+<button class="btn" id="caeDec">解密</button>
+</div>
+<textarea id="caeOut" class="mini" readonly placeholder="结果"></textarea>
+</div>
+<p class="hint">AES 基于 WebCrypto（PBKDF2 派生 + AES-GCM），全部在本地完成；凯撒密码适合教学演示。</p>
+</div>
+
+</div>
+<script>
+
+const $ = id => document.getElementById(id);
+$('tabAes').onclick=()=>{ $('tabAes').classList.add('active'); $('tabCae').classList.remove('active'); $('panelAes').style.display='block'; $('panelCae').style.display='none'; };
+$('tabCae').onclick=()=>{ $('tabCae').classList.add('active'); $('tabAes').classList.remove('active'); $('panelCae').style.display='block'; $('panelAes').style.display='none'; };
+// AES
+async function aesKey(keyStr){
+  const enc=new TextEncoder();
+  const kb=await crypto.subtle.importKey('raw', enc.encode(keyStr), 'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey({name:'PBKDF2', salt:enc.encode('onyes-salt'), iterations:100000, hash:'SHA-256'},
+    kb, {name:'AES-GCM', length:256}, false, ['encrypt','decrypt']);
+}
+$('aesEnc').onclick=async function(){
+  try{
+    const key=await aesKey($('aesKey').value);
+    const iv=crypto.getRandomValues(new Uint8Array(12));
+    const data=new TextEncoder().encode($('aesIn').value);
+    const ct=await crypto.subtle.encrypt({name:'AES-GCM',iv}, key, data);
+    const all=new Uint8Array(iv.length+ct.byteLength);
+    all.set(iv,0); all.set(new Uint8Array(ct),iv.length);
+    $('aesOut').value=btoa(String.fromCharCode(...all));
+  }catch(e){ $('aesOut').value='✗ '+e.message; }
+};
+$('aesDec').onclick=async function(){
+  try{
+    const key=await aesKey($('aesKey').value);
+    const all=Uint8Array.from(atob($('aesIn').value.trim()),c=>c.charCodeAt(0));
+    const iv=all.slice(0,12), ct=all.slice(12);
+    const pt=await crypto.subtle.decrypt({name:'AES-GCM',iv}, key, ct);
+    $('aesOut').value=new TextDecoder().decode(pt);
+  }catch(e){ $('aesOut').value='✗ 解密失败：密钥错误或数据损坏'; }
+};
+// 凯撒
+function caesar(str,shift){
+  return str.split('').map(ch=>{
+    if(/[a-zA-Z]/.test(ch)){
+      const base=ch<='Z'?65:97;
+      return String.fromCharCode((ch.charCodeAt(0)-base+shift+26)%26+base);
+    }
+    return ch;
+  }).join('');
+}
+$('caeEnc').onclick=()=>$('caeOut').value=caesar($('caeIn').value,+$('caeShift').value);
+$('caeDec').onclick=()=>$('caeOut').value=caesar($('caeIn').value,-+$('caeShift').value);
+
+</script>
+<script defer src="skin.js"></script>
+</body>
+</html>
