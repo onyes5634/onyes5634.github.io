@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>扫雷</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="skin.css">
+<style>
+
+.game-box { display:flex; flex-direction:column; align-items:center; gap:12px; }
+.board { display:grid; grid-template-columns:repeat(9, minmax(30px, 1fr)); gap:3px; width:min(360px, 94vw); background:var(--input-bg); padding:8px; border-radius:12px; }
+.cell { aspect-ratio:1; border-radius:6px; border:1px solid var(--input-border); background:var(--item-bg); font-size:.85rem; font-weight:700; display:flex; align-items:center; justify-content:center; cursor:pointer; user-select:none; }
+.cell.open { background:var(--tag-bg); cursor:default; }
+.cell.mine { background:#e74c3c; color:#fff; }
+.cell.flag { color:#f39c12; }
+.stat-row { display:flex; gap:20px; }
+.stat-row b { color:var(--primary); }
+.hint { color:var(--text-light); font-size:.8rem; }
+
+</style>
+</head>
+<body>
+<header class="app-header">
+<a class="back" href="index.html"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H109.3l105.3-105.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg> 返回主页</a>
+<h1 class="app-title">扫雷</h1>
+<button class="theme-toggle" id="themeToggle" title="切换主题" aria-label="切换主题">🌙</button>
+</header>
+<div class="app-shell">
+
+<div class="game-box">
+<div class="stat-row"><span>雷 <b id="left">10</b></span><span>用时 <b id="time">0</b>s</span></div>
+<div class="board" id="board"></div>
+<div id="msg" class="hint">左键翻开 · 右键标记旗帜</div>
+<button class="btn btn-primary" id="new">新一局</button>
+</div>
+
+</div>
+<script>
+
+const $ = id => document.getElementById(id);
+const R = 9, C = 9, MINES = 10;
+let grid, revealed, flags, over, win, timer, sec;
+function init(){
+    grid = Array.from({length:R}, () => Array(C).fill(0));
+    revealed = Array.from({length:R}, () => Array(C).fill(false));
+    flags = Array.from({length:R}, () => Array(C).fill(false));
+    over = false; win = false; sec = 0;
+    $('left').textContent = MINES; $('time').textContent = '0';
+    clearInterval(timer);
+    timer = setInterval(() => { if (!over && !win) { sec++; $('time').textContent = sec; } }, 1000);
+    // 布雷（避开首次点击点，简化：全随机）
+    let placed = 0;
+    while (placed < MINES){
+        const r = Math.floor(Math.random()*R), c = Math.floor(Math.random()*C);
+        if (grid[r][c] === 0) { grid[r][c] = -1; placed++; }
+    }
+    // 数字
+    for (let r = 0; r < R; r++) for (let c = 0; c < C; c++){
+        if (grid[r][c] === -1) continue;
+        let n = 0;
+        for (let dr = -1; dr <= 1; dr++) for (let dc = -1; dc <= 1; dc++){
+            const nr = r+dr, nc = c+dc;
+            if (nr>=0 && nr<R && nc>=0 && nc<C && grid[nr][nc] === -1) n++;
+        }
+        grid[r][c] = n;
+    }
+    render();
+}
+function render(){
+    const b = $('board'); b.innerHTML = '';
+    for (let r = 0; r < R; r++) for (let c = 0; c < C; c++){
+        const el = document.createElement('div');
+        el.className = 'cell';
+        const v = grid[r][c];
+        if (revealed[r][c]){
+            el.classList.add('open');
+            if (v === -1){ el.textContent = '💣'; el.classList.add('mine'); }
+            else if (v > 0) el.textContent = v;
+            el.style.color = ['','#3498db','#2ecc71','#e74c3c','#9b59b6','#f39c12','#1abc9c','#34495e','#7f8c8d'][v];
+        } else if (flags[r][c]){ el.textContent = '🚩'; el.classList.add('flag'); }
+        el.addEventListener('click', () => open(r, c));
+        el.addEventListener('contextmenu', e => { e.preventDefault(); toggleFlag(r, c); });
+        b.appendChild(el);
+    }
+}
+function open(r, c){
+    if (over || win || revealed[r][c] || flags[r][c]) return;
+    if (grid[r][c] === -1){ gameOver(); return; }
+    reveal(r, c);
+    if (checkWin()) { win = true; $('msg').textContent = '🎉 全部排雷成功！用时 ' + sec + 's'; }
+    render();
+}
+function reveal(r, c){
+    if (r<0||r>=R||c<0||c>=C||revealed[r][c]||flags[r][c]) return;
+    revealed[r][c] = true;
+    if (grid[r][c] === 0){
+        for (let dr = -1; dr <= 1; dr++) for (let dc = -1; dc <= 1; dc++)
+            if (dr || dc) reveal(r+dr, c+dc);
+    }
+}
+function toggleFlag(r, c){
+    if (over || win || revealed[r][c]) return;
+    flags[r][c] = !flags[r][c];
+    let f = 0; for (const row of flags) for (const x of row) if (x) f++;
+    $('left').textContent = MINES - f;
+    render();
+}
+function gameOver(){
+    over = true;
+    for (let r = 0; r < R; r++) for (let c = 0; c < C; c++) if (grid[r][c] === -1) revealed[r][c] = true;
+    $('msg').textContent = '💥 踩雷了！点「新一局」再来';
+    render();
+}
+function checkWin(){
+    let closed = 0;
+    for (let r = 0; r < R; r++) for (let c = 0; c < C; c++) if (!revealed[r][c] && grid[r][c] !== -1) closed++;
+    return closed === 0;
+}
+$('new').onclick = init;
+init();
+
+</script>
+<script defer src="skin.js"></script>
+</body>
+</html>
