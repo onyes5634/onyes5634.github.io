@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>房贷计算器</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="skin.css">
+<style>
+
+.summary { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin:14px 0; }
+.sum-box { background:var(--input-bg); border:1px solid var(--input-border); border-radius:12px; padding:12px 14px; }
+.sum-box b { display:block; font-size:1.2rem; color:var(--primary); margin-top:4px; }
+.sum-box span { font-size:.8rem; color:var(--text-light); }
+table { width:100%; border-collapse:collapse; margin-top:14px; font-size:.85rem; }
+th,td { border:1px solid var(--border-color); padding:6px 10px; text-align:right; }
+th { background:var(--tag-bg); }
+td:first-child,th:first-child { text-align:left; }
+
+</style>
+</head>
+<body>
+<header class="app-header">
+<a class="back" href="index.html"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H109.3l105.3-105.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg> 返回主页</a>
+<h1 class="app-title">房贷计算器</h1>
+<button class="theme-toggle" id="themeToggle" title="切换主题" aria-label="切换主题">🌙</button>
+</header>
+<div class="app-shell">
+
+<div class="col">
+<div class="grid-2">
+<div class="col"><label>贷款金额 (万元)</label><input type="number" id="amt" value="100" min="1"></div>
+<div class="col"><label>贷款年限 (年)</label><input type="number" id="years" value="30" min="1" max="40"></div>
+<div class="col"><label>年利率 (%)</label><input type="number" id="rate" value="3.85" step="0.01" min="0.1"></div>
+<div class="col">
+<label>还款方式</label>
+<select id="type">
+<option value="equal">等额本息</option>
+<option value="capital">等额本金</option>
+</select>
+</div>
+</div>
+<div class="row"><button class="btn btn-primary" id="go">计算</button></div>
+<div class="summary" id="summary"></div>
+<div id="detail"></div>
+</div>
+
+</div>
+<script>
+
+const $ = id => document.getElementById(id);
+function fmt(n){ return '¥' + n.toLocaleString('zh-CN', {maximumFractionDigits:2}); }
+$('go').onclick=function(){
+  const P=+$('amt').value*10000, n=+$('years').value*12;
+  const r=+$('rate').value/100/12;
+  if(!P||!n||isNaN(r)){ $('summary').innerHTML='<div class="hint err-text">请输入有效数值</div>'; return; }
+  const type=$('type').value;
+  let monthly, total, firstMonth, lastMonth;
+  if(type==='equal'){
+    monthly = P*r*Math.pow(1+r,n)/(Math.pow(1+r,n)-1);
+    total = monthly*n;
+  } else {
+    const per=P/n;
+    firstMonth = per + P*r;
+    lastMonth = per + per*r;
+    total = per*n + P*r*(n+1)/2;
+  }
+  const interest = total-P;
+  $('summary').innerHTML =
+    '<div class="sum-box"><span>'+(type==='equal'?'每月月供':'首月月供')+'</span><b>'+fmt(type==='equal'?monthly:firstMonth)+'</b></div>'+
+    '<div class="sum-box"><span>总还款</span><b>'+fmt(total)+'</b></div>'+
+    '<div class="sum-box"><span>支付利息</span><b>'+fmt(interest)+'</b></div>'+
+    '<div class="sum-box"><span>贷款本金</span><b>'+fmt(P)+'</b></div>';
+  if(type==='capital') $('summary').innerHTML += '<div class="hint">末月月供: '+fmt(lastMonth)+'（每月递减 '+fmt(P/n*r)+'）</div>';
+  // 明细（前 12 期 + 最后 1 期）
+  let rows='<table><tr><th>期数</th><th>月供</th><th>本金</th><th>利息</th><th>剩余本金</th></tr>';
+  if(type==='equal'){
+    let bal=P;
+    for(let i=1;i<=Math.min(12,n);i++){
+      const interestI=bal*r, principalI=monthly-interestI;
+      bal-=principalI;
+      rows+='<tr><td>'+i+'</td><td>'+fmt(monthly)+'</td><td>'+fmt(principalI)+'</td><td>'+fmt(interestI)+'</td><td>'+fmt(bal)+'</td></tr>';
+    }
+  } else {
+    const per=P/n;
+    let bal=P;
+    for(let i=1;i<=Math.min(12,n);i++){
+      const interestI=bal*r, principalI=per;
+      bal-=principalI;
+      rows+='<tr><td>'+i+'</td><td>'+fmt(per+interestI)+'</td><td>'+fmt(principalI)+'</td><td>'+fmt(interestI)+'</td><td>'+fmt(bal)+'</td></tr>';
+    }
+  }
+  rows+='</table>';
+  $('detail').innerHTML='<div class="tool-title">前 12 期明细</div>'+rows;
+};
+
+</script>
+<script defer src="skin.js"></script>
+</body>
+</html>
