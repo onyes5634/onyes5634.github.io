@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>免责声明</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="skin.css">
+<style>
+.disc { line-height: 1.9; }
+.disc h2 { font-size: 1.1rem; color: var(--primary); margin: 18px 0 6px; }
+.disc p { margin: 4px 0; color: var(--text-color); }
+.disc .muted { color: var(--text-light); font-size: .85rem; }
+</style>
+</head>
+<body>
+<header class="app-header">
+<a class="back" href="index.html"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H109.3l105.3-105.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg> 返回主页</a>
+<h1 class="app-title">免责声明</h1>
+<button class="theme-toggle" id="themeToggle" title="切换主题" aria-label="切换主题">🌙</button>
+</header>
+<div class="app-shell">
+<div class="card disc">
+<h2>一、用途声明</h2>
+<p>本站（Onyes 的小站）收录的全部工具、模拟与游戏，均面向个人学习、研究、生活便利与正当娱乐用途开发，旨在提供便捷的在线服务。</p>
+
+<h2>二、工具的正当使用</h2>
+<p>本站部分工具（如编码转换、加密解密、哈希计算、数据生成、二维码等）属于"能力中性"的通用功能。使用者须自行确保使用目的与场景合法合规，<b>严禁用于任何违法犯罪活动</b>，包括但不限于：伪造证件或身份信息、实施欺诈、侵犯他人隐私、传播违法内容等。</p>
+
+<h2>三、数据与隐私</h2>
+<p>本站所有页面均为纯前端实现，输入数据仅在您的浏览器本地处理，本站不收集、不上传、不存储任何用户数据。</p>
+
+<h2>四、责任声明</h2>
+<p>因使用本站任何工具所产生的后果，由使用者自行承担。本站不对任何违规或非法使用行为承担任何责任。如发现本站内容存在侵权或违规情形，请通过 GitHub Issues 联系我们，我们将在核实后及时处理。</p>
+
+<h2>五、服务变更</h2>
+<p>本站保留随时修改、下线或停止提供任何工具的权利，恕不另行逐一通知。</p>
+
+<p class="muted">最后更新：2026-08-02 ｜ v1.8</p>
+</div>
+</div>
+<script>
+(function () {
+    var root = document.documentElement;
+    var saved = null;
+    try { saved = localStorage.getItem('theme'); } catch (e) {}
+    var initial = 'light';
+    if (saved === 'dark' || saved === 'light') initial = saved;
+    else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) initial = 'dark';
+    root.setAttribute('data-theme', initial);
+    var btn = document.getElementById('themeToggle');
+    if (btn) {
+        btn.textContent = initial === 'dark' ? '☀️' : '🌙';
+        btn.addEventListener('click', function () {
+            var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            root.setAttribute('data-theme', next);
+            try { localStorage.setItem('theme', next); } catch (e) {}
+            btn.textContent = next === 'dark' ? '☀️' : '🌙';
+        });
+    }
+})();
+</script>
+<script defer src="skin.js"></script>
+</body>
+</html>
