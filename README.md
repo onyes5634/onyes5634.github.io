@@ -7,7 +7,11 @@
 
 ---
 
-## v1.17（2026-08-03）· 当前版本
+## v1.18（2026-08-03）· 当前版本
+- **新增「Linux 系统镜像速查」页**（linux-iso.html）：收录 10 个主流发行版（Ubuntu 26.04 LTS / Debian 13.6 / Fedora 44 / CentOS Stream 10 / Rocky 10.2 / AlmaLinux 10.2 / Arch / openSUSE Leap 16 / Linux Mint 22.3 / Deepin 25.2），每项提供官方下载入口 + 当前版本 + SHA256 校验值（抓取于 2026-08-03，来源为官方 SHA256SUMS/CHECKSUM）+ 国内镜像直链（阿里云/清华/中科大/华为云）。
+- 主页「系统资源」分类新增第二张卡片（Linux），卡片总数 92 张。
+
+## v1.17（2026-08-03）
 - **Windows 镜像数据大幅扩充（39 版本 / 210 条）**：
   - **新增 Windows Server 系列**：Server 2003/2003 R2/2008/2008 R2/2012/2012 R2/2016/2019 共 42 条简体中文镜像（itellyou 老站，ED2K+SHA1 齐全）
   - **补全缺失版本**：新增 Win10 2004/20H2/1803 数据（cnblogs/腾讯云/winwin7 公开源），另补 Win10 21H1（此前缺失的版本）
