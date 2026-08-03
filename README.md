@@ -7,7 +7,10 @@
 
 ---
 
-## v1.18（2026-08-03）· 当前版本
+## v1.19（2026-08-03）· 当前版本
+- **Linux 镜像速查扩充至历史大版本（10 发行版 / 29 个版本条目）**：Ubuntu（14.04→26.04 全系 LTS + 25.10）、Debian（11/12/13）、Fedora（43/44）、CentOS Stream（9/10）、Rocky（8.10/9.8/10.2）、AlmaLinux（8.10/9.8/10.2）、Arch（滚动最新）、openSUSE（Leap 16.0 + Tumbleweed）、Linux Mint（20.3/21.3/22.3）、Deepin（23.1/25.2）。每个版本均含官方下载直链 + SHA256 校验值（抓取于 2026-08-03）+ 国内镜像。
+
+## v1.18（2026-08-03）
 - **新增「Linux 系统镜像速查」页**（linux-iso.html）：收录 10 个主流发行版（Ubuntu 26.04 LTS / Debian 13.6 / Fedora 44 / CentOS Stream 10 / Rocky 10.2 / AlmaLinux 10.2 / Arch / openSUSE Leap 16 / Linux Mint 22.3 / Deepin 25.2），每项提供官方下载入口 + 当前版本 + SHA256 校验值（抓取于 2026-08-03，来源为官方 SHA256SUMS/CHECKSUM）+ 国内镜像直链（阿里云/清华/中科大/华为云）。
 - 主页「系统资源」分类新增第二张卡片（Linux），卡片总数 92 张。
 
