@@ -7,7 +7,10 @@
 
 ---
 
-## v1.14（2026-08-03）· 当前版本
+## v1.15（2026-08-03）· 当前版本
+- **CSS 优先级修正**：页内 `.sys-grid` 选择器提升为 `.view.sys-grid`（特异性 0,0,2,0，与 skin.css 的 `.view.active` 同级但后定义胜出），覆盖 skin.css `display:block` 对 grid 容器的覆盖。Grid 容器在桌面/手机端均正确生效，电脑多列显示卡片、手机至少 2 列。
+
+## v1.14（2026-08-03）
 - **修复卡片网格与渐变背景**：视图容器补加 `sys-grid` class（CSS Grid 容器生效，卡片多列正确排布）；卡片背景由 `background-image` 改为 `url('wallpapers/...'), gradient` 标准语法（缺失 `url()` 包装曾导致整段 background 失效，渐变/壁纸均不显示）。
 
 ## v1.13（2026-08-03）
