@@ -7,7 +7,10 @@
 
 ---
 
-## v1.15（2026-08-03）· 当前版本
+## v1.16（2026-08-03）· 当前版本
+- **CSS 选择器特异性终极修复**：将 `.view.sys-grid`（特异性 0,0,2,0 与 `.view.active` 同级，依赖源码顺序）提升为 `.view.sys-grid.active`（特异性 0,0,3,0 永远胜出）。修复首次加载时 grid 容器仍被 `.view.active` 的 display:block 覆盖的问题——首次加载即可正常多列显示。
+
+## v1.15（2026-08-03）
 - **CSS 优先级修正**：页内 `.sys-grid` 选择器提升为 `.view.sys-grid`（特异性 0,0,2,0，与 skin.css 的 `.view.active` 同级但后定义胜出），覆盖 skin.css `display:block` 对 grid 容器的覆盖。Grid 容器在桌面/手机端均正确生效，电脑多列显示卡片、手机至少 2 列。
 
 ## v1.14（2026-08-03）
