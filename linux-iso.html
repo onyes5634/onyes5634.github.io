@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linux 系统镜像速查</title>
+<meta name="description" content="Ubuntu/Debian/Fedora 等主流 Linux 发行版官方下载、SHA256 校验值与国内镜像直链速查">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="skin.css">
+<style>
+.note-card { border:1px solid var(--input-border); border-radius:12px; padding:12px 14px; background:var(--item-bg); margin-bottom:14px; font-size:.85rem; line-height:1.7; }
+.note-card a { color:var(--primary); }
+.note-card .warn { color:var(--accent); font-weight:600; }
+.search-row { display:flex; gap:10px; margin-bottom:14px; }
+.view.sys-grid.active { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:12px; }
+.sys-card { position:relative; aspect-ratio:16/10; border-radius:14px; overflow:hidden; cursor:pointer; box-shadow:0 2px 8px var(--shadow); transition:transform .18s,box-shadow .18s; display:flex; align-items:flex-end; padding:16px; color:#fff; background-size:cover; background-position:center; }
+.sys-card:hover { transform:translateY(-3px); box-shadow:0 6px 18px var(--shadow); }
+.sys-card::before { content:""; position:absolute; inset:0; background:linear-gradient(180deg,rgba(0,0,0,.05) 0%,rgba(0,0,0,.55) 100%); pointer-events:none; }
+.sys-card > * { position:relative; text-shadow:0 1px 2px rgba(0,0,0,.6); }
+.sys-card .title { font-size:1.2rem; font-weight:800; letter-spacing:.02em; }
+.sys-card .meta { font-size:.78rem; opacity:.95; margin-top:2px; }
+.sys-card .badge { position:absolute; top:10px; right:10px; background:rgba(0,0,0,.5); padding:2px 8px; border-radius:10px; font-size:.7rem; }
+.sys-card.no-sha { outline:2px dashed rgba(255,255,255,.4); outline-offset:-4px; }
+.breadcrumb { display:flex; align-items:center; gap:8px; margin-bottom:12px; font-size:.88rem; color:var(--text-light); }
+.breadcrumb a { color:var(--primary); cursor:pointer; }
+.breadcrumb a:hover { text-decoration:underline; }
+.detail-head { display:flex; align-items:flex-end; gap:14px; margin-bottom:12px; padding:18px 20px; border-radius:14px; color:#fff; min-height:110px; background-size:cover; background-position:center; position:relative; overflow:hidden; }
+.detail-head::before { content:""; position:absolute; inset:0; background:linear-gradient(180deg,rgba(0,0,0,.1) 0%,rgba(0,0,0,.5) 100%); }
+.detail-head > * { position:relative; text-shadow:0 1px 2px rgba(0,0,0,.5); }
+.detail-head h2 { font-size:1.6rem; margin:0; }
+.detail-head .meta { font-size:.85rem; opacity:.95; margin-top:4px; }
+.info-block { border:1px solid var(--input-border); border-radius:12px; background:var(--item-bg); padding:12px 16px; margin-bottom:10px; font-size:.85rem; line-height:1.8; }
+.info-block .k { color:var(--text-light); display:inline-block; min-width:72px; }
+.info-block a { color:var(--primary); word-break:break-all; }
+.sha-val { font-family:Consolas,Menlo,monospace; font-size:.8rem; word-break:break-all; color:var(--text-color); }
+.copy-btn { border:1px solid var(--input-border); background:var(--input-bg); color:var(--text-color); border-radius:6px; padding:2px 10px; font-size:.78rem; cursor:pointer; margin-left:8px; }
+.copy-btn:hover { border-color:var(--primary); color:var(--primary); }
+.copy-btn.done { border-color:#2ecc71; color:#2ecc71; }
+.mirror-row { display:flex; flex-wrap:wrap; gap:8px; margin-top:4px; }
+.mirror-row a { border:1px solid var(--input-border); background:var(--input-bg); border-radius:8px; padding:4px 10px; font-size:.78rem; text-decoration:none; }
+.mirror-row a:hover { border-color:var(--primary); color:var(--primary); }
+.empty-tip { color:var(--text-light); font-size:.85rem; padding:20px; text-align:center; }
+.view { display:none; }
+.view.active { display:block; }
+@media (max-width:640px) { .view.sys-grid.active { grid-template-columns:repeat(2,1fr); gap:10px; } }
+@media (max-width:380px) { .view.sys-grid.active { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<header class="app-header">
+<a class="back" href="index.html"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H109.3l105.3-105.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg> 返回主页</a>
+<h1 class="app-title">Linux 系统镜像速查</h1>
+<button class="theme-toggle" id="themeToggle" title="切换主题" aria-label="切换主题">&#127769;</button>
+</header>
+<div class="app-shell">
+<div class="col">
+<div class="note-card">
+  <strong>说明：</strong>收录主流 Linux 发行版<b>官方下载入口 + 当前版本 + SHA256 校验值 + 国内镜像直链</b>。校验值抓取于 <b>2026-08-03</b>（来源均为官方 SHA256SUMS/CHECKSUM 文件）。镜像版权归各发行版社区；推荐下载后用 <code>sha256sum 文件.iso</code>（Linux）或 <code>Get-FileHash 文件.iso -Algorithm SHA256</code>（Windows）校验。
+</div>
+<div class="search-row">
+<input type="text" id="search" class="grow" placeholder="搜索发行版，如 ubuntu / rhel / 国产">
+</div>
+<div class="breadcrumb" id="crumb"><span>发行版列表</span></div>
+<div class="view sys-grid active" id="view-grid"></div>
+<div class="view" id="view-detail"></div>
+</div>
+</div>
+<script>
+(function(){
+"use strict";
+var $ = function(id){ return document.getElementById(id); };
+var VIEW_A = $('view-grid'), VIEW_B = $('view-detail');
+var SEARCH = $('search');
+var CARDS = [{"id":"ubuntu","name":"Ubuntu","family":"Debian 系","version":"26.04 LTS","grad":"linear-gradient(160deg,#E95420 0%,#772953 100%)","sha_ok":true},{"id":"debian","name":"Debian","family":"社区 GNU/Linux","version":"13.6 \"Trixie\"","grad":"linear-gradient(160deg,#A81D33 0%,#5B0F1E 100%)","sha_ok":true},{"id":"fedora","name":"Fedora","family":"RHEL 上游","version":"44","grad":"linear-gradient(160deg,#294172 0%,#0C2340 100%)","sha_ok":true},{"id":"centos","name":"CentOS Stream","family":"RHEL 系","version":"10","grad":"linear-gradient(160deg,#2F5B8A 0%,#1B3A5C 100%)","sha_ok":true},{"id":"rocky","name":"Rocky Linux","family":"RHEL 系","version":"10.2","grad":"linear-gradient(160deg,#10B981 0%,#065F46 100%)","sha_ok":true},{"id":"alma","name":"AlmaLinux","family":"RHEL 系","version":"10.2","grad":"linear-gradient(160deg,#3B5BA5 0%,#1E2F5E 100%)","sha_ok":true},{"id":"arch","name":"Arch Linux","family":"独立（滚动）","version":"滚动（ISO 2026.08.01）","grad":"linear-gradient(160deg,#1793D1 0%,#0B3D5C 100%)","sha_ok":true},{"id":"opensuse","name":"openSUSE","family":"SUSE 系","version":"Leap 16.0","grad":"linear-gradient(160deg,#73BA25 0%,#2E5A0E 100%)","sha_ok":false},{"id":"mint","name":"Linux Mint","family":"Ubuntu 系","version":"22.3 \"Zena\"","grad":"linear-gradient(160deg,#78BE20 0%,#3F6B0E 100%)","sha_ok":true},{"id":"deepin","name":"Deepin","family":"Debian 系（国产）","version":"25.2.0","grad":"linear-gradient(160deg,#0077C8 0%,#00477A 100%)","sha_ok":true}];
+var DETAIL = [{"id":"ubuntu","name":"Ubuntu","family":"Debian 系","version":"26.04 LTS","iso_file":"ubuntu-26.04-desktop-amd64.iso","official_url":"https://ubuntu.com/download/desktop","iso_url":"https://releases.ubuntu.com/26.04/ubuntu-26.04-desktop-amd64.iso","sha256":"487f87faaf547ea30e0aba4d5b53346292571256b25333a978db1692bcee9dd2","sha256_url":"https://releases.ubuntu.com/26.04/SHA256SUMS","sha256_source":"releases.ubuntu.com/26.04/SHA256SUMS（官方）","release_date":"2026-04-23","support":"LTS 支持至 2031","color":["#E95420","#772953"],"mirrors":[{"name":"阿里云","url":"https://mirrors.aliyun.com/ubuntu-releases/26.04/"},{"name":"清华 TUNA","url":"https://mirrors.tuna.tsinghua.edu.cn/ubuntu-releases/26.04/"},{"name":"中科大","url":"https://mirrors.ustc.edu.cn/ubuntu-releases/26.04/"},{"name":"华为云","url":"https://mirrors.huaweicloud.com/ubuntu-releases/26.04/"}]},{"id":"debian","name":"Debian","family":"社区 GNU/Linux","version":"13.6 \"Trixie\"","iso_file":"debian-13.6.0-amd64-netinst.iso","official_url":"https://www.debian.org/distrib/","iso_url":"https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-13.6.0-amd64-netinst.iso","sha256":"65273beed27b2df543b68b65630ba525cfbad8df2b12035732b2dff87d6664e7","sha256_url":"https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/SHA256SUMS","sha256_source":"cdimage.debian.org（官方）","release_date":"2026-06","support":"稳定版，约 3 年支持","color":["#A81D33","#5B0F1E"],"mirrors":[{"name":"阿里云","url":"https://mirrors.aliyun.com/debian-cd/current/amd64/iso-cd/"},{"name":"清华 TUNA","url":"https://mirrors.tuna.tsinghua.edu.cn/debian-cd/current/amd64/iso-cd/"},{"name":"中科大","url":"https://mirrors.ustc.edu.cn/debian-cd/current/amd64/iso-cd/"}]},{"id":"fedora","name":"Fedora","family":"RHEL 上游","version":"44","iso_file":"Fedora-Workstation-Live-44-1.7.x86_64.iso","official_url":"https://fedoraproject.org/workstation/download","iso_url":"https://download.fedoraproject.org/pub/fedora/linux/releases/44/Workstation/x86_64/iso/Fedora-Workstation-Live-44-1.7.x86_64.iso","sha256":"1620295f6a00c27c3208f0c00b8ece4eab1ec69b9002152d97488bf26a426ddf","sha256_url":"https://fedoraproject.org/workstation/download","sha256_source":"fedoraproject.org 官方下载页","release_date":"2026-04-28","support":"约 13 个月支持","color":["#294172","#0C2340"],"mirrors":[{"name":"阿里云","url":"https://mirrors.aliyun.com/fedora/releases/44/Workstation/x86_64/iso/"},{"name":"清华 TUNA","url":"https://mirrors.tuna.tsinghua.edu.cn/fedora/releases/44/Workstation/x86_64/iso/"},{"name":"中科大","url":"https://mirrors.ustc.edu.cn/fedora/releases/44/Workstation/x86_64/iso/"}]},{"id":"centos","name":"CentOS Stream","family":"RHEL 系","version":"10","iso_file":"CentOS-Stream-10-20260728.1-x86_64-boot.iso","official_url":"https://www.centos.org/download/","iso_url":"https://mirror.stream.centos.org/10-stream/BaseOS/x86_64/iso/","sha256":"0939763aa86a690e38d63a51aaf9e0f30e8ebf498e4013aed111276fb5354708","sha256_url":"https://mirror.stream.centos.org/10-stream/BaseOS/x86_64/iso/CentOS-Stream-10-20260728.1-x86_64-boot.iso.SHA256SUM","sha256_source":"mirror.stream.centos.org（官方镜像）","release_date":"2026-07-28","support":"滚动更新","color":["#2F5B8A","#1B3A5C"],"mirrors":[{"name":"阿里云","url":"https://mirrors.aliyun.com/centos-stream/10-stream/BaseOS/x86_64/iso/"},{"name":"清华 TUNA","url":"https://mirrors.tuna.tsinghua.edu.cn/centos-stream/10-stream/BaseOS/x86_64/iso/"},{"name":"中科大","url":"https://mirrors.ustc.edu.cn/centos-stream/10-stream/BaseOS/x86_64/iso/"}]},{"id":"rocky","name":"Rocky Linux","family":"RHEL 系","version":"10.2","iso_file":"Rocky-10.2-x86_64-boot.iso","official_url":"https://rockylinux.org/download","iso_url":"https://dl.rockylinux.org/pub/rocky/10.2/isos/x86_64/","sha256":"bf3a75907948563d0c11f3d1b8546ee9216e18a3ea2dc0a67eb4c45452e210f9","sha256_url":"https://dl.rockylinux.org/pub/rocky/10.2/isos/x86_64/CHECKSUM","sha256_source":"dl.rockylinux.org（官方）","release_date":"2026-06","support":"至 2031","color":["#10B981","#065F46"],"mirrors":[{"name":"阿里云","url":"https://mirrors.aliyun.com/rockylinux/10.2/isos/x86_64/"},{"name":"清华 TUNA","url":"https://mirrors.tuna.tsinghua.edu.cn/rocky/10.2/isos/x86_64/"},{"name":"中科大","url":"https://mirrors.ustc.edu.cn/rockylinux/10.2/isos/x86_64/"}]},{"id":"alma","name":"AlmaLinux","family":"RHEL 系","version":"10.2","iso_file":"AlmaLinux-10.2-x86_64-boot.iso","official_url":"https://almalinux.org/get-almalinux/","iso_url":"https://repo.almalinux.org/almalinux/10.2/isos/x86_64/","sha256":"b3f865468075bcada8f208d830289302c67529789d668041d24e8d6fc697ba6a","sha256_url":"https://repo.almalinux.org/almalinux/10.2/isos/x86_64/CHECKSUM","sha256_source":"repo.almalinux.org（官方）","release_date":"2026-06","support":"至 2031","color":["#3B5BA5","#1E2F5E"],"mirrors":[{"name":"阿里云","url":"https://mirrors.aliyun.com/almalinux/10.2/isos/x86_64/"},{"name":"清华 TUNA","url":"https://mirrors.tuna.tsinghua.edu.cn/almalinux/10.2/isos/x86_64/"},{"name":"中科大","url":"https://mirrors.ustc.edu.cn/almalinux/10.2/isos/x86_64/"}]},{"id":"arch","name":"Arch Linux","family":"独立（滚动）","version":"滚动（ISO 2026.08.01）","iso_file":"archlinux-2026.08.01-x86_64.iso","official_url":"https://archlinux.org/download/","iso_url":"https://archlinux.org/iso/2026.08.01/archlinux-2026.08.01-x86_64.iso","sha256":"4e82dced1c4fd3e498b22a853f8db2a4d262d32b97e7e07d97390d9e425ffe5e","sha256_url":"https://archlinux.org/iso/latest/sha256sums.txt","sha256_source":"archlinux.org（官方）","release_date":"2026-08-01","support":"滚动更新，无固定 EOL","color":["#1793D1","#0B3D5C"],"mirrors":[{"name":"清华 TUNA","url":"https://mirrors.tuna.tsinghua.edu.cn/archlinux/iso/latest/"},{"name":"中科大","url":"https://mirrors.ustc.edu.cn/archlinux/iso/latest/"},{"name":"华为云","url":"https://mirrors.huaweicloud.com/archlinux/iso/latest/"}]},{"id":"opensuse","name":"openSUSE","family":"SUSE 系","version":"Leap 16.0","iso_file":"Leap-16.0-offline-installer-x86_64.install.iso","official_url":"https://get.opensuse.org/leap/","iso_url":"https://download.opensuse.org/distribution/leap/16.0/offline/Leap-16.0-offline-installer-x86_64.install.iso","sha256":null,"sha256_url":"https://download.opensuse.org/distribution/leap/16.0/offline/Leap-16.0-offline-installer-x86_64.install.iso.sha256","sha256_source":"官方 checksum 文件（抓取时 404，待补）","release_date":"2025-10","support":"24 个月支持","color":["#73BA25","#2E5A0E"],"mirrors":[{"name":"清华 TUNA","url":"https://mirrors.tuna.tsinghua.edu.cn/opensuse/distribution/leap/16.0/"},{"name":"中科大","url":"https://mirrors.ustc.edu.cn/opensuse/distribution/leap/16.0/"},{"name":"阿里云","url":"https://mirrors.aliyun.com/opensuse/distribution/leap/16.0/"}]},{"id":"mint","name":"Linux Mint","family":"Ubuntu 系","version":"22.3 \"Zena\"","iso_file":"linuxmint-22.3-cinnamon-64bit.iso","official_url":"https://linuxmint.com/download.php","iso_url":"https://pub.linuxmint.io/stable/22.3/linuxmint-22.3-cinnamon-64bit.iso","sha256":"a081ab202cfda17f6924128dbd2de8b63518ac0531bcfe3f1a1b88097c459bd4","sha256_url":"https://mirrors.kernel.org/linuxmint/stable/22.3/sha256sum.txt","sha256_source":"官方 sha256sum.txt（kernel.org 镜像）","release_date":"2026-01-13","support":"LTS 支持至 2029","color":["#78BE20","#3F6B0E"],"mirrors":[{"name":"清华 TUNA","url":"https://mirrors.tuna.tsinghua.edu.cn/linuxmint-cd/stable/22.3/"},{"name":"中科大","url":"https://mirrors.ustc.edu.cn/linuxmint-cd/stable/22.3/"},{"name":"上海交大","url":"https://mirror.sjtu.edu.cn/linuxmint-cd/stable/22.3/"}]},{"id":"deepin","name":"Deepin","family":"Debian 系（国产）","version":"25.2.0","iso_file":"deepin-desktop-community-25.2.0-amd64.iso","official_url":"https://www.deepin.org/zh/download/","iso_url":"https://cdimage.deepin.com/releases/25.2.0/amd64/","sha256":"f875c9a605bfe6a8425d1d353a3c1ec755bf37f5b0a3231ca19e2145da0ff450","sha256_url":"https://cdimage.deepin.com/releases/25.2.0/amd64/SHA256SUMS","sha256_source":"cdimage.deepin.com（官方）","release_date":"2026-04","support":"社区版持续更新","color":["#0077C8","#00477A"],"mirrors":[{"name":"官方镜像","url":"https://cdimage.deepin.com/releases/25.2.0/amd64/"},{"name":"清华 TUNA","url":"https://mirrors.tuna.tsinghua.edu.cn/deepin/releases/25.2.0/amd64/"}]}];
+
+function esc(s){ return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function copyText(txt, btn){
+    var done = function(){ btn.classList.add('done'); btn.textContent = '已复制'; setTimeout(function(){ btn.classList.remove('done'); btn.textContent = '复制'; }, 1500); };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(txt).then(done).catch(function(){ legacyCopy(txt); done(); });
+    } else { legacyCopy(txt); done(); }
+}
+function legacyCopy(txt){
+    var ta = document.createElement('textarea');
+    ta.value = txt; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); } catch(e){}
+    document.body.removeChild(ta);
+}
+
+function renderGrid(filter){
+    var kw = (filter||'').toLowerCase();
+    VIEW_A.innerHTML = CARDS.map(function(c){
+        if (kw && c.name.toLowerCase().indexOf(kw) < 0 && c.family.toLowerCase().indexOf(kw) < 0) return '';
+        var cls = c.sha_ok ? '' : ' no-sha';
+        var badge = c.sha_ok ? 'SHA256 已验证' : '校验待补';
+        return '<div class="sys-card'+cls+'" data-id="'+esc(c.id)+'" style="background-image:'+c.grad+';">' +
+            '<span class="badge">'+esc(badge)+'</span>' +
+            '<div><div class="title">'+esc(c.name)+'</div>' +
+            '<div class="meta">'+esc(c.version)+' · '+esc(c.family)+'</div></div>' +
+            '</div>';
+    }).join('') || '<p class="empty-tip">无匹配发行版</p>';
+}
+
+function renderDetail(id){
+    var d = null;
+    for (var i = 0; i < DETAIL.length; i++) { if (DETAIL[i].id === id) { d = DETAIL[i]; break; } }
+    if (!d) { VIEW_B.innerHTML = '<p class="empty-tip">未找到该发行版</p>'; return; }
+    document.querySelector('#crumb').innerHTML = '<a onclick="window.__gotoGrid()">← 返回发行版列表</a> <span>›</span> <span>'+esc(d.name)+'</span>';
+    document.title = d.name + ' — Linux 系统镜像速查';
+    var sha = d.sha256
+        ? '<div class="sha-val">'+esc(d.sha256)+'</div><button class="copy-btn" data-copy="'+esc(d.sha256)+'">复制</button><div style="color:var(--text-light);font-size:.75rem;margin-top:2px">来源：'+esc(d.sha256_source)+'</div>'
+        : '<span class="empty-tip" style="padding:0;font-size:.8rem">待补（官方 checksum：<a href="'+esc(d.sha256_url)+'" target="_blank" rel="noopener">查看</a>）</span>';
+    var mirrors = '<div class="mirror-row">' + d.mirrors.map(function(m){
+        return '<a href="'+esc(m.url)+'" target="_blank" rel="noopener">'+esc(m.name)+'</a>';
+    }).join('') + '</div>';
+    VIEW_B.innerHTML =
+        '<div class="detail-head" style="background-image:'+gradOf(d)+';">' +
+        '<h2>'+esc(d.name)+'</h2><div class="meta">'+esc(d.version)+' · '+esc(d.family)+' · 发布于 '+esc(d.release_date)+' · '+esc(d.support)+'</div></div>' +
+        '<div class="info-block"><span class="k">官方下载</span><a href="'+esc(d.official_url)+'" target="_blank" rel="noopener">'+esc(d.official_url)+'</a></div>' +
+        '<div class="info-block"><span class="k">ISO 文件</span>'+esc(d.iso_file)+'<br>' +
+        '<span class="k">下载直链</span><a href="'+esc(d.iso_url)+'" target="_blank" rel="noopener">'+esc(d.iso_url)+'</a></div>' +
+        '<div class="info-block"><span class="k">SHA256</span>'+sha+'</div>' +
+        '<div class="info-block"><span class="k">国内镜像</span>'+mirrors+'</div>';
+}
+
+function gradOf(d){
+    return 'linear-gradient(160deg,' + d.color[0] + ' 0%,' + d.color[1] + ' 100%)';
+}
+
+function show(){
+    var m = location.hash.match(/^#\/distro\/(.+)$/);
+    if (m) {
+        VIEW_A.classList.remove('active');
+        VIEW_B.classList.add('active');
+        renderDetail(m[1]);
+    } else {
+        VIEW_B.classList.remove('active');
+        VIEW_A.classList.add('active');
+        document.querySelector('#crumb').innerHTML = '<span>发行版列表</span>';
+        document.title = 'Linux 系统镜像速查';
+        renderGrid(SEARCH.value);
+    }
+}
+
+window.__gotoGrid = function(){ location.hash = '#'; window.scrollTo(0,0); };
+window.addEventListener('hashchange', show);
+
+document.addEventListener('click', function(e){
+    var t = e.target;
+    var card = t.closest ? t.closest('.sys-card') : null;
+    if (card) { location.hash = '#/distro/' + card.getAttribute('data-id'); window.scrollTo(0,0); return; }
+    if (t.classList && t.classList.contains('copy-btn')) {
+        var txt = t.getAttribute('data-copy');
+        if (txt) copyText(txt, t);
+        return;
+    }
+});
+
+if (SEARCH) SEARCH.addEventListener('input', function(e){
+    if (VIEW_A.classList.contains('active')) renderGrid(e.target.value);
+});
+show();
+})();
+</script>
+<script defer src="skin.js"></script>
+</body>
+</html>
