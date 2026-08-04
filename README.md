@@ -7,7 +7,10 @@
 
 ---
 
-## v1.19（2026-08-03）· 当前版本
+## v1.20（2026-08-04）· 当前版本
+- **Windows / Linux 速查页卡片新增系统 Logo 图标**：20 个矢量 Logo（Win98/ME/2000/XP/7/8/8.1/10/11/Server + Ubuntu/Debian/Fedora/CentOS/Arch/openSUSE/Mint/Rocky/Alma/Deepin）取自 Worldvectorlogo 免费 SVG 库，自托管于 `icons/` 目录，卡片左上角显示白底圆角图标；页面注明 Logo 为各品牌商标、仅用于标识（合理使用）。
+
+## v1.19（2026-08-03）
 - **Linux 镜像速查扩充至历史大版本（10 发行版 / 29 个版本条目）**：Ubuntu（14.04→26.04 全系 LTS + 25.10）、Debian（11/12/13）、Fedora（43/44）、CentOS Stream（9/10）、Rocky（8.10/9.8/10.2）、AlmaLinux（8.10/9.8/10.2）、Arch（滚动最新）、openSUSE（Leap 16.0 + Tumbleweed）、Linux Mint（20.3/21.3/22.3）、Deepin（23.1/25.2）。每个版本均含官方下载直链 + SHA256 校验值（抓取于 2026-08-03）+ 国内镜像。
 
 ## v1.18（2026-08-03）
