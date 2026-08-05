@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>实用工具类 - Onyes 的小站</title>
+<meta name="description" content="二维码生成、编码转换、文档与图片处理等常用小工具">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="skin.css">
+<style>
+:root {
+            --primary: #3498db;
+            --secondary: #9b59b6;
+            --accent: #e74c3c;
+            --bg-body: #ffffff;
+            --bg-card: #ffffff;
+            --text-color: #222;
+            --text-light: #666;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+            --border-color: rgba(0, 0, 0, 0.06);
+            --tag-bg: #f5f7fa;
+            --social-bg: #f5f7fa;
+            --input-bg: #f5f7fa;
+            --input-border: #ddd;
+            --section-bg: #f8f9fb;
+            --item-bg: #ffffff;
+            --hover-shadow: rgba(0, 0, 0, 0.08);
+            --mystery-glow: #8b5cf6;
+            --nav-bg: rgba(255, 255, 255, 0.75);
+            --nav-border: rgba(0, 0, 0, 0.06);
+            --nav-text: #222;
+            --gold: #f59e0b;
+        }
+.search-box {
+            display: none;
+            width: 100%;
+            margin-bottom: 0px;
+            position: relative;
+        }
+.search-box.active { display: block; }
+.search-box input {
+            padding: 12px 20px;
+            border-radius: 30px;
+            border: 2px solid var(--input-border);
+            background: var(--input-bg);
+            color: var(--text-color);
+            font-size: 1rem;
+            outline: none;
+            transition: border 0.2s;
+.search-box input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(52,152,219,0.1);
+.search-suggestions {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            right: 0;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.12);
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 1000;
+            padding: 8px 0;
+.search-suggestions.show { display: block; }
+.search-suggestions .suggestion-item {
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: background 0.15s ease;
+            font-size: 0.95rem;
+.search-suggestions .suggestion-item:hover {
+            background: var(--section-bg);
+.search-suggestions .suggestion-item i {
+            color: var(--primary);
+            width: 20px;
+            text-align: center;
+.search-suggestions .suggestion-item .tag-hint {
+            font-size: 0.75rem;
+            color: var(--text-light);
+            background: var(--tag-bg);
+            padding: 2px 12px;
+            border-radius: 12px;
+            margin-left: auto;
+            flex-shrink: 0;
+.search-suggestions .no-result {
+            padding: 20px;
+            border-color: var(--border-color);
+.search-empty {
+            padding: 30px;
+.search-empty.show { display: block; }
+.category-nav {
+            justify-content: center;
+            margin: 16px 0 24px;
+            flex-wrap: wrap;
+.category-link {
+            text-decoration: none;
+            padding: 8px 16px;
+            gap: 6px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            overflow: hidden;
+.category-link:hover {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: #fff;
+            transform: translateY(-2px);
+.hidden { display: none; }
+.category-title {
+            margin-bottom: 16px;
+            font-size: 1.3rem;
+            gap: 10px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--border-color);
+.project-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+.project-item {
+            background: var(--item-bg);
+            padding: 18px 20px;
+            border-radius: 14px;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            opacity: 0;
+            transform: translateY(30px) scale(1);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+            will-change: transform, opacity;
+.project-item.visible {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+.project-item::before {
+            content: '';
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(52,152,219,0.12) 0%, transparent 70%);
+            transition: opacity 0.4s ease;
+            pointer-events: none;
+            transform: translate(calc(var(--mx, 0) * 1px - 50%), calc(var(--my, 0) * 1px - 50%));
+.project-item:hover::before {
+.project-item:hover {
+            transform: translateY(-6px) scale(1.01);
+            box-shadow: 0 12px 35px var(--hover-shadow);
+            transition: transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28),
+                        box-shadow 0.3s ease,
+                        border-color 0.3s ease;
+.project-item.pressed {
+            animation: pressBounce 0.45s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
+                animation: pressBounceTouch 0.35s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
+            }
+.project-item.hidden { 
+.project-item h3 {
+            margin-bottom: 6px;
+            font-size: 1.05rem;
+            z-index: 1;
+.project-item p {
+            margin-bottom: 12px;
+            line-height: 1.5;
+.project-item a {
+            display: inline-flex;
+            color: var(--secondary);
+            transition: gap 0.2s;
+.project-item a:hover { gap: 10px; color: var(--accent); }
+.project-item .favorite-btn {
+            top: 10px;
+            right: 12px;
+            background: transparent;
+            border: none;
+            font-size: 1.1rem;
+            z-index: 2;
+            opacity: 0.3;
+            padding: 4px;
+.project-item:hover .favorite-btn {
+.project-item .favorite-btn:hover {
+            transform: scale(1.2);
+.project-item .favorite-btn.favorited {
+            color: var(--gold);
+            animation: starPop 0.3s ease;
+.visible {
+            pointer-events: auto;
+.project-list { 
+                grid-template-columns: 1fr; 
+                gap: 12px;
+                padding: 14px 16px;
+                font-size: 0.95rem;
+                font-size: 0.85rem;
+.category-nav { 
+                gap: 8px; 
+.category-link { 
+                padding: 6px 12px; 
+                font-size: 0.8rem; 
+                font-size: 1.1rem;
+                font-size: 0.9rem;
+                padding: 10px 14px;
+                padding: 8px 14px;
+                padding: 12px 12px;
+                font-size: 0.8rem;
+                margin-bottom: 10px;
+                padding: 4px 8px; 
+                font-size: 0.7rem; 
+.disc-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: rgba(0, 0, 0, 0.62);
+            backdrop-filter: blur(3px);
+            padding: 18px;
+.disc-modal.show { display: flex; }
+.disc-modal-box {
+            background: var(--bg-card, #fff);
+            color: var(--text-color, #222);
+            max-width: 520px;
+            border-radius: 18px;
+            padding: 26px 26px 20px;
+            box-shadow: 0 18px 60px rgba(0, 0, 0, 0.4);
+            max-height: 88vh;
+            flex-direction: column;
+.count-badge { display:inline-block; margin-top:6px; font-size:.72rem; color:var(--primary); border:1px solid var(--input-border); border-radius:10px; padding:1px 8px; }
+.category-nav a.active { color:var(--primary); font-weight:700; border-color:var(--primary); }
+</style>
+</head>
+<body>
+<header class="app-header">
+<a class="back" href="index.html"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H109.3l105.3-105.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg> 返回主页</a>
+<h1 class="app-title">实用工具类</h1>
+<button class="theme-toggle" id="themeToggle" title="切换主题" aria-label="切换主题">&#127769;</button>
+</header>
+<div class="app-shell">
+<div class="col">
+<div class="category-nav"><a class="category-link" href="tools.html">🛠 实用工具</a><a class="category-link" href="dev.html">💻 开发工具</a><a class="category-link" href="system.html">💿 系统资源</a><a class="category-link" href="simulations.html">🧪 模拟实验</a><a class="category-link" href="games.html">🎮 游戏娱乐</a></div>
+<div class="search-box" id="searchBox">
+<input type="text" id="searchInput" placeholder="🔍 在本分类内搜索..." autocomplete="off">
+<div class="search-empty" id="searchEmpty">😅 没有找到匹配的项目</div>
+</div>
+<div class="projects-section">
+<h2 class="category-title">🛠 实用工具类</h2>
+<div class="project-list"><div class="project-item" data-name="二维码" data-url="Website to QR code.html">
+                            <button class="favorite-btn" data-id="tool-1"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M316.9 18c-5.3-11-16.5-18-28.8-18s-23.4 7-28.8 18L195 150.3L51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329l-24.6 145.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5l128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329l104.2-103.1c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7l-143.7-21.2z"/></svg></button>
+                            <h3>二维码生成器</h3>
+                            <p>输入文本或网址，快速生成二维码图片。</p>
+                            <a href="Website to QR code.html"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M0 80c0-26.5 21.5-48 48-48h96c26.5 0 48 21.5 48 48v96c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48zm64 16v64h64V96zM0 336c0-26.5 21.5-48 48-48h96c26.5 0 48 21.5 48 48v96c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48zm64 16v64h64v-64zM304 32h96c26.5 0 48 21.5 48 48v96c0 26.5-21.5 48-48 48h-96c-26.5 0-48-21.5-48-48V80c0-26.5 21.5-48 48-48m80 64h-64v64h64zM256 304c0-8.8 7.2-16 16-16h64c8.8 0 16 7.2 16 16s7.2 16 16 16h32c8.8 0 16-7.2 16-16s7.2-16 16-16s16 7.2 16 16v96c0 8.8-7.2 16-16 16h-64c-8.8 0-16-7.2-16-16s-7.2-16-16-16s-16 7.2-16 16v64c0 8.8-7.2 16-16 16h-32c-8.8 0-16-7.2-16-16zm112 176a16 16 0 1 1 0-32a16 16 0 1 1 0 32m64 0a16 16 0 1 1 0-32a16 16 0 1 1 0 32"/></svg> 使用工具</a>
+                        </div>
+<div class="project-item" data-name="二维码解码器" data-url="qrcode-decoder.html">
+                            <button class="favorite-btn" data-id="tool-2"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M316.9 18c-5.3-11-16.5-18-28.8-18s-23.4 7-28.8 18L195 150.3L51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329l-24.6 145.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5l128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329l104.2-103.1c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7l-143.7-21.2z"/></svg></button>
+                            <h3>📷 二维码解码器</h3>
+                            <p>上传或粘贴二维码图片，快速解码出其中的内容。</p>
+                            <a href="qrcode-decoder.html"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M0 80c0-26.5 21.5-48 48-48h96c26.5 0 48 21.5 48 48v96c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48zm64 16v64h64V96zM0 336c0-26.5 21.5-48 48-48h96c26.5 0 48 21.5 48 48v96c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48zm64 16v64h64v-64zM304 32h96c26.5 0 48 21.5 48 48v96c0 26.5-21.5 48-48 48h-96c-26.5 0-48-21.5-48-48V80c0-26.5 21.5-48 48-48m80 64h-64v64h64zM256 304c0-8.8 7.2-16 16-16h64c8.8 0 16 7.2 16 16s7.2 16 16 16h32c8.8 0 16-7.2 16-16s7.2-16 16-16s16 7.2 16 16v96c0 8.8-7.2 16-16 16h-64c-8.8 0-16-7.2-16-16s-7.2-16-16-16s-16 7.2-16 16v64c0 8.8-7.2 16-16 16h-32c-8.8 0-16-7.2-16-16zm112 176a16 16 0 1 1 0-32a16 16 0 1 1 0 32m64 0a16 16 0 1 1 0-32a16 16 0 1 1 0 32"/></svg> 使用工具</a>
+                        </div>
+<div class="project-item" data-name="取色器" data-url="Screen Color Picker.html">
+                            <button class="favorite-btn" data-id="tool-3"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M316.9 18c-5.3-11-16.5-18-28.8-18s-23.4 7-28.8 18L195 150.3L51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329l-24.6 145.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5l128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329l104.2-103.1c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7l-143.7-21.2z"/></svg></button>
+                            <h3>屏幕取色器</h3>
+                            <p>拾取屏幕任意位置颜色，获取十六进制值。</p>
+                            <a href="Screen Color Picker.html"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 512 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M341.6 29.2L240.1 130.8l-9.4-9.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3l-9.4-9.4l101.5-101.6c39-39 39-102.2 0-141.1s-102.2-39-141.1 0zM55.4 323.3c-15 15-23.4 35.4-23.4 56.6v42.4L5.4 462.2c-8.5 12.7-6.8 29.6 4 40.4s27.7 12.5 40.4 4L89.7 480h42.4c21.2 0 41.6-8.4 56.6-23.4l120.7-120.7l-45.3-45.3l-120.7 120.7c-3 3-7.1 4.7-11.3 4.7H96v-36.1c0-4.2 1.7-8.3 4.7-11.3l120.7-120.7l-45.3-45.3z"/></svg> 使用工具</a>
+                        </div>
+<div class="project-item" data-name="Markdown" data-url="Markdown Preview.html">
+                            <button class="favorite-btn" data-id="tool-4"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M316.9 18c-5.3-11-16.5-18-28.8-18s-23.4 7-28.8 18L195 150.3L51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329l-24.6 145.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5l128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329l104.2-103.1c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7l-143.7-21.2z"/></svg></button>
+                            <h3>Markdown预览器</h3>
+                            <p>实时将Markdown格式文本转换为HTML预览。</p>
+                            <a href="Markdown Preview.html"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 640 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M593.8 59.1H46.2C20.7 59.1 0 79.8 0 105.2v301.5c0 25.5 20.7 46.2 46.2 46.2h547.7c25.5 0 46.2-20.7 46.1-46.1V105.2c0-25.4-20.7-46.1-46.2-46.1M338.5 360.6H277v-120l-61.5 76.9l-61.5-76.9v120H92.3V151.4h61.5l61.5 76.9l61.5-76.9h61.5v209.2zm135.3 3.1L381.5 256H443V151.4h61.5V256H566z"/></svg> 使用工具</a>
+                        </div>
+<div class="project-item" data-name="图片转Base64" data-url="Convert%20image%20to%20Base64.html">
+                            <button class="favorite-btn" data-id="tool-5"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M316.9 18c-5.3-11-16.5-18-28.8-18s-23.4 7-28.8 18L195 150.3L51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329l-24.6 145.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5l128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329l104.2-103.1c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7l-143.7-21.2z"/></svg></button>
+                            <h3>图片转Base64</h3>
+                            <p>上传图片文件，转换为Base64编码。</p>
+                            <a href="Convert%20image%20to%20Base64.html"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 512 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M0 96c0-35.3 28.7-64 64-64h384c35.3 0 64 28.7 64 64v320c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64zm323.8 106.5c-4.5-6.6-11.9-10.5-19.8-10.5s-15.4 3.9-19.8 10.5l-87 127.6l-26.5-33.1c-4.6-5.7-11.5-9-18.7-9s-14.2 3.3-18.7 9l-64 80c-5.8 7.2-6.9 17.1-2.9 25.4S78.8 416 88 416h336c8.9 0 17.1-4.9 21.2-12.8s3.6-17.4-1.4-24.7zM112 192a48 48 0 1 0 0-96a48 48 0 1 0 0 96"/></svg> 使用工具</a>
+                        </div>
+<div class="project-item" data-name="密码" data-url="Random Password Generator.html">
+                            <button class="favorite-btn" data-id="tool-6"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M316.9 18c-5.3-11-16.5-18-28.8-18s-23.4 7-28.8 18L195 150.3L51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329l-24.6 145.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5l128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329l104.2-103.1c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7l-143.7-21.2z"/></svg></button>
+                            <h3>随机密码生成器</h3>
+                            <p>生成高强度随机密码，含大小写字母、数字、特殊符号。</p>
+                            <a href="Random Password Generator.html"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 512 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M336 352c97.2 0 176-78.8 176-176S433.2 0 336 0S160 78.8 160 176c0 18.7 2.9 36.8 8.3 53.7L7 391c-4.5 4.5-7 10.6-7 17v80c0 13.3 10.7 24 24 24h80c13.3 0 24-10.7 24-24v-40h40c13.3 0 24-10.7 24-24v-40h40c6.4 0 12.5-2.5 17-7l33.3-33.3c16.9 5.4 35 8.3 53.7 8.3m40-256a40 40 0 1 1 0 80a40 40 0 1 1 0-80"/></svg> 使用工具</a>
+                        </div>
+<div class="project-item" data-name="待办清单" data-url="todo.html">
+                            <button class="favorite-btn" data-id="tool-7"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M316.9 18c-5.3-11-16.5-18-28.8-18s-23.4 7-28.8 18L195 150.3L51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329l-24.6 145.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5l128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329l104.2-103.1c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7l-143.7-21.2z"/></svg></button>
+                            <h3>✅ 待办清单</h3>
+                            <p>增删改任务，自动保存到本地，每天必用。</p>
+                            <a href="todo.html"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 512 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M152.1 38.2c9.9 8.9 10.7 24 1.8 33.9l-72 80c-4.4 4.9-10.6 7.8-17.2 7.9s-12.9-2.4-17.6-7L7 113c-9.3-9.4-9.3-24.6 0-34s24.6-9.4 33.9 0L63 101.1l55.1-61.2c8.9-9.9 24-10.7 33.9-1.8zm0 160c9.9 8.9 10.7 24 1.8 33.9l-72 80c-4.4 4.9-10.6 7.8-17.2 7.9s-12.9-2.4-17.6-7L7 273c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0L63 261.2l55.1-61.2c8.9-9.9 24-10.7 33.9-1.8zM224 96c0-17.7 14.3-32 32-32h224c17.7 0 32 14.3 32 32s-14.3 32-32 32H256c-17.7 0-32-14.3-32-32m0 160c0-17.7 14.3-32 32-32h224c17.7 0 32 14.3 32 32s-14.3 32-32 32H256c-17.7 0-32-14.3-32-32m-64 160c0-17.7 14.3-32 32-32h288c17.7 0 32 14.3 32 32s-14.3 32-32 32H192c-17.7 0-32-14.3-32-32M48 368a48 48 0 1 1 0 96a48 48 0 1 1 0-96"/></svg> 使用工具</a>
+                        </div>
+<div class="project-item" data-name="番茄时钟" data-url="pomodoro.html">
+                            <button class="favorite-btn" data-id="tool-8"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M316.9 18c-5.3-11-16.5-18-28.8-18s-23.4 7-28.8 18L195 150.3L51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329l-24.6 145.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5l128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329l104.2-103.1c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7l-143.7-21.2z"/></svg></button>
+                            <h3>🍅 番茄时钟</h3>
+                            <p>25分钟专注 + 5分钟休息，提高工作效率。</p>
+                            <a href="pomodoro.html"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 512 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M256 0a256 256 0 1 1 0 512a256 256 0 1 1 0-512m-24 120v136c0 8 4 15.5 10.7 20l96 64c11 7.4 25.9 4.4 33.3-6.7s4.4-25.9-6.7-33.3L280 243.2V120c0-13.3-10.7-24-24-24s-24 10.7-24 24"/></svg> 使用工具</a>
+                        </div>
+<div class="project-item" data-name="单位换算" data-url="unit-convert.html">
+                            <button class="favorite-btn" data-id="tool-9"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M316.9 18c-5.3-11-16.5-18-28.8-18s-23.4 7-28.8 18L195 150.3L51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329l-24.6 145.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5l128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329l104.2-103.1c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7l-143.7-21.2z"/></svg></button>
+                            <h3>📏 单位换算</h3>
+                            <p>长度、重量、温度、体积快速换算。</p>
+                            <a href="unit-convert.html"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 512 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="m406.6 374.6l96-96c12.5-12.5 12.5-32.8 0-45.3l-96-96c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l41.4 41.4H109.2l41.4-41.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-96 96c-12.5 12.5-12.5 32.8 0 45.3l96 96c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 288h293.5l-41.4 41.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0z"/></svg> 使用工具</a>
+                        </div>
+<div class="project-item" data-name="倒计时器" data-url="countdown.html">
+                            <button class="favorite-btn" data-id="tool-10"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M316.9 18c-5.3-11-16.5-18-28.8-18s-23.4 7-28.8 18L195 150.3L51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329l-24.6 145.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5l128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329l104.2-103.1c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7l-143.7-21.2z"/></svg></button>
+                            <h3>⏳ 倒计时器</h3>
+                            <p>设置目标时间，实时倒计时，支持暂停和预设时长。</p>
+                            <a href="countdown.html"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 384 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M32 0C14.3 0 0 14.3 0 32s14.3 32 32 32v11c0 42.4 16.9 83.1 46.9 113.1l67.8 67.9l-67.8 67.9C48.9 353.9 32 394.6 32 437v11c-17.7 0-32 14.3-32 32s14.3 32 32 32h320c17.7 0 32-14.3 32-32s-14.3-32-32-32v-11c0-42.4-16.9-83.1-46.9-113.1L237.3 256l67.9-67.9c30-30 46.9-70.7 46.9-113.1V64c17.7 0 32-14.3 32-32s-14.3-32-32-32zm64 75V64h192v11c0 19-5.6 37.4-16 53H112c-10.3-15.6-16-34-16-53m16 309c3.5-5.3 7.6-10.3 12.1-14.9l67.9-67.8l67.9 67.9c4.6 4.6 8.6 9.6 12.1 14.9z"/></svg> 使用工具</a>
+                        </div>
+<div class="project-item" data-name="秒表" data-url="miaobiao.html">
+                            <button class="favorite-btn" data-id="tool-11"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M316.9 18c-5.3-11-16.5-18-28.8-18s-23.4 7-28.8 18L195 150.3L51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329l-24.6 145.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5l128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329l104.2-103.1c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7l-143.7-21.2z"/></svg></button>
+                            <h3>⏱️ 秒表</h3>
+                            <p>精确计时，支持计次记录，适合运动训练和测试。</p>
+                            <a href="miaobiao.html"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M176 0c-17.7 0-32 14.3-32 32s14.3 32 32 32h16v34.4C92.3 113.8 16 200 16 304c0 114.9 93.1 208 208 208s208-93.1 208-208c0-41.8-12.3-80.7-33.5-113.2l24.1-24.1c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L355.7 143c-28.1-23-62.2-38.8-99.7-44.6V64h16c17.7 0 32-14.3 32-32S289.7 0 272 0zm72 192v128c0 13.3-10.7 24-24 24s-24-10.7-24-24V192c0-13.3 10.7-24 24-24s24 10.7 24 24"/></svg> 使用工具</a>
+                        </div>
+<div class="project-item" data-name="计算器" data-url="jisuanqi.html">
+                            <button class="favorite-btn" data-id="tool-12"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M316.9 18c-5.3-11-16.5-18-28.8-18s-23.4 7-28.8 18L195 150.3L51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329l-24.6 145.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5l128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329l104.2-103.1c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7l-143.7-21.2z"/></svg></button>
+                            <h3>🧮 计算器</h3>
+                            <p>基础四则运算，键盘支持，日常计算好帮手。</p>
+                            <a href="jisuanqi.html"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 384 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M64 0C28.7 0 0 28.7 0 64v384c0 35.3 28.7 64 64 64h256c35.3 0 64-28.7 64-64V64c0-35.3-28.7-64-64-64zm32 64h192c17.7 0 32 14.3 32 32v32c0 17.7-14.3 32-32 32H96c-17.7 0-32-14.3-32-32V96c0-17.7 14.3-32 32-32m32 160a32 32 0 1 1-64 0a32 32 0 1 1 64 0M96 352a32 32 0 1 1 0-64a32 32 0 1 1 0 64m-32 64c0-17.7 14.3-32 32-32h96c17.7 0 32 14.3 32 32s-14.3 32-32 32H96c-17.7 0-32-14.3-32-32m128-160a32 32 0 1 1 0-64a32 32 0 1 1 0 64m32 64a32 32 0 1 1-64 0a32 32 0 1 1 64 0m64-64a32 32 0 1 1 0-64a32 32 0 1 1 0 64m32 64a32 32 0 1 1-64 0a32 32 0 1 1 64 0m-32 128a32 32 0 1 1 0-64a32 32 0 1 1 0 64"/></svg> 使用工具</a>
+                        </div>
+<div class="project-item" data-name="BMI" data-url="bmi-calculator.html">
+                            <button class="favorite-btn" data-id="tool-13"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M316.9 18c-5.3-11-16.5-18-28.8-18s-23.4 7-28.8 18L195 150.3L51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329l-24.6 145.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5l128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329l104.2-103.1c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7l-143.7-21.2z"/></svg></button>
+                            <h3>BMI 计算器</h3>
+                            <p>输入身高体重评估健康区间</p>
+                            <a href="bmi-calculator.html">ruler 使用工具</a>
+                        </div>
+<div class="project-item" data-name="年龄" data-url="age-calculator.html">
+                            <button class="favorite-btn" data-id="tool-14"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M316.9 18c-5.3-11-16.5-18-28.8-18s-23.4 7-28.8 18L195 150.3L51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329l-24.6 145.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5l128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329l104.2-103.1c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7l-143.7-21.2z"/></svg></button>
+                            <h3>年龄计算器</h3>
+                            <p>年龄、生肖星座、生日倒计时</p>
+                            <a href="age-calculator.html">calendar-days 使用工具</a>
+                        </div>
+<div class="project-item" data-name="百分比" data-url="percentage.html">
+                            <button class="favorite-btn" data-id="tool-15"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M316.9 18c-5.3-11-16.5-18-28.8-18s-23.4 7-28.8 18L195 150.3L51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329l-24.6 145.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5l128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329l104.2-103.1c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7l-143.7-21.2z"/></svg></button>
+                            <h3>百分比计算器</h3>
+                            <p>百分比、占比、增减幅度计算</p>
+                            <a href="percentage.html">percent 使用工具</a>
+                        </div>
+<div class="project-item" data-name="日期差" data-url="date-diff.html">
+                            <button class="favorite-btn" data-id="tool-16"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M316.9 18c-5.3-11-16.5-18-28.8-18s-23.4 7-28.8 18L195 150.3L51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329l-24.6 145.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5l128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329l104.2-103.1c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7l-143.7-21.2z"/></svg></button>
+                            <h3>日期差计算</h3>
+                            <p>相差天数与日期加减推算</p>
+                            <a href="date-diff.html">clock-rotate-left 使用工具</a>
+                        </div>
+<div class="project-item" data-name="随机数" data-url="random-number.html">
+                            <button class="favorite-btn" data-id="tool-17"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M316.9 18c-5.3-11-16.5-18-28.8-18s-23.4 7-28.8 18L195 150.3L51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329l-24.6 145.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5l128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329l104.2-103.1c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7l-143.7-21.2z"/></svg></button>
+                            <h3>随机数生成器</h3>
+                            <p>指定区间批量生成，支持不重复</p>
+                            <a href="random-number.html">random 使用工具</a>
+                        </div>
+<div class="project-item" data-name="金额大写" data-url="rmb-amount.html">
+                            <button class="favorite-btn" data-id="tool-18"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M316.9 18c-5.3-11-16.5-18-28.8-18s-23.4 7-28.8 18L195 150.3L51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329l-24.6 145.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5l128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329l104.2-103.1c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7l-143.7-21.2z"/></svg></button>
+                            <h3>金额大写转换</h3>
+                            <p>数字转人民币中文大写</p>
+                            <a href="rmb-amount.html">money-bill 使用工具</a>
+                        </div>
+<div class="project-item" data-name="万年历" data-url="calendar.html">
+                            <button class="favorite-btn" data-id="tool-19"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M316.9 18c-5.3-11-16.5-18-28.8-18s-23.4 7-28.8 18L195 150.3L51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329l-24.6 145.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5l128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329l104.2-103.1c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7l-143.7-21.2z"/></svg></button>
+                            <h3>📅 万年历</h3>
+                            <p>任意年月日历，自动高亮今天</p>
+                            <a href="calendar.html">calendar-days 使用工具</a>
+                        </div>
+<div class="project-item" data-name="世界时钟" data-url="world-clock.html">
+                            <button class="favorite-btn" data-id="tool-20"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M316.9 18c-5.3-11-16.5-18-28.8-18s-23.4 7-28.8 18L195 150.3L51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329l-24.6 145.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5l128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329l104.2-103.1c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7l-143.7-21.2z"/></svg></button>
+                            <h3>🕐 世界时钟</h3>
+                            <p>全球主要城市实时时间</p>
+                            <a href="world-clock.html">globe 使用工具</a>
+                        </div>
+<div class="project-item" data-name="图片压缩" data-url="image-compressor.html">
+                            <button class="favorite-btn" data-id="tool-21"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M316.9 18c-5.3-11-16.5-18-28.8-18s-23.4 7-28.8 18L195 150.3L51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329l-24.6 145.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5l128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329l104.2-103.1c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7l-143.7-21.2z"/></svg></button>
+                            <h3>🗜️ 图片压缩</h3>
+                            <p>调节质量压缩图片，一键下载</p>
+                            <a href="image-compressor.html">compress 使用工具</a>
+                        </div>
+<div class="project-item" data-name="图片裁剪" data-url="image-cropper.html">
+                            <button class="favorite-btn" data-id="tool-22"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M316.9 18c-5.3-11-16.5-18-28.8-18s-23.4 7-28.8 18L195 150.3L51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329l-24.6 145.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5l128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329l104.2-103.1c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7l-143.7-21.2z"/></svg></button>
+                            <h3>✂️ 图片裁剪</h3>
+                            <p>框选区域裁剪图片，支持比例</p>
+                            <a href="image-cropper.html">scissors 使用工具</a>
+                        </div>
+<div class="project-item" data-name="图片水印" data-url="image-watermark.html">
+                            <button class="favorite-btn" data-id="tool-23"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M316.9 18c-5.3-11-16.5-18-28.8-18s-23.4 7-28.8 18L195 150.3L51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329l-24.6 145.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5l128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329l104.2-103.1c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7l-143.7-21.2z"/></svg></button>
+                            <h3>🖼️ 图片水印</h3>
+                            <p>上传图片加文字水印并下载</p>
+                            <a href="image-watermark.html">pen 使用工具</a>
+                        </div>
+<div class="project-item" data-name="文字转语音" data-url="tts.html">
+                            <button class="favorite-btn" data-id="tool-24"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M316.9 18c-5.3-11-16.5-18-28.8-18s-23.4 7-28.8 18L195 150.3L51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329l-24.6 145.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5l128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329l104.2-103.1c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7l-143.7-21.2z"/></svg></button>
+                            <h3>🗣️ 文字转语音</h3>
+                            <p>Web Speech 朗读，可调语速音调</p>
+                            <a href="tts.html">language 使用工具</a>
+                        </div>
+<div class="project-item" data-name="房贷" data-url="loan-calculator.html">
+                            <button class="favorite-btn" data-id="tool-25"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M316.9 18c-5.3-11-16.5-18-28.8-18s-23.4 7-28.8 18L195 150.3L51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329l-24.6 145.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5l128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329l104.2-103.1c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7l-143.7-21.2z"/></svg></button>
+                            <h3>🏠 房贷计算器</h3>
+                            <p>等额本息 / 等额本金，明细计划</p>
+                            <a href="loan-calculator.html">house 使用工具</a>
+                        </div>
+<div class="project-item" data-name="科学计算器" data-url="scientific-calculator.html">
+                            <button class="favorite-btn" data-id="tool-26"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M316.9 18c-5.3-11-16.5-18-28.8-18s-23.4 7-28.8 18L195 150.3L51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329l-24.6 145.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5l128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329l104.2-103.1c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7l-143.7-21.2z"/></svg></button>
+                            <h3>🧮 科学计算器</h3>
+                            <p>三角函数 / 对数 / 幂 / 括号运算</p>
+                            <a href="scientific-calculator.html">square-root-variable 使用工具</a>
+                        </div>
+<div class="project-item" data-name="习惯打卡" data-url="habit-tracker.html">
+                            <button class="favorite-btn" data-id="tool-27"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M316.9 18c-5.3-11-16.5-18-28.8-18s-23.4 7-28.8 18L195 150.3L51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329l-24.6 145.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5l128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329l104.2-103.1c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7l-143.7-21.2z"/></svg></button>
+                            <h3>📌 习惯打卡</h3>
+                            <p>每日打卡，连续天数与记录</p>
+                            <a href="habit-tracker.html">list-check 使用工具</a>
+                        </div>
+<div class="project-item" data-name="备忘录" data-url="memo.html">
+                            <button class="favorite-btn" data-id="tool-28"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M316.9 18c-5.3-11-16.5-18-28.8-18s-23.4 7-28.8 18L195 150.3L51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329l-24.6 145.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5l128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329l104.2-103.1c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7l-143.7-21.2z"/></svg></button>
+                            <h3>📝 备忘录</h3>
+                            <p>快速记事，本地自动保存</p>
+                            <a href="memo.html">bell 使用工具</a>
+                        </div>
+<div class="project-item" data-name="抽奖转盘" data-url="lucky-draw.html">
+                            <button class="favorite-btn" data-id="tool-29"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M316.9 18c-5.3-11-16.5-18-28.8-18s-23.4 7-28.8 18L195 150.3L51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329l-24.6 145.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5l128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329l104.2-103.1c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7l-143.7-21.2z"/></svg></button>
+                            <h3>🎯 抽奖转盘</h3>
+                            <p>名单转盘随机抽奖</p>
+                            <a href="lucky-draw.html">gift 使用工具</a>
+                        </div>
+<div class="project-item" data-name="调色板" data-url="palette.html">
+                            <button class="favorite-btn" data-id="tool-30"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M316.9 18c-5.3-11-16.5-18-28.8-18s-23.4 7-28.8 18L195 150.3L51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329l-24.6 145.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5l128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329l104.2-103.1c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7l-143.7-21.2z"/></svg></button>
+                            <h3>🎨 调色板生成器</h3>
+                            <p>HSL 配色方案，点击复制色值</p>
+                            <a href="palette.html">palette 使用工具</a>
+                        </div>
+<div class="project-item" data-name="在线尺子" data-url="pixel-ruler.html">
+                            <button class="favorite-btn" data-id="tool-31"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M316.9 18c-5.3-11-16.5-18-28.8-18s-23.4 7-28.8 18L195 150.3L51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329l-24.6 145.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5l128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329l104.2-103.1c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7l-143.7-21.2z"/></svg></button>
+                            <h3>📏 在线尺子</h3>
+                            <p>屏幕像素测量，实时换算 cm / 英寸</p>
+                            <a href="pixel-ruler.html">ruler 使用工具</a>
+                        </div>
+<div class="project-item" data-name="数字时钟" data-url="digital-clock.html">
+                            <button class="favorite-btn" data-id="tool-32"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M316.9 18c-5.3-11-16.5-18-28.8-18s-23.4 7-28.8 18L195 150.3L51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329l-24.6 145.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5l128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329l104.2-103.1c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7l-143.7-21.2z"/></svg></button>
+                            <h3>🕐 数字时钟</h3>
+                            <p>大屏时钟，日期星期实时显示</p>
+                            <a href="digital-clock.html">clock2 使用工具</a>
+                        </div>
+<div class="project-item" data-name="货币换算" data-url="currency.html">
+                            <button class="favorite-btn" data-id="tool-33"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M316.9 18c-5.3-11-16.5-18-28.8-18s-23.4 7-28.8 18L195 150.3L51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329l-24.6 145.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5l128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329l104.2-103.1c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7l-143.7-21.2z"/></svg></button>
+                            <h3>💰 货币换算</h3>
+                            <p>多币种汇率换算，汇率表可编辑</p>
+                            <a href="currency.html">money-bill 使用工具</a>
+                        </div>
+<div class="project-item" data-name="键盘测试" data-url="keyboard-tester.html">
+                            <button class="favorite-btn" data-id="tool-34"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M316.9 18c-5.3-11-16.5-18-28.8-18s-23.4 7-28.8 18L195 150.3L51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329l-24.6 145.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5l128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329l104.2-103.1c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7l-143.7-21.2z"/></svg></button>
+                            <h3>⌨️ 键盘测试器</h3>
+                            <p>按键检测，显示 keyCode 与按键名</p>
+                            <a href="keyboard-tester.html">keyboard 使用工具</a>
+                        </div></div>
+</div>
+<footer>
+<p>© <span id="currentYear"></span> Onyes 的实验室 | 托管于 GitHub Pages</p>
+<div class="debug-version" id="debugVersion">v1.21 · 最后编辑于 2026-08-05 17:37</div>
+<div class="changelog-link"><a href="https://github.com/onyes5634/onyes5634.github.io/blob/main/README.md" target="_blank" rel="noopener">更新日志</a> · <a href="disclaimer.html">免责声明</a></div>
+</footer>
+</div>
+</div>
+
+<script>
+(function(){
+'use strict';
+var FAVORITES_KEY = 'onyes_favorites';
+var favorites = JSON.parse(localStorage.getItem(FAVORITES_KEY) || '[]');
+function updateFavoritesUI(){
+  document.querySelectorAll('.favorite-btn').forEach(function(btn){
+    if (favorites.indexOf(btn.dataset.id) > -1) btn.classList.add('favorited');
+    else btn.classList.remove('favorited');
+  });
+}
+document.querySelectorAll('.favorite-btn').forEach(function(btn){
+  btn.addEventListener('click', function(e){
+    e.stopPropagation();
+    var id = this.dataset.id, idx = favorites.indexOf(id);
+    if (idx > -1) favorites.splice(idx, 1); else favorites.push(id);
+    localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
+    updateFavoritesUI();
+  });
+});
+var projectItems = document.querySelectorAll('.project-item');
+projectItems.forEach(function(item, index){
+  setTimeout(function(){ item.classList.add('visible'); }, 50 + index * 40);
+});
+projectItems.forEach(function(card){
+  card.addEventListener('mousemove', function(e){
+    var rect = this.getBoundingClientRect();
+    this.style.setProperty('--mx', e.clientX - rect.left);
+    this.style.setProperty('--my', e.clientY - rect.top);
+  });
+});
+projectItems.forEach(function(card){
+  var url = card.getAttribute('data-url');
+  if (!url) return;
+  var animating = false, tx = 0, ty = 0, swiping = false;
+  function press(){
+    if (animating) return;
+    animating = true;
+    card.classList.remove('pressed'); void card.offsetWidth;
+    card.classList.add('pressed');
+    setTimeout(function(){ card.classList.remove('pressed'); window.open(url, '_blank'); animating = false; }, 470);
+  }
+  card.addEventListener('mousedown', function(e){ if (e.button === 0) press(); });
+  card.addEventListener('touchstart', function(e){ tx = e.touches[0].clientX; ty = e.touches[0].clientY; swiping = false; }, {passive:true});
+  card.addEventListener('touchmove', function(e){ if (Math.abs(e.touches[0].clientX - tx) > 10 || Math.abs(e.touches[0].clientY - ty) > 10) swiping = true; }, {passive:true});
+  card.addEventListener('touchend', function(){ if (!swiping) press(); }, {passive:true});
+  card.querySelectorAll('a').forEach(function(link){ link.addEventListener('click', function(e){ e.preventDefault(); }); });
+});
+// 搜索：过滤本页卡片
+var searchInput = document.getElementById('searchInput');
+var searchEmpty = document.getElementById('searchEmpty');
+if (searchInput) {
+  searchInput.addEventListener('input', function(){
+    var kw = this.value.trim().toLowerCase(), has = false;
+    projectItems.forEach(function(item){
+      var name = item.getAttribute('data-name') || '';
+      var match = kw === '' || name.toLowerCase().indexOf(kw) > -1 || item.textContent.toLowerCase().indexOf(kw) > -1;
+      item.classList.toggle('hidden', !match);
+      if (match) has = true;
+    });
+    if (searchEmpty) searchEmpty.classList.toggle('show', kw !== '' && !has);
+  });
+}
+document.getElementById('currentYear').textContent = new Date().getFullYear();
+})();
+</script>
+<script>
+(function () {
+'use strict';
+var KEY = 'onyes_disclaimer_v1';
+var accepted = false;
+try { accepted = localStorage.getItem(KEY) === '1'; } catch (e) {}
+if (accepted) return;
+var modal = document.getElementById('discModal');
+var btn = document.getElementById('discBtn');
+var chk = document.getElementById('discCheck');
+var exit = document.getElementById('discExit');
+if (!modal || !btn || !chk || !exit) return;
+modal.classList.add('show');
+document.body.style.overflow = 'hidden';
+var sec = 5;
+var timer = setInterval(function () {
+    sec--;
+    if (sec <= 0) {
+        clearInterval(timer);
+        document.getElementById('discBtnText').textContent = '我知晓并同意，进入网站';
+        btn.classList.add('btn-primary');
+        btn.disabled = !chk.checked;
+    } else {
+        document.getElementById('discBtnText').textContent = '请稍候（' + sec + ' 秒后可进入）';
+    }
+}, 1000);
+chk.addEventListener('change', function () { if (sec <= 0) btn.disabled = !chk.checked; });
+btn.addEventListener('click', function () {
+    if (sec > 0 || !chk.checked) return;
+    try { localStorage.setItem(KEY, '1'); } catch (e) {}
+    modal.classList.remove('show');
+    document.body.style.overflow = '';
+});
+exit.addEventListener('click', function () {
+    clearInterval(timer);
+    try { localStorage.setItem(KEY, 'exit'); } catch (e) {}
+    modal.innerHTML = '<div class="disc-modal-box"><h2>感谢访问</h2>' +
+        '<p class="disc-modal-sum">您已选择不同意声明。如需继续使用，请重新考虑后刷新页面；' +
+        '如认为本站内容有不妥之处，可通过 GitHub Issues 反馈。</p>' +
+        '<a class="btn" href="https://onyes5634.github.io">返回</a></div>';
+});
+})();
+</script>
+<script defer src="skin.js"></script>
+</body>
+</html>
