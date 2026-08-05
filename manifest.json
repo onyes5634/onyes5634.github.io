@@ -1,0 +1,16 @@
+{
+ "name": "Onyes 的小站",
+ "short_name": "Onyes 小站",
+ "start_url": "index.html",
+ "display": "standalone",
+ "background_color": "#ffffff",
+ "theme_color": "#3498db",
+ "icons": [
+  {
+   "src": "favicon.svg",
+   "sizes": "any",
+   "type": "image/svg+xml",
+   "purpose": "any"
+  }
+ ]
+}
