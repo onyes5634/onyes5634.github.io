@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>开发工具类 - Onyes 的小站</title>
+<meta name="description" content="开发辅助工具，让编码更高效">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="skin.css">
+<style>
+:root {
+            --primary: #3498db;
+            --secondary: #9b59b6;
+            --accent: #e74c3c;
+            --bg-body: #ffffff;
+            --bg-card: #ffffff;
+            --text-color: #222;
+            --text-light: #666;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+            --border-color: rgba(0, 0, 0, 0.06);
+            --tag-bg: #f5f7fa;
+            --social-bg: #f5f7fa;
+            --input-bg: #f5f7fa;
+            --input-border: #ddd;
+            --section-bg: #f8f9fb;
+            --item-bg: #ffffff;
+            --hover-shadow: rgba(0, 0, 0, 0.08);
+            --mystery-glow: #8b5cf6;
+            --nav-bg: rgba(255, 255, 255, 0.75);
+            --nav-border: rgba(0, 0, 0, 0.06);
+            --nav-text: #222;
+            --gold: #f59e0b;
+        }
+.search-box {
+            display: none;
+            width: 100%;
+            margin-bottom: 0px;
+            position: relative;
+        }
+.search-box.active { display: block; }
+.search-box input {
+            padding: 12px 20px;
+            border-radius: 30px;
+            border: 2px solid var(--input-border);
+            background: var(--input-bg);
+            color: var(--text-color);
+            font-size: 1rem;
+            outline: none;
+            transition: border 0.2s;
+.search-box input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(52,152,219,0.1);
+.search-suggestions {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            right: 0;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.12);
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 1000;
+            padding: 8px 0;
+.search-suggestions.show { display: block; }
+.search-suggestions .suggestion-item {
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: background 0.15s ease;
+            font-size: 0.95rem;
+.search-suggestions .suggestion-item:hover {
+            background: var(--section-bg);
+.search-suggestions .suggestion-item i {
+            color: var(--primary);
+            width: 20px;
+            text-align: center;
+.search-suggestions .suggestion-item .tag-hint {
+            font-size: 0.75rem;
+            color: var(--text-light);
+            background: var(--tag-bg);
+            padding: 2px 12px;
+            border-radius: 12px;
+            margin-left: auto;
+            flex-shrink: 0;
+.search-suggestions .no-result {
+            padding: 20px;
+            border-color: var(--border-color);
+.search-empty {
+            padding: 30px;
+.search-empty.show { display: block; }
+.category-nav {
+            justify-content: center;
+            margin: 16px 0 24px;
+            flex-wrap: wrap;
+.category-link {
+            text-decoration: none;
+            padding: 8px 16px;
+            gap: 6px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            overflow: hidden;
+.category-link:hover {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: #fff;
+            transform: translateY(-2px);
+.hidden { display: none; }
+.category-title {
+            margin-bottom: 16px;
+            font-size: 1.3rem;
+            gap: 10px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--border-color);
+.project-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+.project-item {
+            background: var(--item-bg);
+            padding: 18px 20px;
+            border-radius: 14px;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            opacity: 0;
+            transform: translateY(30px) scale(1);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+            will-change: transform, opacity;
+.project-item.visible {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+.project-item::before {
+            content: '';
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(52,152,219,0.12) 0%, transparent 70%);
+            transition: opacity 0.4s ease;
+            pointer-events: none;
+            transform: translate(calc(var(--mx, 0) * 1px - 50%), calc(var(--my, 0) * 1px - 50%));
+.project-item:hover::before {
+.project-item:hover {
+            transform: translateY(-6px) scale(1.01);
+            box-shadow: 0 12px 35px var(--hover-shadow);
+            transition: transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28),
+                        box-shadow 0.3s ease,
+                        border-color 0.3s ease;
+.project-item.pressed {
+            animation: pressBounce 0.45s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
+                animation: pressBounceTouch 0.35s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
+            }
+.project-item.hidden { 
+.project-item h3 {
+            margin-bottom: 6px;
+            font-size: 1.05rem;
+            z-index: 1;
+.project-item p {
+            margin-bottom: 12px;
+            line-height: 1.5;
+.project-item a {
+            display: inline-flex;
+            color: var(--secondary);
+            transition: gap 0.2s;
+.project-item a:hover { gap: 10px; color: var(--accent); }
+.project-item .favorite-btn {
+            top: 10px;
+            right: 12px;
+            background: transparent;
+            border: none;
+            font-size: 1.1rem;
+            z-index: 2;
+            opacity: 0.3;
+            padding: 4px;
+.project-item:hover .favorite-btn {
+.project-item .favorite-btn:hover {
+            transform: scale(1.2);
+.project-item .favorite-btn.favorited {
+            color: var(--gold);
+            animation: starPop 0.3s ease;
+.visible {
+            pointer-events: auto;
+.project-list { 
+                grid-template-columns: 1fr; 
+                gap: 12px;
+                padding: 14px 16px;
+                font-size: 0.95rem;
+                font-size: 0.85rem;
+.category-nav { 
+                gap: 8px; 
+.category-link { 
+                padding: 6px 12px; 
+                font-size: 0.8rem; 
+                font-size: 1.1rem;
+                font-size: 0.9rem;
+                padding: 10px 14px;
+                padding: 8px 14px;
+                padding: 12px 12px;
+                font-size: 0.8rem;
+                margin-bottom: 10px;
+                padding: 4px 8px; 
+                font-size: 0.7rem; 
+.disc-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: rgba(0, 0, 0, 0.62);
+            backdrop-filter: blur(3px);
+            padding: 18px;
+.disc-modal.show { display: flex; }
+.disc-modal-box {
+            background: var(--bg-card, #fff);
+            color: var(--text-color, #222);
+            max-width: 520px;
+            border-radius: 18px;
+            padding: 26px 26px 20px;
+            box-shadow: 0 18px 60px rgba(0, 0, 0, 0.4);
+            max-height: 88vh;
+            flex-direction: column;
+.count-badge { display:inline-block; margin-top:6px; font-size:.72rem; color:var(--primary); border:1px solid var(--input-border); border-radius:10px; padding:1px 8px; }
+.category-nav a.active { color:var(--primary); font-weight:700; border-color:var(--primary); }
+</style>
+</head>
+<body>
+<header class="app-header">
+<a class="back" href="index.html"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H109.3l105.3-105.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg> 返回主页</a>
+<h1 class="app-title">开发工具类</h1>
+<button class="theme-toggle" id="themeToggle" title="切换主题" aria-label="切换主题">&#127769;</button>
+</header>
+<div class="app-shell">
+<div class="col">
+<div class="category-nav"><a class="category-link" href="tools.html">🛠 实用工具</a><a class="category-link" href="dev.html">💻 开发工具</a><a class="category-link" href="system.html">💿 系统资源</a><a class="category-link" href="simulations.html">🧪 模拟实验</a><a class="category-link" href="games.html">🎮 游戏娱乐</a></div>
+<div class="search-box" id="searchBox">
+<input type="text" id="searchInput" placeholder="🔍 在本分类内搜索..." autocomplete="off">
+<div class="search-empty" id="searchEmpty">😅 没有找到匹配的项目</div>
+</div>
+<div class="projects-section">
+<h2 class="category-title">💻 开发工具类</h2>
+<div class="project-list"><div class="project-item" data-name="JSON格式化" data-url="json-formatter.html">
+                            <button class="favorite-btn" data-id="dev-1"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M316.9 18c-5.3-11-16.5-18-28.8-18s-23.4 7-28.8 18L195 150.3L51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329l-24.6 145.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5l128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329l104.2-103.1c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7l-143.7-21.2z"/></svg></button>
+                            <h3>JSON 格式化</h3>
+                            <p>美化 / 压缩 / 校验 JSON 数据</p>
+                            <a href="json-formatter.html">code 使用工具</a>
+                        </div>
+<div class="project-item" data-name="时间戳" data-url="timestamp.html">
+                            <button class="favorite-btn" data-id="dev-2"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M316.9 18c-5.3-11-16.5-18-28.8-18s-23.4 7-28.8 18L195 150.3L51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329l-24.6 145.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5l128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329l104.2-103.1c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7l-143.7-21.2z"/></svg></button>
+                            <h3>时间戳转换</h3>
+                            <p>Unix 时间戳与日期互转，秒 / 毫秒</p>
+                            <a href="timestamp.html">clock 使用工具</a>
+                        </div>
+<div class="project-item" data-name="Base64" data-url="base64-encode.html">
+                            <button class="favorite-btn" data-id="dev-3"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M316.9 18c-5.3-11-16.5-18-28.8-18s-23.4 7-28.8 18L195 150.3L51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329l-24.6 145.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5l128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329l104.2-103.1c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7l-143.7-21.2z"/></svg></button>
+                            <h3>Base64 编解码</h3>
+                            <p>文本与 Base64 互转，支持中文</p>
+                            <a href="base64-encode.html">copy 使用工具</a>
+                        </div>
+<div class="project-item" data-name="URL编码" data-url="url-encoder.html">
+                            <button class="favorite-btn" data-id="dev-4"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M316.9 18c-5.3-11-16.5-18-28.8-18s-23.4 7-28.8 18L195 150.3L51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329l-24.6 145.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5l128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329l104.2-103.1c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7l-143.7-21.2z"/></svg></button>
+                            <h3>URL 编解码</h3>
+                            <p>URL 编码 / 解码，双标准切换</p>
+                            <a href="url-encoder.html">link 使用工具</a>
+                        </div>
+<div class="project-item" data-name="进制转换" data-url="base-converter.html">
+                            <button class="favorite-btn" data-id="dev-5"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M316.9 18c-5.3-11-16.5-18-28.8-18s-23.4 7-28.8 18L195 150.3L51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329l-24.6 145.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5l128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329l104.2-103.1c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7l-143.7-21.2z"/></svg></button>
+                            <h3>进制转换</h3>
+                            <p>2-36 进制互转，支持大整数</p>
+                            <a href="base-converter.html">calculator 使用工具</a>
+                        </div>
+<div class="project-item" data-name="哈希" data-url="hash-tool.html">
+                            <button class="favorite-btn" data-id="dev-6"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M316.9 18c-5.3-11-16.5-18-28.8-18s-23.4 7-28.8 18L195 150.3L51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329l-24.6 145.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5l128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329l104.2-103.1c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7l-143.7-21.2z"/></svg></button>
+                            <h3>哈希计算</h3>
+                            <p>SHA-1 / 256 / 384 / 512 本地计算</p>
+                            <a href="hash-tool.html">key 使用工具</a>
+                        </div>
+<div class="project-item" data-name="字数统计" data-url="text-counter.html">
+                            <button class="favorite-btn" data-id="dev-7"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M316.9 18c-5.3-11-16.5-18-28.8-18s-23.4 7-28.8 18L195 150.3L51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329l-24.6 145.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5l128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329l104.2-103.1c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7l-143.7-21.2z"/></svg></button>
+                            <h3>字数统计</h3>
+                            <p>字符、汉字、单词、行数实时统计</p>
+                            <a href="text-counter.html">pen 使用工具</a>
+                        </div>
+<div class="project-item" data-name="文本行处理" data-url="text-lines.html">
+                            <button class="favorite-btn" data-id="dev-8"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M316.9 18c-5.3-11-16.5-18-28.8-18s-23.4 7-28.8 18L195 150.3L51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329l-24.6 145.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5l128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329l104.2-103.1c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7l-143.7-21.2z"/></svg></button>
+                            <h3>文本去重排序</h3>
+                            <p>去重 / 排序 / 去空行处理</p>
+                            <a href="text-lines.html">rectangle-list 使用工具</a>
+                        </div>
+<div class="project-item" data-name="大小写转换" data-url="case-convert.html">
+                            <button class="favorite-btn" data-id="dev-9"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M316.9 18c-5.3-11-16.5-18-28.8-18s-23.4 7-28.8 18L195 150.3L51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329l-24.6 145.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5l128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329l104.2-103.1c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7l-143.7-21.2z"/></svg></button>
+                            <h3>大小写转换</h3>
+                            <p>驼峰 / 下划线 / 全半角互转</p>
+                            <a href="case-convert.html">keyboard 使用工具</a>
+                        </div>
+<div class="project-item" data-name="密码强度" data-url="password-strength.html">
+                            <button class="favorite-btn" data-id="dev-10"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M316.9 18c-5.3-11-16.5-18-28.8-18s-23.4 7-28.8 18L195 150.3L51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329l-24.6 145.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5l128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329l104.2-103.1c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7l-143.7-21.2z"/></svg></button>
+                            <h3>密码强度检测</h3>
+                            <p>实时评估强度，提醒弱口令</p>
+                            <a href="password-strength.html">shield-halved 使用工具</a>
+                        </div>
+<div class="project-item" data-name="正则测试" data-url="regex-tester.html">
+                            <button class="favorite-btn" data-id="dev-11"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M316.9 18c-5.3-11-16.5-18-28.8-18s-23.4 7-28.8 18L195 150.3L51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329l-24.6 145.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5l128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329l104.2-103.1c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7l-143.7-21.2z"/></svg></button>
+                            <h3>🔍 正则测试器</h3>
+                            <p>实时高亮匹配，调试正则表达式</p>
+                            <a href="regex-tester.html">search 使用工具</a>
+                        </div>
+<div class="project-item" data-name="文本对比" data-url="text-diff.html">
+                            <button class="favorite-btn" data-id="dev-12"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M316.9 18c-5.3-11-16.5-18-28.8-18s-23.4 7-28.8 18L195 150.3L51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329l-24.6 145.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5l128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329l104.2-103.1c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7l-143.7-21.2z"/></svg></button>
+                            <h3>🔎 文本对比</h3>
+                            <p>按行 / 按字符高亮差异</p>
+                            <a href="text-diff.html">copy 使用工具</a>
+                        </div>
+<div class="project-item" data-name="颜色转换" data-url="color-convert.html">
+                            <button class="favorite-btn" data-id="dev-13"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M316.9 18c-5.3-11-16.5-18-28.8-18s-23.4 7-28.8 18L195 150.3L51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329l-24.6 145.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5l128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329l104.2-103.1c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7l-143.7-21.2z"/></svg></button>
+                            <h3>🌈 颜色格式转换</h3>
+                            <p>HEX / RGB / HSL 互转，实时预览</p>
+                            <a href="color-convert.html">palette2 使用工具</a>
+                        </div>
+<div class="project-item" data-name="加密解密" data-url="cipher-tool.html">
+                            <button class="favorite-btn" data-id="dev-14"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M316.9 18c-5.3-11-16.5-18-28.8-18s-23.4 7-28.8 18L195 150.3L51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329l-24.6 145.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5l128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329l104.2-103.1c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7l-143.7-21.2z"/></svg></button>
+                            <h3>🔐 加密 / 解密</h3>
+                            <p>AES-256 与凯撒密码双向加解密</p>
+                            <a href="cipher-tool.html">lock 使用工具</a>
+                        </div>
+<div class="project-item" data-name="摩斯密码" data-url="morse.html">
+                            <button class="favorite-btn" data-id="dev-15"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M316.9 18c-5.3-11-16.5-18-28.8-18s-23.4 7-28.8 18L195 150.3L51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329l-24.6 145.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5l128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329l104.2-103.1c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7l-143.7-21.2z"/></svg></button>
+                            <h3>📶 摩斯密码</h3>
+                            <p>文本与电码互转，可播放</p>
+                            <a href="morse.html">microphone 使用工具</a>
+                        </div>
+<div class="project-item" data-name="HTTP状态码" data-url="http-status.html">
+                            <button class="favorite-btn" data-id="dev-16"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M316.9 18c-5.3-11-16.5-18-28.8-18s-23.4 7-28.8 18L195 150.3L51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329l-24.6 145.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5l128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329l104.2-103.1c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7l-143.7-21.2z"/></svg></button>
+                            <h3>🔗 HTTP 状态码速查</h3>
+                            <p>100-505 状态码含义速查与搜索</p>
+                            <a href="http-status.html">link 使用工具</a>
+                        </div>
+<div class="project-item" data-name="SQL格式化" data-url="sql-formatter.html">
+                            <button class="favorite-btn" data-id="dev-17"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M316.9 18c-5.3-11-16.5-18-28.8-18s-23.4 7-28.8 18L195 150.3L51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329l-24.6 145.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5l128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329l104.2-103.1c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7l-143.7-21.2z"/></svg></button>
+                            <h3>🗄️ SQL 格式化</h3>
+                            <p>关键字换行缩进，美化 / 压缩 SQL</p>
+                            <a href="sql-formatter.html">database 使用工具</a>
+                        </div></div>
+</div>
+<footer>
+<p>© <span id="currentYear"></span> Onyes 的实验室 | 托管于 GitHub Pages</p>
+<div class="debug-version" id="debugVersion">v1.21 · 最后编辑于 2026-08-05 17:37</div>
+<div class="changelog-link"><a href="https://github.com/onyes5634/onyes5634.github.io/blob/main/README.md" target="_blank" rel="noopener">更新日志</a> · <a href="disclaimer.html">免责声明</a></div>
+</footer>
+</div>
+</div>
+
+<script>
+(function(){
+'use strict';
+var FAVORITES_KEY = 'onyes_favorites';
+var favorites = JSON.parse(localStorage.getItem(FAVORITES_KEY) || '[]');
+function updateFavoritesUI(){
+  document.querySelectorAll('.favorite-btn').forEach(function(btn){
+    if (favorites.indexOf(btn.dataset.id) > -1) btn.classList.add('favorited');
+    else btn.classList.remove('favorited');
+  });
+}
+document.querySelectorAll('.favorite-btn').forEach(function(btn){
+  btn.addEventListener('click', function(e){
+    e.stopPropagation();
+    var id = this.dataset.id, idx = favorites.indexOf(id);
+    if (idx > -1) favorites.splice(idx, 1); else favorites.push(id);
+    localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
+    updateFavoritesUI();
+  });
+});
+var projectItems = document.querySelectorAll('.project-item');
+projectItems.forEach(function(item, index){
+  setTimeout(function(){ item.classList.add('visible'); }, 50 + index * 40);
+});
+projectItems.forEach(function(card){
+  card.addEventListener('mousemove', function(e){
+    var rect = this.getBoundingClientRect();
+    this.style.setProperty('--mx', e.clientX - rect.left);
+    this.style.setProperty('--my', e.clientY - rect.top);
+  });
+});
+projectItems.forEach(function(card){
+  var url = card.getAttribute('data-url');
+  if (!url) return;
+  var animating = false, tx = 0, ty = 0, swiping = false;
+  function press(){
+    if (animating) return;
+    animating = true;
+    card.classList.remove('pressed'); void card.offsetWidth;
+    card.classList.add('pressed');
+    setTimeout(function(){ card.classList.remove('pressed'); window.open(url, '_blank'); animating = false; }, 470);
+  }
+  card.addEventListener('mousedown', function(e){ if (e.button === 0) press(); });
+  card.addEventListener('touchstart', function(e){ tx = e.touches[0].clientX; ty = e.touches[0].clientY; swiping = false; }, {passive:true});
+  card.addEventListener('touchmove', function(e){ if (Math.abs(e.touches[0].clientX - tx) > 10 || Math.abs(e.touches[0].clientY - ty) > 10) swiping = true; }, {passive:true});
+  card.addEventListener('touchend', function(){ if (!swiping) press(); }, {passive:true});
+  card.querySelectorAll('a').forEach(function(link){ link.addEventListener('click', function(e){ e.preventDefault(); }); });
+});
+// 搜索：过滤本页卡片
+var searchInput = document.getElementById('searchInput');
+var searchEmpty = document.getElementById('searchEmpty');
+if (searchInput) {
+  searchInput.addEventListener('input', function(){
+    var kw = this.value.trim().toLowerCase(), has = false;
+    projectItems.forEach(function(item){
+      var name = item.getAttribute('data-name') || '';
+      var match = kw === '' || name.toLowerCase().indexOf(kw) > -1 || item.textContent.toLowerCase().indexOf(kw) > -1;
+      item.classList.toggle('hidden', !match);
+      if (match) has = true;
+    });
+    if (searchEmpty) searchEmpty.classList.toggle('show', kw !== '' && !has);
+  });
+}
+document.getElementById('currentYear').textContent = new Date().getFullYear();
+})();
+</script>
+<script>
+(function () {
+'use strict';
+var KEY = 'onyes_disclaimer_v1';
+var accepted = false;
+try { accepted = localStorage.getItem(KEY) === '1'; } catch (e) {}
+if (accepted) return;
+var modal = document.getElementById('discModal');
+var btn = document.getElementById('discBtn');
+var chk = document.getElementById('discCheck');
+var exit = document.getElementById('discExit');
+if (!modal || !btn || !chk || !exit) return;
+modal.classList.add('show');
+document.body.style.overflow = 'hidden';
+var sec = 5;
+var timer = setInterval(function () {
+    sec--;
+    if (sec <= 0) {
+        clearInterval(timer);
+        document.getElementById('discBtnText').textContent = '我知晓并同意，进入网站';
+        btn.classList.add('btn-primary');
+        btn.disabled = !chk.checked;
+    } else {
+        document.getElementById('discBtnText').textContent = '请稍候（' + sec + ' 秒后可进入）';
+    }
+}, 1000);
+chk.addEventListener('change', function () { if (sec <= 0) btn.disabled = !chk.checked; });
+btn.addEventListener('click', function () {
+    if (sec > 0 || !chk.checked) return;
+    try { localStorage.setItem(KEY, '1'); } catch (e) {}
+    modal.classList.remove('show');
+    document.body.style.overflow = '';
+});
+exit.addEventListener('click', function () {
+    clearInterval(timer);
+    try { localStorage.setItem(KEY, 'exit'); } catch (e) {}
+    modal.innerHTML = '<div class="disc-modal-box"><h2>感谢访问</h2>' +
+        '<p class="disc-modal-sum">您已选择不同意声明。如需继续使用，请重新考虑后刷新页面；' +
+        '如认为本站内容有不妥之处，可通过 GitHub Issues 反馈。</p>' +
+        '<a class="btn" href="https://onyes5634.github.io">返回</a></div>';
+});
+})();
+</script>
+<script defer src="skin.js"></script>
+</body>
+</html>
