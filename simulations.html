@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>模拟实验类 - Onyes 的小站</title>
+<meta name="description" content="物理模拟与科学实验小工具">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="skin.css">
+<style>
+:root {
+            --primary: #3498db;
+            --secondary: #9b59b6;
+            --accent: #e74c3c;
+            --bg-body: #ffffff;
+            --bg-card: #ffffff;
+            --text-color: #222;
+            --text-light: #666;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+            --border-color: rgba(0, 0, 0, 0.06);
+            --tag-bg: #f5f7fa;
+            --social-bg: #f5f7fa;
+            --input-bg: #f5f7fa;
+            --input-border: #ddd;
+            --section-bg: #f8f9fb;
+            --item-bg: #ffffff;
+            --hover-shadow: rgba(0, 0, 0, 0.08);
+            --mystery-glow: #8b5cf6;
+            --nav-bg: rgba(255, 255, 255, 0.75);
+            --nav-border: rgba(0, 0, 0, 0.06);
+            --nav-text: #222;
+            --gold: #f59e0b;
+        }
+.search-box {
+            display: none;
+            width: 100%;
+            margin-bottom: 0px;
+            position: relative;
+        }
+.search-box.active { display: block; }
+.search-box input {
+            padding: 12px 20px;
+            border-radius: 30px;
+            border: 2px solid var(--input-border);
+            background: var(--input-bg);
+            color: var(--text-color);
+            font-size: 1rem;
+            outline: none;
+            transition: border 0.2s;
+.search-box input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(52,152,219,0.1);
+.search-suggestions {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            right: 0;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.12);
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 1000;
+            padding: 8px 0;
+.search-suggestions.show { display: block; }
+.search-suggestions .suggestion-item {
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: background 0.15s ease;
+            font-size: 0.95rem;
+.search-suggestions .suggestion-item:hover {
+            background: var(--section-bg);
+.search-suggestions .suggestion-item i {
+            color: var(--primary);
+            width: 20px;
+            text-align: center;
+.search-suggestions .suggestion-item .tag-hint {
+            font-size: 0.75rem;
+            color: var(--text-light);
+            background: var(--tag-bg);
+            padding: 2px 12px;
+            border-radius: 12px;
+            margin-left: auto;
+            flex-shrink: 0;
+.search-suggestions .no-result {
+            padding: 20px;
+            border-color: var(--border-color);
+.search-empty {
+            padding: 30px;
+.search-empty.show { display: block; }
+.category-nav {
+            justify-content: center;
+            margin: 16px 0 24px;
+            flex-wrap: wrap;
+.category-link {
+            text-decoration: none;
+            padding: 8px 16px;
+            gap: 6px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            overflow: hidden;
+.category-link:hover {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: #fff;
+            transform: translateY(-2px);
+.hidden { display: none; }
+.category-title {
+            margin-bottom: 16px;
+            font-size: 1.3rem;
+            gap: 10px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--border-color);
+.project-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+.project-item {
+            background: var(--item-bg);
+            padding: 18px 20px;
+            border-radius: 14px;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            opacity: 0;
+            transform: translateY(30px) scale(1);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+            will-change: transform, opacity;
+.project-item.visible {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+.project-item::before {
+            content: '';
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(52,152,219,0.12) 0%, transparent 70%);
+            transition: opacity 0.4s ease;
+            pointer-events: none;
+            transform: translate(calc(var(--mx, 0) * 1px - 50%), calc(var(--my, 0) * 1px - 50%));
+.project-item:hover::before {
+.project-item:hover {
+            transform: translateY(-6px) scale(1.01);
+            box-shadow: 0 12px 35px var(--hover-shadow);
+            transition: transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28),
+                        box-shadow 0.3s ease,
+                        border-color 0.3s ease;
+.project-item.pressed {
+            animation: pressBounce 0.45s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
+                animation: pressBounceTouch 0.35s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
+            }
+.project-item.hidden { 
+.project-item h3 {
+            margin-bottom: 6px;
+            font-size: 1.05rem;
+            z-index: 1;
+.project-item p {
+            margin-bottom: 12px;
+            line-height: 1.5;
+.project-item a {
+            display: inline-flex;
+            color: var(--secondary);
+            transition: gap 0.2s;
+.project-item a:hover { gap: 10px; color: var(--accent); }
+.project-item .favorite-btn {
+            top: 10px;
+            right: 12px;
+            background: transparent;
+            border: none;
+            font-size: 1.1rem;
+            z-index: 2;
+            opacity: 0.3;
+            padding: 4px;
+.project-item:hover .favorite-btn {
+.project-item .favorite-btn:hover {
+            transform: scale(1.2);
+.project-item .favorite-btn.favorited {
+            color: var(--gold);
+            animation: starPop 0.3s ease;
+.visible {
+            pointer-events: auto;
+.project-list { 
+                grid-template-columns: 1fr; 
+                gap: 12px;
+                padding: 14px 16px;
+                font-size: 0.95rem;
+                font-size: 0.85rem;
+.category-nav { 
+                gap: 8px; 
+.category-link { 
+                padding: 6px 12px; 
+                font-size: 0.8rem; 
+                font-size: 1.1rem;
+                font-size: 0.9rem;
+                padding: 10px 14px;
+                padding: 8px 14px;
+                padding: 12px 12px;
+                font-size: 0.8rem;
+                margin-bottom: 10px;
+                padding: 4px 8px; 
+                font-size: 0.7rem; 
+.disc-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: rgba(0, 0, 0, 0.62);
+            backdrop-filter: blur(3px);
+            padding: 18px;
+.disc-modal.show { display: flex; }
+.disc-modal-box {
+            background: var(--bg-card, #fff);
+            color: var(--text-color, #222);
+            max-width: 520px;
+            border-radius: 18px;
+            padding: 26px 26px 20px;
+            box-shadow: 0 18px 60px rgba(0, 0, 0, 0.4);
+            max-height: 88vh;
+            flex-direction: column;
+.count-badge { display:inline-block; margin-top:6px; font-size:.72rem; color:var(--primary); border:1px solid var(--input-border); border-radius:10px; padding:1px 8px; }
+.category-nav a.active { color:var(--primary); font-weight:700; border-color:var(--primary); }
+</style>
+</head>
+<body>
+<header class="app-header">
+<a class="back" href="index.html"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H109.3l105.3-105.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg> 返回主页</a>
+<h1 class="app-title">模拟实验类</h1>
+<button class="theme-toggle" id="themeToggle" title="切换主题" aria-label="切换主题">&#127769;</button>
+</header>
+<div class="app-shell">
+<div class="col">
+<div class="category-nav"><a class="category-link" href="tools.html">🛠 实用工具</a><a class="category-link" href="dev.html">💻 开发工具</a><a class="category-link" href="system.html">💿 系统资源</a><a class="category-link" href="simulations.html">🧪 模拟实验</a><a class="category-link" href="games.html">🎮 游戏娱乐</a></div>
+<div class="search-box" id="searchBox">
+<input type="text" id="searchInput" placeholder="🔍 在本分类内搜索..." autocomplete="off">
+<div class="search-empty" id="searchEmpty">😅 没有找到匹配的项目</div>
+</div>
+<div class="projects-section">
+<h2 class="category-title">🧪 模拟实验类</h2>
+<div class="project-list"><div class="project-item" data-name="太阳系" data-url="solar-system-simulation.html">
+                            <button class="favorite-btn" data-id="sim-1"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M316.9 18c-5.3-11-16.5-18-28.8-18s-23.4 7-28.8 18L195 150.3L51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329l-24.6 145.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5l128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329l104.2-103.1c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7l-143.7-21.2z"/></svg></button>
+                            <h3>太阳系模拟器</h3>
+                            <p>模拟太阳系行星运行轨迹。</p>
+                            <a href="solar-system-simulation.html"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 512 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M352 256c0 22.2-1.2 43.6-3.3 64H163.4c-2.2-20.4-3.3-41.8-3.3-64s1.2-43.6 3.3-64h185.3c2.2 20.4 3.3 41.8 3.3 64m28.8-64h123.1c5.3 20.5 8.1 41.9 8.1 64s-2.8 43.5-8.1 64H380.8c2.1-20.6 3.2-42 3.2-64s-1.1-43.4-3.2-64m112.6-32H376.7c-10-63.9-29.8-117.4-55.3-151.6c78.3 20.7 142 77.5 171.9 151.6zm-149.1 0H167.7c6.1-36.4 15.5-68.6 27-94.7c10.5-23.6 22.2-40.7 33.5-51.5C239.4 3.2 248.7 0 256 0s16.6 3.2 27.8 13.8c11.3 10.8 23 27.9 33.5 51.5c11.6 26 20.9 58.2 27 94.7m-209 0H18.6c30-74.1 93.6-130.9 172-151.6c-25.5 34.2-45.3 87.7-55.3 151.6M8.1 192h123.1c-2.1 20.6-3.2 42-3.2 64s1.1 43.4 3.2 64H8.1C2.8 299.5 0 278.1 0 256s2.8-43.5 8.1-64m186.6 254.6c-11.6-26-20.9-58.2-27-94.6h176.6c-6.1 36.4-15.5 68.6-27 94.6c-10.5 23.6-22.2 40.7-33.5 51.5c-11.2 10.7-20.5 13.9-27.8 13.9s-16.6-3.2-27.8-13.8c-11.3-10.8-23-27.9-33.5-51.5zM135.3 352c10 63.9 29.8 117.4 55.3 151.6c-78.4-20.7-142-77.5-172-151.6zm358.1 0c-30 74.1-93.6 130.9-171.9 151.6c25.5-34.2 45.2-87.7 55.3-151.6h116.7z"/></svg> 查看模拟</a>
+                        </div>
+<div class="project-item" data-name="流体" data-url="fluid-simulator.html">
+                            <button class="favorite-btn" data-id="sim-2"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M316.9 18c-5.3-11-16.5-18-28.8-18s-23.4 7-28.8 18L195 150.3L51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329l-24.6 145.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5l128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329l104.2-103.1c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7l-143.7-21.2z"/></svg></button>
+                            <h3>流体物理模拟器</h3>
+                            <p>基于物理引擎的流体模拟，展示液体流动效果。</p>
+                            <a href="fluid-simulator.html"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 384 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M192 512C86 512 0 426 0 320C0 228.8 130.2 57.7 166.6 11.7c6-7.5 14.9-11.7 24.5-11.7h1.8c9.6 0 18.5 4.2 24.5 11.7C253.8 57.7 384 228.8 384 320c0 106-86 192-192 192M96 336c0-8.8-7.2-16-16-16s-16 7.2-16 16c0 61.9 50.1 112 112 112c8.8 0 16-7.2 16-16s-7.2-16-16-16c-44.2 0-80-35.8-80-80"/></svg> 查看模拟</a>
+                        </div>
+<div class="project-item" data-name="颜色混合" data-url="color-mixer.html">
+                            <button class="favorite-btn" data-id="sim-3"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M316.9 18c-5.3-11-16.5-18-28.8-18s-23.4 7-28.8 18L195 150.3L51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329l-24.6 145.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5l128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329l104.2-103.1c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7l-143.7-21.2z"/></svg></button>
+                            <h3>🎨 颜色混合</h3>
+                            <p>红绿蓝三色滑块，实时混合出你想要的任意颜色。</p>
+                            <a href="color-mixer.html"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 512 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M512 256v2.7c-.4 36.5-33.6 61.3-70.1 61.3H344c-26.5 0-48 21.5-48 48c0 3.4.4 6.7 1 9.9c2.1 10.2 6.5 20 10.8 29.9c6.1 13.8 12.1 27.5 12.1 42c0 31.8-21.6 60.7-53.4 62c-3.5.1-7 .2-10.6.2C114.6 512 0 397.4 0 256S114.6 0 256 0s256 114.6 256 256m-384 32a32 32 0 1 0-64 0a32 32 0 1 0 64 0m0-96a32 32 0 1 0 0-64a32 32 0 1 0 0 64m160-96a32 32 0 1 0-64 0a32 32 0 1 0 64 0m96 96a32 32 0 1 0 0-64a32 32 0 1 0 0 64"/></svg> 查看模拟</a>
+                        </div>
+<div class="project-item" data-name="音波可视化" data-url="sound-visualizer.html">
+                            <button class="favorite-btn" data-id="sim-4"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M316.9 18c-5.3-11-16.5-18-28.8-18s-23.4 7-28.8 18L195 150.3L51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329l-24.6 145.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5l128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329l104.2-103.1c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7l-143.7-21.2z"/></svg></button>
+                            <h3>🎵 音波可视化</h3>
+                            <p>用麦克风捕捉声音，实时显示音频波形。</p>
+                            <a href="sound-visualizer.html"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 640 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M128 64c0-17.7 14.3-32 32-32h160c17.7 0 32 14.3 32 32v352h96V256c0-17.7 14.3-32 32-32h128c17.7 0 32 14.3 32 32s-14.3 32-32 32h-96v160c0 17.7-14.3 32-32 32H320c-17.7 0-32-14.3-32-32V96h-96v160c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32h96z"/></svg> 查看模拟</a>
+                        </div>
+<div class="project-item" data-name="抛体运动" data-url="projectile.html">
+                            <button class="favorite-btn" data-id="sim-5"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M316.9 18c-5.3-11-16.5-18-28.8-18s-23.4 7-28.8 18L195 150.3L51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329l-24.6 145.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5l128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329l104.2-103.1c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7l-143.7-21.2z"/></svg></button>
+                            <h3>🚀 抛体运动</h3>
+                            <p>调整角度和初速度，模拟抛物线运动轨迹。</p>
+                            <a href="projectile.html"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 512 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M156.6 384.9L125.7 354c-8.5-8.5-11.5-20.8-7.7-32.2c3-8.9 7-20.5 11.8-33.8H24c-8.6 0-16.6-4.6-20.9-12.1s-4.2-16.7.2-24.1l52.5-88.5c13-21.9 36.5-35.3 61.9-35.3H200c2.4-4 4.8-7.7 7.2-11.3C289.1-4.1 411.1-8.1 483.9 5.3c11.6 2.1 20.6 11.2 22.8 22.8c13.4 72.9 9.3 194.8-111.4 276.7c-3.5 2.4-7.3 4.8-11.3 7.2v82.3c0 25.4-13.4 49-35.3 61.9l-88.5 52.5c-7.4 4.4-16.6 4.5-24.1.2S224 496.7 224 488V380.8c-14.1 4.9-26.4 8.9-35.7 11.9c-11.2 3.6-23.4.5-31.8-7.8zM384 168a40 40 0 1 0 0-80a40 40 0 1 0 0 80"/></svg> 查看模拟</a>
+                        </div>
+<div class="project-item" data-name="电路模拟" data-url="circuit.html">
+                            <button class="favorite-btn" data-id="sim-6"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M316.9 18c-5.3-11-16.5-18-28.8-18s-23.4 7-28.8 18L195 150.3L51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329l-24.6 145.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5l128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329l104.2-103.1c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7l-143.7-21.2z"/></svg></button>
+                            <h3>⚡ 电路模拟</h3>
+                            <p>开关控制电路通断，观察灯泡亮灭和电流变化。</p>
+                            <a href="circuit.html"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M349.4 44.6c5.9-13.7 1.5-29.7-10.6-38.5s-28.6-8-39.9 1.8l-256 224c-10 8.8-13.6 22.9-8.9 35.3S50.7 288 64 288h111.5L98.6 467.4c-5.9 13.7-1.5 29.7 10.6 38.5s28.6 8 39.9-1.8l256-224c10-8.8 13.6-22.9 8.9-35.3s-16.6-20.7-30-20.7H272.5z"/></svg> 查看模拟</a>
+                        </div>
+<div class="project-item" data-name="热传导" data-url="heat-conduction.html">
+                            <button class="favorite-btn" data-id="sim-7"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M316.9 18c-5.3-11-16.5-18-28.8-18s-23.4 7-28.8 18L195 150.3L51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329l-24.6 145.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5l128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329l104.2-103.1c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7l-143.7-21.2z"/></svg></button>
+                            <h3>🌡️ 热传导模拟</h3>
+                            <p>加热金属板，观察热量从热源向四周扩散的过程。</p>
+                            <a href="heat-conduction.html"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M159.3 5.4c7.8-7.3 19.9-7.2 27.7.1c27.6 25.9 53.5 53.8 77.7 84c11-14.4 23.5-30.1 37-42.9c7.9-7.4 20.1-7.4 28 .1c34.6 33 63.9 76.6 84.5 118c20.3 40.8 33.8 82.5 33.8 111.9C448 404.2 348.2 512 224 512C98.4 512 0 404.1 0 276.5c0-38.4 17.8-85.3 45.4-131.7C73.3 97.7 112.7 48.6 159.3 5.4M225.7 416c25.3 0 47.7-7 68.8-21c42.1-29.4 53.4-88.2 28.1-134.4c-4.5-9-16-9.6-22.5-2l-25.2 29.3c-6.6 7.6-18.5 7.4-24.7-.5c-16.5-21-46-58.5-62.8-79.8c-6.3-8-18.3-8.1-24.7-.1c-33.8 42.5-50.8 69.3-50.8 99.4c.1 68.5 50.7 109.1 113.8 109.1"/></svg> 查看模拟</a>
+                        </div>
+<div class="project-item" data-name="单摆" data-url="pendulum.html">
+                            <button class="favorite-btn" data-id="sim-8"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M316.9 18c-5.3-11-16.5-18-28.8-18s-23.4 7-28.8 18L195 150.3L51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329l-24.6 145.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5l128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329l104.2-103.1c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7l-143.7-21.2z"/></svg></button>
+                            <h3>⏳ 单摆模拟</h3>
+                            <p>简谐运动，实时周期与角度</p>
+                            <a href="pendulum.html">clock-rotate-left 查看模拟</a>
+                        </div>
+<div class="project-item" data-name="双摆" data-url="double-pendulum.html">
+                            <button class="favorite-btn" data-id="sim-9"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M316.9 18c-5.3-11-16.5-18-28.8-18s-23.4 7-28.8 18L195 150.3L51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329l-24.6 145.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5l128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329l104.2-103.1c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7l-143.7-21.2z"/></svg></button>
+                            <h3>🌀 双摆混沌</h3>
+                            <p>经典混沌系统，初始差异指数放大</p>
+                            <a href="double-pendulum.html">arrows-rotate 查看模拟</a>
+                        </div>
+<div class="project-item" data-name="弹簧振子" data-url="spring-oscillator.html">
+                            <button class="favorite-btn" data-id="sim-10"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M316.9 18c-5.3-11-16.5-18-28.8-18s-23.4 7-28.8 18L195 150.3L51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329l-24.6 145.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5l128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329l104.2-103.1c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7l-143.7-21.2z"/></svg></button>
+                            <h3>🍃 弹簧振子</h3>
+                            <p>阻尼简谐振动与能量曲线</p>
+                            <a href="spring-oscillator.html">wave-square 查看模拟</a>
+                        </div>
+<div class="project-item" data-name="布朗运动" data-url="brownian.html">
+                            <button class="favorite-btn" data-id="sim-11"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M316.9 18c-5.3-11-16.5-18-28.8-18s-23.4 7-28.8 18L195 150.3L51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329l-24.6 145.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5l128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329l104.2-103.1c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7l-143.7-21.2z"/></svg></button>
+                            <h3>🟤 布朗运动</h3>
+                            <p>随机游走，验证均方位移定律</p>
+                            <a href="brownian.html">dna 查看模拟</a>
+                        </div>
+<div class="project-item" data-name="生命游戏" data-url="game-of-life.html">
+                            <button class="favorite-btn" data-id="sim-12"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M316.9 18c-5.3-11-16.5-18-28.8-18s-23.4 7-28.8 18L195 150.3L51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329l-24.6 145.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5l128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329l104.2-103.1c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7l-143.7-21.2z"/></svg></button>
+                            <h3>🧬 生命游戏</h3>
+                            <p>元胞自动机，演化出复杂图案</p>
+                            <a href="game-of-life.html">bug 查看模拟</a>
+                        </div>
+<div class="project-item" data-name="分形树" data-url="fractal-tree.html">
+                            <button class="favorite-btn" data-id="sim-13"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M316.9 18c-5.3-11-16.5-18-28.8-18s-23.4 7-28.8 18L195 150.3L51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329l-24.6 145.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5l128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329l104.2-103.1c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7l-143.7-21.2z"/></svg></button>
+                            <h3>🌳 分形树</h3>
+                            <p>递归自相似枝桠，随风摆动</p>
+                            <a href="fractal-tree.html">leaf 查看模拟</a>
+                        </div>
+<div class="project-item" data-name="波干涉" data-url="wave-interference.html">
+                            <button class="favorite-btn" data-id="sim-14"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M316.9 18c-5.3-11-16.5-18-28.8-18s-23.4 7-28.8 18L195 150.3L51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329l-24.6 145.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5l128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329l104.2-103.1c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7l-143.7-21.2z"/></svg></button>
+                            <h3>🌊 波干涉模拟</h3>
+                            <p>双波源叠加，明暗相长相消图样</p>
+                            <a href="wave-interference.html">mountain 查看模拟</a>
+                        </div>
+<div class="project-item" data-name="傅里叶级数" data-url="fourier-series.html">
+                            <button class="favorite-btn" data-id="sim-15"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M316.9 18c-5.3-11-16.5-18-28.8-18s-23.4 7-28.8 18L195 150.3L51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329l-24.6 145.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5l128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329l104.2-103.1c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7l-143.7-21.2z"/></svg></button>
+                            <h3>🌊 傅里叶级数合成</h3>
+                            <p>旋转向量叠加，逼近方波 / 锯齿波</p>
+                            <a href="fourier-series.html">chart-line 查看模拟</a>
+                        </div>
+<div class="project-item" data-name="曼德博分形" data-url="mandelbrot.html">
+                            <button class="favorite-btn" data-id="sim-16"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M316.9 18c-5.3-11-16.5-18-28.8-18s-23.4 7-28.8 18L195 150.3L51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329l-24.6 145.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5l128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329l104.2-103.1c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7l-143.7-21.2z"/></svg></button>
+                            <h3>🔭 曼德博分形</h3>
+                            <p>无限自相似边界，点击缩放探索</p>
+                            <a href="mandelbrot.html">atom 查看模拟</a>
+                        </div>
+<div class="project-item" data-name="洛伦兹吸引子" data-url="lorenz-attractor.html">
+                            <button class="favorite-btn" data-id="sim-17"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M316.9 18c-5.3-11-16.5-18-28.8-18s-23.4 7-28.8 18L195 150.3L51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329l-24.6 145.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5l128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329l104.2-103.1c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7l-143.7-21.2z"/></svg></button>
+                            <h3>🦋 洛伦兹吸引子</h3>
+                            <p>蝴蝶效应，混沌双翼轨迹</p>
+                            <a href="lorenz-attractor.html">repeat 查看模拟</a>
+                        </div>
+<div class="project-item" data-name="N体引力" data-url="nbody-gravity.html">
+                            <button class="favorite-btn" data-id="sim-18"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M316.9 18c-5.3-11-16.5-18-28.8-18s-23.4 7-28.8 18L195 150.3L51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329l-24.6 145.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5l128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329l104.2-103.1c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7l-143.7-21.2z"/></svg></button>
+                            <h3>🪐 多体引力模拟</h3>
+                            <p>N 体万有引力，演化出复杂轨道</p>
+                            <a href="nbody-gravity.html">sun 查看模拟</a>
+                        </div>
+<div class="project-item" data-name="三体问题" data-url="three-body.html">
+                            <button class="favorite-btn" data-id="sim-19"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M316.9 18c-5.3-11-16.5-18-28.8-18s-23.4 7-28.8 18L195 150.3L51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329l-24.6 145.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5l128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329l104.2-103.1c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7l-143.7-21.2z"/></svg></button>
+                            <h3>🪐 三体问题</h3>
+                            <p>三星引力演化，初值敏感</p>
+                            <a href="three-body.html">moon 查看模拟</a>
+                        </div>
+<div class="project-item" data-name="水波涟漪" data-url="water-ripple.html">
+                            <button class="favorite-btn" data-id="sim-20"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M316.9 18c-5.3-11-16.5-18-28.8-18s-23.4 7-28.8 18L195 150.3L51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329l-24.6 145.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5l128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329l104.2-103.1c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7l-143.7-21.2z"/></svg></button>
+                            <h3>🌊 水波涟漪</h3>
+                            <p>点击水面产生真实波纹扩散</p>
+                            <a href="water-ripple.html">tint 查看模拟</a>
+                        </div>
+<div class="project-item" data-name="烟花模拟" data-url="fireworks.html">
+                            <button class="favorite-btn" data-id="sim-21"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M316.9 18c-5.3-11-16.5-18-28.8-18s-23.4 7-28.8 18L195 150.3L51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329l-24.6 145.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5l128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329l104.2-103.1c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7l-143.7-21.2z"/></svg></button>
+                            <h3>🎆 烟花模拟</h3>
+                            <p>粒子烟花绽放，可点击手动放花</p>
+                            <a href="fireworks.html">spinner 查看模拟</a>
+                        </div>
+<div class="project-item" data-name="3D立方体" data-url="cube3d.html">
+                            <button class="favorite-btn" data-id="sim-22"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M316.9 18c-5.3-11-16.5-18-28.8-18s-23.4 7-28.8 18L195 150.3L51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329l-24.6 145.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5l128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329l104.2-103.1c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7l-143.7-21.2z"/></svg></button>
+                            <h3>🧊 3D 旋转立方体</h3>
+                            <p>三维投影旋转，可调速度与透视</p>
+                            <a href="cube3d.html">expand 查看模拟</a>
+                        </div>
+<div class="project-item" data-name="星空粒子" data-url="starfield.html">
+                            <button class="favorite-btn" data-id="sim-23"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M316.9 18c-5.3-11-16.5-18-28.8-18s-23.4 7-28.8 18L195 150.3L51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329l-24.6 145.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5l128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329l104.2-103.1c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7l-143.7-21.2z"/></svg></button>
+                            <h3>🌌 星空粒子</h3>
+                            <p>星际穿越粒子飞散特效</p>
+                            <a href="starfield.html">star 查看模拟</a>
+                        </div></div>
+</div>
+<footer>
+<p>© <span id="currentYear"></span> Onyes 的实验室 | 托管于 GitHub Pages</p>
+<div class="debug-version" id="debugVersion">v1.21 · 最后编辑于 2026-08-05 17:37</div>
+<div class="changelog-link"><a href="https://github.com/onyes5634/onyes5634.github.io/blob/main/README.md" target="_blank" rel="noopener">更新日志</a> · <a href="disclaimer.html">免责声明</a></div>
+</footer>
+</div>
+</div>
+
+<script>
+(function(){
+'use strict';
+var FAVORITES_KEY = 'onyes_favorites';
+var favorites = JSON.parse(localStorage.getItem(FAVORITES_KEY) || '[]');
+function updateFavoritesUI(){
+  document.querySelectorAll('.favorite-btn').forEach(function(btn){
+    if (favorites.indexOf(btn.dataset.id) > -1) btn.classList.add('favorited');
+    else btn.classList.remove('favorited');
+  });
+}
+document.querySelectorAll('.favorite-btn').forEach(function(btn){
+  btn.addEventListener('click', function(e){
+    e.stopPropagation();
+    var id = this.dataset.id, idx = favorites.indexOf(id);
+    if (idx > -1) favorites.splice(idx, 1); else favorites.push(id);
+    localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
+    updateFavoritesUI();
+  });
+});
+var projectItems = document.querySelectorAll('.project-item');
+projectItems.forEach(function(item, index){
+  setTimeout(function(){ item.classList.add('visible'); }, 50 + index * 40);
+});
+projectItems.forEach(function(card){
+  card.addEventListener('mousemove', function(e){
+    var rect = this.getBoundingClientRect();
+    this.style.setProperty('--mx', e.clientX - rect.left);
+    this.style.setProperty('--my', e.clientY - rect.top);
+  });
+});
+projectItems.forEach(function(card){
+  var url = card.getAttribute('data-url');
+  if (!url) return;
+  var animating = false, tx = 0, ty = 0, swiping = false;
+  function press(){
+    if (animating) return;
+    animating = true;
+    card.classList.remove('pressed'); void card.offsetWidth;
+    card.classList.add('pressed');
+    setTimeout(function(){ card.classList.remove('pressed'); window.open(url, '_blank'); animating = false; }, 470);
+  }
+  card.addEventListener('mousedown', function(e){ if (e.button === 0) press(); });
+  card.addEventListener('touchstart', function(e){ tx = e.touches[0].clientX; ty = e.touches[0].clientY; swiping = false; }, {passive:true});
+  card.addEventListener('touchmove', function(e){ if (Math.abs(e.touches[0].clientX - tx) > 10 || Math.abs(e.touches[0].clientY - ty) > 10) swiping = true; }, {passive:true});
+  card.addEventListener('touchend', function(){ if (!swiping) press(); }, {passive:true});
+  card.querySelectorAll('a').forEach(function(link){ link.addEventListener('click', function(e){ e.preventDefault(); }); });
+});
+// 搜索：过滤本页卡片
+var searchInput = document.getElementById('searchInput');
+var searchEmpty = document.getElementById('searchEmpty');
+if (searchInput) {
+  searchInput.addEventListener('input', function(){
+    var kw = this.value.trim().toLowerCase(), has = false;
+    projectItems.forEach(function(item){
+      var name = item.getAttribute('data-name') || '';
+      var match = kw === '' || name.toLowerCase().indexOf(kw) > -1 || item.textContent.toLowerCase().indexOf(kw) > -1;
+      item.classList.toggle('hidden', !match);
+      if (match) has = true;
+    });
+    if (searchEmpty) searchEmpty.classList.toggle('show', kw !== '' && !has);
+  });
+}
+document.getElementById('currentYear').textContent = new Date().getFullYear();
+})();
+</script>
+<script>
+(function () {
+'use strict';
+var KEY = 'onyes_disclaimer_v1';
+var accepted = false;
+try { accepted = localStorage.getItem(KEY) === '1'; } catch (e) {}
+if (accepted) return;
+var modal = document.getElementById('discModal');
+var btn = document.getElementById('discBtn');
+var chk = document.getElementById('discCheck');
+var exit = document.getElementById('discExit');
+if (!modal || !btn || !chk || !exit) return;
+modal.classList.add('show');
+document.body.style.overflow = 'hidden';
+var sec = 5;
+var timer = setInterval(function () {
+    sec--;
+    if (sec <= 0) {
+        clearInterval(timer);
+        document.getElementById('discBtnText').textContent = '我知晓并同意，进入网站';
+        btn.classList.add('btn-primary');
+        btn.disabled = !chk.checked;
+    } else {
+        document.getElementById('discBtnText').textContent = '请稍候（' + sec + ' 秒后可进入）';
+    }
+}, 1000);
+chk.addEventListener('change', function () { if (sec <= 0) btn.disabled = !chk.checked; });
+btn.addEventListener('click', function () {
+    if (sec > 0 || !chk.checked) return;
+    try { localStorage.setItem(KEY, '1'); } catch (e) {}
+    modal.classList.remove('show');
+    document.body.style.overflow = '';
+});
+exit.addEventListener('click', function () {
+    clearInterval(timer);
+    try { localStorage.setItem(KEY, 'exit'); } catch (e) {}
+    modal.innerHTML = '<div class="disc-modal-box"><h2>感谢访问</h2>' +
+        '<p class="disc-modal-sum">您已选择不同意声明。如需继续使用，请重新考虑后刷新页面；' +
+        '如认为本站内容有不妥之处，可通过 GitHub Issues 反馈。</p>' +
+        '<a class="btn" href="https://onyes5634.github.io">返回</a></div>';
+});
+})();
+</script>
+<script defer src="skin.js"></script>
+</body>
+</html>
