@@ -6,6 +6,8 @@
 <title>模拟实验类 - Onyes 的小站</title>
 <meta name="description" content="物理模拟与科学实验小工具">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="manifest" href="manifest.json">
+<script>if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('service-worker.js').catch(function(){});});}</script>
 <link rel="stylesheet" href="skin.css">
 <style>
 :root {
@@ -30,6 +32,26 @@
             --nav-border: rgba(0, 0, 0, 0.06);
             --nav-text: #222;
             --gold: #f59e0b;
+        }
+[data-theme="dark"] {
+            --bg-body: #0d1117;
+            --bg-card: #161b22;
+            --text-color: #e6edf3;
+            --text-light: #8b949e;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            --border-color: rgba(255, 255, 255, 0.06);
+            --tag-bg: #21262d;
+            --social-bg: #21262d;
+            --input-bg: #21262d;
+            --input-border: #30363d;
+            --section-bg: #161b22;
+            --item-bg: #21262d;
+            --hover-shadow: rgba(255, 255, 255, 0.04);
+            --mystery-glow: #a78bfa;
+            --nav-bg: rgba(22, 27, 34, 0.85);
+            --nav-border: rgba(255, 255, 255, 0.06);
+            --nav-text: #e6edf3;
+            --gold: #fbbf24;
         }
 .search-box {
             display: none;
@@ -248,6 +270,12 @@
         }
 .count-badge { display:inline-block; margin-top:6px; font-size:.72rem; color:var(--primary); border:1px solid var(--input-border); border-radius:10px; padding:1px 8px; }
 .category-nav a.active { color:var(--primary); font-weight:700; border-color:var(--primary); }
+@media (max-width: 640px) {
+  .project-item { padding: 14px 16px; }
+  .project-list { gap: 12px; }
+  .category-nav { gap: 8px; margin: 12px 0 16px; }
+  .app-header .app-title { font-size: 1rem; }
+}
 </style>
 </head>
 <body>
@@ -406,7 +434,7 @@
 </div>
 <footer>
 <p>© <span id="currentYear"></span> Onyes 的实验室 | 托管于 GitHub Pages</p>
-<div class="debug-version" id="debugVersion">v1.21 · 最后编辑于 2026-08-05 23:47</div>
+<div class="debug-version" id="debugVersion">v1.22 · 最后编辑于 2026-08-06 00:41</div>
 <div class="changelog-link"><a href="https://github.com/onyes5634/onyes5634.github.io/blob/main/README.md" target="_blank" rel="noopener">更新日志</a> · <a href="disclaimer.html">免责声明</a></div>
 </footer>
 </div>
@@ -476,6 +504,27 @@ if (searchInput) {
   });
 }
 document.getElementById('currentYear').textContent = new Date().getFullYear();
+// 深链：?q=xxx 自动填入搜索框并过滤
+(function(){
+  var m = location.search.match(/[?&]q=([^&]+)/);
+  if (m && searchInput) {
+    var q = decodeURIComponent(m[1].replace(/\+/g, ' '));
+    searchInput.value = q;
+    var kw = q.trim().toLowerCase(), has = false;
+    projectItems.forEach(function(item){
+      var name = item.getAttribute('data-name') || '';
+      var match = kw === '' || name.toLowerCase().indexOf(kw) > -1 || item.textContent.toLowerCase().indexOf(kw) > -1;
+      item.classList.toggle('hidden', !match);
+      if (match) has = true;
+    });
+    if (searchEmpty) searchEmpty.classList.toggle('show', kw !== '' && !has);
+    if (has) {
+      var first = null;
+      projectItems.forEach(function(item){ if (!first && !item.classList.contains('hidden')) first = item; });
+      if (first && first.scrollIntoView) setTimeout(function(){ first.scrollIntoView({behavior:'smooth', block:'center'}); }, 300);
+    }
+  }
+})();
 })();
 </script>
 <script>
