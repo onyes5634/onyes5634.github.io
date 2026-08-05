@@ -7,7 +7,11 @@
 
 ---
 
-## v1.20（2026-08-04）· 当前版本
+## v1.21（2026-08-05）· 当前版本
+- **主页改版为分类卡片**：删除主页 92 张工具卡片，改为 5 张分类入口卡片（实用工具 / 开发工具 / 系统资源 / 模拟实验 / 游戏娱乐），点击进入对应独立分类页。
+- **新增 5 个分类页**：tools.html / dev.html / system.html / simulations.html / games.html，每页列出该分类全部工具（带分类内搜索、收藏、返回主页、分类间导航、免责弹窗）；收藏数据跨页共用（localStorage），已有收藏不丢失。
+
+## v1.20（2026-08-04）
 - **Windows / Linux 速查页卡片新增系统 Logo 图标**：20 个矢量 Logo（Win98/ME/2000/XP/7/8/8.1/10/11/Server + Ubuntu/Debian/Fedora/CentOS/Arch/openSUSE/Mint/Rocky/Alma/Deepin）取自 Worldvectorlogo 免费 SVG 库，自托管于 `icons/` 目录，卡片左上角显示白底圆角图标；页面注明 Logo 为各品牌商标、仅用于标识（合理使用）。
 
 ## v1.19（2026-08-03）
