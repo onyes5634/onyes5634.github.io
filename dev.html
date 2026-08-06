@@ -7,7 +7,7 @@
 <meta name="description" content="开发辅助工具，让编码更高效">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="manifest" href="manifest.json">
-<script>if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('service-worker.js').catch(function(){});});}</script>
+<script>if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('service-worker.js').then(function(reg){if(reg.waiting)reg.waiting.postMessage({type:'SKIP_WAITING'});}).catch(function(){});});navigator.serviceWorker.addEventListener('message',function(e){if(e.data&&e.data.type==='SW_UPDATED'){var b=document.createElement('div');b.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1f2937;color:#fff;padding:10px 18px;border-radius:24px;font-size:.85rem;box-shadow:0 4px 12px rgba(0,0,0,.18);z-index:99999;display:flex;align-items:center;gap:10px';b.innerHTML='<span>🔄 已更新到 '+e.data.version+'</span><button onclick="location.reload()" style="background:#3498db;color:#fff;border:none;padding:4px 12px;border-radius:12px;cursor:pointer">刷新</button><button onclick="this.parentNode.remove()" style="background:transparent;color:#9ca3af;border:none;cursor:pointer;font-size:1.1rem;padding:0 4px">×</button>';document.body.appendChild(b);setTimeout(function(){if(b.parentNode)b.parentNode.removeChild(b);},30000);}});}</script>
 <link rel="stylesheet" href="skin.css">
 <style>
 :root {
@@ -398,7 +398,7 @@
 </div>
 <footer>
 <p>© <span id="currentYear"></span> Onyes 的实验室 | 托管于 GitHub Pages</p>
-<div class="debug-version" id="debugVersion">v1.22 · 最后编辑于 2026-08-06 00:41</div>
+<div class="debug-version" id="debugVersion">v1.23 · 最后编辑于 2026-08-06 10:14</div>
 <div class="changelog-link"><a href="https://github.com/onyes5634/onyes5634.github.io/blob/main/README.md" target="_blank" rel="noopener">更新日志</a> · <a href="disclaimer.html">免责声明</a></div>
 </footer>
 </div>
