@@ -277,6 +277,14 @@
   .app-header .app-title { font-size: 1rem; }
 }
 </style>
+
+<meta property="og:title" content="实用工具类 - Onyes 的小站">
+<meta property="og:description" content="实用工具大全：二维码、单位换算、计算器、文本处理、图像处理等在线工具，即开即用 - Onyes 工具站">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://onyes5634.github.io/tools.html">
+<meta property="og:image" content="https://onyes5634.github.io/og-banner.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="实用工具类 - Onyes 的小站">
 </head>
 <body>
 <header class="app-header">
@@ -500,7 +508,7 @@
 </div>
 <footer>
 <p>© <span id="currentYear"></span> Onyes 的实验室 | 托管于 GitHub Pages</p>
-<div class="debug-version" id="debugVersion">v1.24 · 最后编辑于 2026-08-06 10:42</div>
+<div class="debug-version" id="debugVersion">v1.25 · 最后编辑于 2026-08-09 16:03</div>
 <div class="changelog-link"><a href="https://github.com/onyes5634/onyes5634.github.io/blob/main/README.md" target="_blank" rel="noopener">更新日志</a> · <a href="disclaimer.html">免责声明</a></div>
 </footer>
 </div>
@@ -637,5 +645,11 @@ exit.addEventListener('click', function () {
 })();
 </script>
 <script defer src="skin.js"></script>
+<!-- onyes-tool-direct -->
+<script>
+/* onyes: ?tool= 直达高亮 */
+(function(){try{var p=new URLSearchParams(location.search);var t=p.get('tool');if(!t)return;var d=decodeURIComponent(t).toLowerCase();var links=document.querySelectorAll('a[href$=".html"]');var found=null;for(var i=0;i<links.length;i++){var a=links[i];var href=(a.getAttribute('href')||'').toLowerCase().replace(/\.html$/,'');var txt=(a.textContent||'').toLowerCase();if(href===d||href.indexOf(d)!==-1||txt.indexOf(d)!==-1){found=a;break;}}if(found){found.style.transition='all 0.4s';found.style.boxShadow='0 0 0 4px rgba(52,152,219,0.7)';found.style.background='#fffbe6';found.scrollIntoView({behavior:'smooth',block:'center'});try{var q=found.getBoundingClientRect();window.scrollBy(0,-80);}catch(e){}setTimeout(function(){found.style.boxShadow='';found.style.background='';},5000);}}catch(e){}})();
+</script>
+
 </body>
 </html>
