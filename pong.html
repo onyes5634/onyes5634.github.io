@@ -15,6 +15,15 @@ canvas { background:var(--input-bg); border:1px solid var(--input-border); borde
 .hint { color:var(--text-light); font-size:.8rem; }
 
 </style>
+
+<meta name="description" content="乒乓 - 在线免费使用，即开即用无需安装 | Onyes 工具站">
+<meta property="og:title" content="乒乓">
+<meta property="og:description" content="乒乓 - 在线免费使用，即开即用无需安装 | Onyes 工具站">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://onyes5634.github.io/pong.html">
+<meta property="og:image" content="https://onyes5634.github.io/og-banner.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="乒乓">
 </head>
 <body>
 <header class="app-header">
@@ -91,5 +100,11 @@ reset(); frame();
 
 </script>
 <script defer src="skin.js"></script>
+<!-- onyes-touch-bridge -->
+<script>
+/* onyes: canvas touch->mouse 桥接（移动端支持） */
+(function(){try{var cs=document.querySelectorAll('canvas');for(var i=0;i<cs.length;i++){(function(c){function f(t,ev){var e=new MouseEvent(t,{bubbles:true,cancelable:true,clientX:ev.clientX,clientY:ev.clientY});c.dispatchEvent(e);}c.addEventListener('touchstart',function(e){f('mousedown',e.touches[0]);e.preventDefault();},{passive:false});c.addEventListener('touchmove',function(e){f('mousemove',e.touches[0]);e.preventDefault();},{passive:false});c.addEventListener('touchend',function(e){f('mouseup',e.changedTouches[0]);e.preventDefault();},{passive:false});c.addEventListener('touchcancel',function(e){f('mouseup',e.changedTouches[0]);e.preventDefault();},{passive:false});})(cs[i]);}}catch(e){}})();
+</script>
+
 </body>
 </html>
