@@ -1,4 +1,4 @@
-var CACHE = 'onyes-v1.25';
+var CACHE = 'onyes-v1.26';
 var PRECACHE = ['index.html','tools.html','dev.html','system.html','simulations.html','games.html','skin.css','skin.js','favicon.svg','manifest.json'];
 self.addEventListener('install', function(e){
   e.waitUntil(caches.open(CACHE).then(function(c){ return c.addAll(PRECACHE); }).then(function(){ return self.skipWaiting(); }));
